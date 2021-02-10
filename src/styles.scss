@@ -1,0 +1,179 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  letter-spacing: 1.58;
+  padding: 0;
+  margin: 0;
+  font-size: 1em;
+  -webkit-font-smoothing: antialiased;
+}
+
+p,
+s,
+em,
+input {
+  font-size: 1em;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    border-bottom: 1px solid #e0e0e0;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+}
+
+h1 {
+  text-transform: uppercase;
+  font-weight: bolder !important;
+  font-size: 2.75rem;
+  margin-bottom: 6px;
+}
+
+h5 {
+  font-size: 13px;
+  color: #696c74;
+}
+
+input {
+  display: block;
+  position: relative;
+  width: 100%;
+  border: none;
+  outline: none;
+  background-color: transparent;
+
+  &:focus,
+  &:active {
+    border-bottom-color: black;
+  }
+}
+
+label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.task-title {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+// textarea
+.task-description {
+  border: none;
+  font-size: 12px;
+  border-top: 1px solid #d4d4dc;
+  width: 100%;
+  font-family: inherit;
+  background-color: transparent;
+  padding: 10px 0;
+  margin-bottom: 10px;
+  outline: none;
+  resize: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  padding: 0;
+  margin: 0;
+  flex: 1 0 16px;
+  cursor: pointer;
+}
+
+.label {
+  border-radius: 3px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 6px;
+  background-color: white;
+  border: 1px solid;
+  outline: none;
+
+  &.active {
+    color: white;
+    border: none;
+  }
+}
+
+.task-input {
+  border-radius: 3px;
+
+  input {
+    padding: 1em 0.25em;
+  }
+}
+
+.label-input,
+.task {
+  .remove-icon {
+    visibility: hidden;
+  }
+
+  &:hover {
+    .remove-icon {
+      visibility: visible;
+    }
+  }
+}
+
+.remove-icon {
+  color: #aaa;
+  cursor: pointer;
+  padding: 0 10px;
+  margin: 0;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.button-link {
+  display: block;
+  color: rgb(123, 130, 150);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.description {
+  color: rgb(123, 130, 150);
+}
+
+.color-picker {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 10px 22px 0 rgba(0, 0, 0, 0.06);
+  padding: 1em;
+  border: 1px solid #f1f2f6;
+  position: absolute;
+  z-index: 10000;
+  transform: translateY(-20px);
+}
