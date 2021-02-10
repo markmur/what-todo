@@ -31,6 +31,7 @@ interface Props {
   data: Data
   labelsById: Record<string, Label>
   onAddTask: (task: Task) => void
+  onUpdateTask: (task: Task) => void
   onRemoveTask: (task: Task) => void
   onMarkAsComplete: (task: Task) => void
   onAddLabel: (label: IntermediateLabel) => void
@@ -42,6 +43,7 @@ const Todo: React.FC<Props> = ({
   data,
   labelsById,
   onAddTask,
+  onUpdateTask,
   onRemoveTask,
   onMarkAsComplete,
   onAddLabel,
@@ -71,6 +73,7 @@ const Todo: React.FC<Props> = ({
     [onAddTask]
   )
 
+  const handleUpdateTask = createCallback<Task>(onUpdateTask)
   const handleRemoveTask = createCallback<Task>(onRemoveTask)
 
   // Label callbacks
@@ -91,6 +94,7 @@ const Todo: React.FC<Props> = ({
               <List
                 tasks={yesterdaysTasks}
                 labels={labelsById}
+                onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
               />
@@ -122,6 +126,7 @@ const Todo: React.FC<Props> = ({
               <List
                 tasks={todaysTasks}
                 labels={labelsById}
+                onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
               />

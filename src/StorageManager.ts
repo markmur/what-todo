@@ -2,7 +2,7 @@ import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
 
 // Types
-import { Action, Data, Label, IntermediateLabel, Task } from "./index.d"
+import { Action, Data, Label, Task } from "./index.d"
 
 type Item = Task | Label
 type ItemKey = "tasks" | "labels"

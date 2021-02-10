@@ -46,7 +46,7 @@ const App = () => {
 
   // Callbacks for tasks
   const handleAddTask = createAction<Task>(storage.addTask)
-  const handleTaskChange = createAction<Task>(storage.updateTask)
+  const handleUpdateTask = createAction<Task>(storage.updateTask)
   const handleRemoveTask = createAction<Task>(storage.removeTask)
 
   // Callbacks for labels
@@ -61,8 +61,9 @@ const App = () => {
       data={data}
       labelsById={labelsById}
       onAddTask={handleAddTask}
+      onUpdateTask={handleUpdateTask}
       onRemoveTask={handleRemoveTask}
-      onMarkAsComplete={handleTaskChange}
+      onMarkAsComplete={handleUpdateTask}
       onAddLabel={handleAddLabel}
       onRemoveLabel={handleRemoveLabel}
       onUpdateLabel={handleUpdateLabel}
