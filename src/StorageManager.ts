@@ -4,6 +4,9 @@ import { v4 as uuid } from "uuid"
 // Types
 import { Action, Data, Label, IntermediateLabel, Task } from "./index.d"
 
+type Item = Task | Label
+type ItemKey = "tasks" | "labels"
+
 // Class
 class StorageManager {
   defaultData: Data
@@ -25,6 +28,68 @@ class StorageManager {
 
   private validateData(data: Record<string, any>): boolean {
     return Object.keys(data).length > 0
+  }
+
+  private add(
+    data: Data,
+    key: ItemKey,
+    item: Item,
+    action: Action,
+    addToStart = false
+  ) {
+    const newItem = {
+      ...item,
+      id: uuid()
+    }
+
+    const newItems = [...data[key]]
+
+    if (addToStart) {
+      newItems.unshift(newItem)
+    } else {
+      newItems.push(newItem)
+    }
+
+    const newData = {
+      ...data,
+      [key]: newItems
+    }
+
+    this.sync(newData, action)
+
+    return newData
+  }
+
+  private remove(data: Data, key: ItemKey, item: Item, action: Action) {
+    const newItems = (data[key] as Item[]).filter((x: Item) => x.id !== item.id)
+
+    const newData = {
+      ...data,
+      [key]: newItems
+    }
+
+    this.sync(newData, action)
+
+    return newData
+  }
+
+  private update(data: Data, key: ItemKey, item: Item, action: Action) {
+    const newItems = [...data[key]]
+
+    for (let i = 0; i < newItems.length; i++) {
+      if (newItems[i].id === item.id) {
+        newItems[i] = item
+      }
+    }
+
+    const newData = {
+      ...data,
+      [key]: newItems
+    }
+
+    this.sync(newData, action)
+
+    return newData
   }
 
   // PUBLIC API
@@ -50,102 +115,28 @@ class StorageManager {
     }, {})
   }
 
-  addLabel = (data: Data, label: IntermediateLabel): Data => {
-    const newLabel: Label = {
-      ...label,
-      id: uuid()
-    }
-
-    const newData = {
-      ...data,
-      labels: [...data.labels, newLabel]
-    }
-
-    this.sync(newData, "ADD_LABEL")
-
-    return newData
+  addLabel = (data: Data, label: Label): Data => {
+    return this.add(data, "labels", label, "ADD_LABEL")
   }
 
   updateLabel = (data: Data, label: Label): Data => {
-    const newLabels = [...data.labels]
-
-    for (let i = 0; i < newLabels.length; i++) {
-      if (newLabels[i].id === label.id) {
-        newLabels[i] = label
-      }
-    }
-
-    const newData = {
-      ...data,
-      labels: newLabels
-    }
-
-    this.sync(newData, "UPDATE_LABEL")
-
-    return newData
+    return this.update(data, "labels", label, "UPDATE_LABEL")
   }
 
   removeLabel = (data: Data, label: Label): Data => {
-    const newLabels = data.labels.filter(l => l.id !== label.id)
-
-    const newData = {
-      ...data,
-      labels: newLabels
-    }
-
-    this.sync(newData, "REMOVE_LABEL")
-
-    return newData
+    return this.remove(data, "labels", label, "REMOVE_LABEL")
   }
 
   addTask = (data: Data, task: Task): Data => {
-    const newTask: Task = {
-      ...task,
-      id: uuid()
-    }
-
-    // add it to the top of the list
-    const newData = {
-      ...data,
-      tasks: [newTask, ...data.tasks]
-    }
-
-    console.log(this)
-    this.sync(newData, "ADD_TASK")
-
-    return newData
+    return this.add(data, "tasks", task, "ADD_TASK", true)
   }
 
   updateTask = (data: Data, task: Task): Data => {
-    const newTasks = [...data.tasks]
-
-    for (let i = 0; i < newTasks.length; i++) {
-      if (newTasks[i].id === task.id) {
-        newTasks[i] = task
-      }
-    }
-
-    const newData = {
-      ...data,
-      tasks: newTasks
-    }
-
-    this.sync(newData, "UPDATE_TASK")
-
-    return newData
+    return this.update(data, "tasks", task, "UPDATE_TASK")
   }
 
   removeTask = (data: Data, task: Task): Data => {
-    const newTasks = data.tasks.filter(t => t.id !== task.id)
-
-    const newData = {
-      ...data,
-      tasks: newTasks
-    }
-
-    this.sync(newData, "REMOVE_TASK")
-
-    return newData
+    return this.remove(data, "tasks", task, "REMOVE_TASK")
   }
 }
 
