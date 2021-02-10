@@ -1,9 +1,11 @@
 import React from "react"
 import { Flex, Box } from "rebass"
+import { FiX as CrossIcon } from "react-icons/fi"
 
 import Label from "./Label"
 
 import { Task, Label as LabelType } from "../index.d"
+import Checkbox from "./Checkbox"
 
 interface Props {
   tasks?: Task[]
@@ -49,8 +51,8 @@ const List: React.FC<Props> = ({
         <li className="task" key={task.id}>
           <Flex alignItems="flex-start" py={3}>
             <Box width={20} mr={2}>
-              <input
-                type="checkbox"
+              <Checkbox
+                id={task.id}
                 checked={task.completed}
                 onChange={() =>
                   onMarkAsComplete({
@@ -109,7 +111,7 @@ const List: React.FC<Props> = ({
               : null}
 
             <span className="remove-icon" onClick={() => onRemoveTask(task)}>
-              x
+              <CrossIcon />
             </span>
           </Flex>
         </li>

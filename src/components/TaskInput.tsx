@@ -1,10 +1,10 @@
 import React from "react"
 import { Flex, Box } from "rebass"
+import { FiPlusCircle as PlusIcon } from "react-icons/fi"
 
 import { Label as LabelType, Task } from "../index.d"
 import useOnClickOutside from "../hooks/onclickoutside"
 import Label from "./Label"
-import { clear } from "console"
 
 const emptyTask = {
   title: "",
@@ -86,7 +86,9 @@ const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
           onChange={handleChange("title")}
           onKeyPress={handleKeyPress}
         />
-        {open && <button onClick={handleAdd}>Add</button>}
+        {open && (
+          <PlusIcon onClick={handleAdd} cursor="pointer" fontSize={24} />
+        )}
       </Flex>
 
       {open && (

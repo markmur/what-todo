@@ -1,6 +1,8 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { browser } from "webextension-polyfill-ts"
+import { ThemeProvider } from "@emotion/react"
+import theme from "@rebass/preset"
 
 // Helpers
 import { v4 as uuid } from "uuid"
@@ -57,17 +59,23 @@ const App = () => {
   const labelsById = storage.getLabelsById(data)
 
   return (
-    <Todo
-      data={data}
-      labelsById={labelsById}
-      onAddTask={handleAddTask}
-      onUpdateTask={handleUpdateTask}
-      onRemoveTask={handleRemoveTask}
-      onMarkAsComplete={handleUpdateTask}
-      onAddLabel={handleAddLabel}
-      onRemoveLabel={handleRemoveLabel}
-      onUpdateLabel={handleUpdateLabel}
-    />
+    <ThemeProvider
+      theme={{
+        breakpoints: ["40em", "52em", "64em"]
+      }}
+    >
+      <Todo
+        data={data}
+        labelsById={labelsById}
+        onAddTask={handleAddTask}
+        onUpdateTask={handleUpdateTask}
+        onRemoveTask={handleRemoveTask}
+        onMarkAsComplete={handleUpdateTask}
+        onAddLabel={handleAddLabel}
+        onRemoveLabel={handleRemoveLabel}
+        onUpdateLabel={handleUpdateLabel}
+      />
+    </ThemeProvider>
   )
 }
 

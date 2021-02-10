@@ -1,5 +1,5 @@
 import React from "react"
-
+import { FiX as CrossIcon, FiPlus as PlusIcon } from "react-icons/fi"
 import { Flex, Box } from "rebass"
 
 import { Label, IntermediateLabel } from "../index.d"
@@ -133,7 +133,7 @@ const Labels: React.FC<Props> = ({
                 className="remove-icon"
                 onClick={() => onRemoveLabel(label)}
               >
-                x
+                <CrossIcon />
               </span>
             </Flex>
           </li>
@@ -171,7 +171,8 @@ const Labels: React.FC<Props> = ({
       {!newLabel && labels.length < limit && (
         <Box alignSelf="center" p={3}>
           <span className="button-link" onClick={handleCreate}>
-            +{"  "}Create new label
+            <PlusIcon />
+            {"  "}Create new label
           </span>
         </Box>
       )}

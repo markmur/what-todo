@@ -111,7 +111,7 @@ const Todo: React.FC<Props> = ({
         </Flex>
 
         <Flex
-          width={1 / 2}
+          width={[1 / 3, 1 / 3, 1 / 2]}
           p={padding}
           pl={0}
           height="100vh"
@@ -142,11 +142,11 @@ const Todo: React.FC<Props> = ({
           </Box>
         </Flex>
 
-        <Flex width={1 / 4} p={padding} pl={0} height="100vh">
+        <Flex width={[1 / 4, 1 / 4, 1 / 3]} p={padding} pl={0} height="100vh">
           <Flex flexDirection="column" flexGrow={1} justifyContent="flex-start">
-            <Box flex={1} overflowY="scroll" mb={padding}>
+            <Box flex={1} mb={padding}>
               <h1>Notes</h1>
-              <textarea />
+              <textarea rows={25} placeholder="Notes" className="notes-input" />
             </Box>
 
             <Flex flexDirection="column" maxHeight="50%">
