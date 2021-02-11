@@ -9,8 +9,6 @@ import {
 
 import { DataContext } from "../index"
 
-const iconFontSize = 22
-
 const iconProps = {
   fontSize: 22,
   cursor: "pointer"

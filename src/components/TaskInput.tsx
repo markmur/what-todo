@@ -28,13 +28,11 @@ const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
   const [task, setTask] = React.useState<Partial<Task>>(emptyTask)
   const [open, setOpen] = React.useState(false)
 
-  useOnClickOutside(ref, () => setOpen(false))
-
   const clearTask = () => {
     setTask({
+      ...task,
       title: "",
-      description: "",
-      labels: []
+      description: ""
     })
   }
 
@@ -74,6 +72,18 @@ const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
     }
   }
 
+  useOnClickOutside(ref, () => {
+    setOpen(false)
+
+    if (!task.title && !task.description) {
+      setTask({
+        title: "",
+        description: "",
+        labels: []
+      })
+    }
+  })
+
   return (
     <Box className="task-input" backgroundColor="#eee" p={1} px={3} ref={ref}>
       <Flex justifyContent="space-between" alignItems="center">
@@ -109,12 +119,13 @@ const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
             </Box>
             <Box>
               {labels.map(label => (
-                <Label
-                  key={label.id}
-                  label={label}
-                  active={task.labels.includes(label.id)}
-                  onClick={() => handleLabelClick(label.id)}
-                />
+                <Box display="inline-flex" key={label.id} mr={1}>
+                  <Label
+                    label={label}
+                    active={task.labels.includes(label.id)}
+                    onClick={() => handleLabelClick(label.id)}
+                  />
+                </Box>
               ))}
             </Box>
           </Box>

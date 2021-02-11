@@ -63,6 +63,7 @@ const App = () => {
   const handleAddTask = createAction<Task>(storage.addTask)
   const handleUpdateTask = createAction<Task>(storage.updateTask)
   const handleRemoveTask = createAction<Task>(storage.removeTask)
+  const handleMoveToToday = createAction<Task>(storage.moveTaskToToday)
 
   // Callbacks for labels
   const handleAddLabel = createAction<Label>(storage.addLabel)
@@ -96,6 +97,7 @@ const App = () => {
           onUpdateTask={handleUpdateTask}
           onRemoveTask={handleRemoveTask}
           onMarkAsComplete={handleUpdateTask}
+          onMoveToToday={handleMoveToToday}
           onAddLabel={handleAddLabel}
           onRemoveLabel={handleRemoveLabel}
           onUpdateLabel={handleUpdateLabel}

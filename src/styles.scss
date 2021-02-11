@@ -119,7 +119,8 @@ button {
 
   &.active {
     color: white;
-    border: 1px solid inherit;
+    border: 1px solid;
+    border-color: inherit;
   }
 }
 

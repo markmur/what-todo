@@ -1,6 +1,9 @@
 import React from "react"
 import { Flex, Box } from "rebass"
-import { FiX as CrossIcon } from "react-icons/fi"
+import {
+  FiX as CrossIcon,
+  FiArrowRight as RightArrowIcon
+} from "react-icons/fi"
 
 import Label from "./Label"
 
@@ -15,6 +18,7 @@ interface Props {
   onUpdateTask: (task: Task) => void
   onRemoveTask: (task: Task) => void
   onMarkAsComplete: (task: Task) => void
+  onMoveToToday?: (task: Task) => void
 }
 
 const taskHasChanged = (prevTask: Task, newTask: Task): boolean => {
@@ -38,7 +42,8 @@ const List: React.FC<Props> = ({
   onFilter,
   onUpdateTask,
   onRemoveTask,
-  onMarkAsComplete
+  onMarkAsComplete,
+  onMoveToToday
 }) => {
   const [selected, setSelectedTask] = React.useState<Task>()
 
@@ -130,6 +135,16 @@ const List: React.FC<Props> = ({
                   </Box>
                 )}
               </Box>
+
+              {onMoveToToday && (
+                <div
+                  data-tip="Move to today"
+                  className="remove-icon"
+                  onClick={() => onMoveToToday(task)}
+                >
+                  <RightArrowIcon />
+                </div>
+              )}
 
               {!isSelected(selected, task) || !FEATURE_ENABLED
                 ? task.labels.map(id => (

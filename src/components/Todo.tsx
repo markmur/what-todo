@@ -20,15 +20,8 @@ import Notes from "./Notes"
 import Footer from "./Footer"
 
 const getTasksFor = (date: string) => (data: Data): Task[] => {
-  return (
-    data.tasks[date]?.filter(
-      task => date === new Date(task.created_at).toDateString()
-    ) ?? []
-  )
+  return data.tasks[date] ?? []
 }
-
-const getTasksForToday = getTasksFor(today().toDateString())
-const getTasksForYesterday = getTasksFor(yesterday().toDateString())
 
 const padding = 4
 
@@ -40,6 +33,7 @@ interface Props {
   onUpdateTask: (task: Task) => void
   onRemoveTask: (task: Task) => void
   onMarkAsComplete: (task: Task) => void
+  onMoveToToday: (task: Task) => void
   onAddLabel: (label: IntermediateLabel) => void
   onUpdateLabel: (label: Label) => void
   onRemoveLabel: (label: Label) => void
@@ -54,6 +48,7 @@ const Todo: React.FC<Props> = ({
   onUpdateTask,
   onRemoveTask,
   onMarkAsComplete,
+  onMoveToToday,
   onAddLabel,
   onUpdateLabel,
   onRemoveLabel,
@@ -90,6 +85,7 @@ const Todo: React.FC<Props> = ({
 
   const handleUpdateTask = createCallback<Task>(onUpdateTask)
   const handleRemoveTask = createCallback<Task>(onRemoveTask)
+  const handleMoveToToday = createCallback<Task>(onMoveToToday)
 
   // Label callbacks
   const handleAddLabel = createCallback<Label>(onAddLabel)
@@ -122,6 +118,7 @@ const Todo: React.FC<Props> = ({
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
+                onMoveToToday={handleMoveToToday}
               />
             </Box>
           </Box>

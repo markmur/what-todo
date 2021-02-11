@@ -36,8 +36,8 @@ export type IntermediateLabel = Partial<Label> & {
   color: string
 }
 
-type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK"
+type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK" | "MOVE_TASK"
 type LabelAction = "ADD_LABEL" | "REMOVE_LABEL" | "UPDATE_LABEL"
 type NoteAction = "UPDATE_NOTE"
 
-export type Action = TaskAction | LabelAction | NoteAction
+export type Action = TaskAction | LabelAction | NoteAction | "CLEAR_DATA"

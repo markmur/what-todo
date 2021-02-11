@@ -97,6 +97,10 @@ class StorageManager {
     return new Date(task.created_at).toDateString()
   }
 
+  private getTodayKey = () => {
+    return new Date().toDateString()
+  }
+
   private cloneData = (data: Data): Data => {
     return { ...data }
   }
@@ -123,6 +127,12 @@ class StorageManager {
         return resolve((valid ? parsedData : this.defaultData) as Data)
       })
     })
+  }
+
+  clearAllData = (): Data => {
+    this.sync(this.defaultData, "CLEAR_DATA")
+
+    return this.defaultData
   }
 
   // Labels
@@ -188,6 +198,36 @@ class StorageManager {
     )
 
     this.sync(newData, "REMOVE_TASK")
+
+    return newData
+  }
+
+  moveTaskToToday = (data: Data, task: Task): Data => {
+    const oldKey = this.getTaskKey(task)
+    const todayKey = this.getTodayKey()
+    const newData = this.cloneData(data)
+
+    // Remove from yesterday
+    _.set(
+      newData,
+      `tasks.${oldKey}`,
+      newData.tasks[oldKey]?.filter(t => t.id !== task.id)
+    )
+
+    const newTask = {
+      ...task,
+      created_at: new Date().toISOString()
+    }
+
+    const todayTasks =
+      todayKey in newData.tasks
+        ? [...newData.tasks[todayKey], newTask]
+        : [newTask]
+
+    // Add to today
+    _.set(newData, `tasks.${todayKey}`, todayTasks)
+
+    this.sync(newData, "MOVE_TASK")
 
     return newData
   }
