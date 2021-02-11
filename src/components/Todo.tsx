@@ -54,6 +54,9 @@ const Todo: React.FC<Props> = ({
   onRemoveLabel,
   onUpdateNote
 }: Props) => {
+  // Refs
+  const heightRef = React.createRef<HTMLDivElement>()
+
   const todayDateStr = today().toDateString()
   const yesterdayDateStr = yesterday().toDateString()
 
@@ -168,7 +171,7 @@ const Todo: React.FC<Props> = ({
 
         <Flex width={[1 / 4, 1 / 4, 1 / 3]} p={padding} pl={0} height="100vh">
           <Flex flexDirection="column" flexGrow={1} justifyContent="flex-start">
-            <Box flex={1} mb={padding}>
+            <Box flex={"0 1"} mb={padding}>
               <h1>Notes</h1>
 
               <Flex width="100%" pb={2}>
@@ -197,12 +200,13 @@ const Todo: React.FC<Props> = ({
                 ))}
               </Flex>
 
-              <Box height="100%">
+              <div ref={heightRef} style={{ height: "100%" }}>
                 <Notes
+                  heightRef={heightRef}
                   note={data.notes[activeDay] || ""}
                   onChange={note => handleUpdateNote(note, activeDay)}
                 />
-              </Box>
+              </div>
             </Box>
 
             <Flex flexDirection="column" maxHeight="40%">
