@@ -9,7 +9,9 @@ import Checkbox from "./Checkbox"
 
 interface Props {
   tasks?: Task[]
+  filters?: string[]
   labels: Record<string, LabelType>
+  onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: Task) => void
   onRemoveTask: (task: Task) => void
   onMarkAsComplete: (task: Task) => void
@@ -30,8 +32,10 @@ const isSelected = (selected: Task | undefined, task: Task) => {
 const FEATURE_ENABLED = false
 
 const List: React.FC<Props> = ({
+  filters = [],
   tasks = [],
   labels,
+  onFilter,
   onUpdateTask,
   onRemoveTask,
   onMarkAsComplete
@@ -45,78 +49,118 @@ const List: React.FC<Props> = ({
     })
   }
 
+  const filteredTasks =
+    filters.length > 0
+      ? tasks.filter(task => {
+          for (const id of filters) {
+            if (task.labels.includes(id)) return true
+          }
+
+          return false
+        })
+      : tasks
+
   return (
-    <ul>
-      {tasks.map(task => (
-        <li className="task" key={task.id}>
-          <Flex alignItems="flex-start" py={3}>
-            <Box width={20} mr={2}>
-              <Checkbox
-                id={task.id}
-                checked={task.completed}
-                onChange={() =>
-                  onMarkAsComplete({
-                    ...task,
-                    completed: !task.completed
-                  })
-                }
-              />
-            </Box>
-
-            <Box width={1}>
-              {task.completed ? (
-                <div>
-                  <s>{task.title}</s>
-                </div>
-              ) : (
-                <input
-                  value={
-                    isSelected(selected, task) ? selected.title : task.title
+    <div>
+      {filters.length ? (
+        <Box my={2}>
+          <small>Showing: </small>
+          {filters.map(id => (
+            <Label
+              active
+              key={id}
+              label={labels[id]}
+              onRemove={() => {
+                onFilter(filters.filter(x => x !== id))
+              }}
+            />
+          ))}
+        </Box>
+      ) : null}
+      <ul>
+        {filteredTasks.map(task => (
+          <li className="task" key={task.id}>
+            <Flex alignItems="flex-start" py={3}>
+              <Box width={20} mr={2}>
+                <Checkbox
+                  id={task.id}
+                  checked={task.completed}
+                  onChange={() =>
+                    onMarkAsComplete({
+                      ...task,
+                      completed: !task.completed
+                    })
                   }
-                  onChange={handleChange("title")}
-                  onBlur={() => {
-                    if (taskHasChanged(task, selected)) {
-                      onUpdateTask(selected)
-                    }
-
-                    setSelectedTask(undefined)
-                  }}
-                  onFocus={() => setSelectedTask(task)}
                 />
-              )}
+              </Box>
 
-              {task.description && !task.completed && (
-                <div>
-                  <small className="description">{task.description}</small>
-                </div>
-              )}
+              <Box width={1}>
+                {task.completed ? (
+                  <div>
+                    <s>{task.title}</s>
+                  </div>
+                ) : (
+                  <input
+                    value={
+                      isSelected(selected, task) ? selected.title : task.title
+                    }
+                    onChange={handleChange("title")}
+                    onBlur={() => {
+                      if (taskHasChanged(task, selected)) {
+                        onUpdateTask(selected)
+                      }
 
-              {isSelected(selected, task) && FEATURE_ENABLED && (
-                <Box mt={2}>
-                  {task.labels.map(id => (
-                    <Label key={id} active label={labels[id]} />
-                  ))}
-                </Box>
-              )}
-            </Box>
-
-            {!isSelected(selected, task) || !FEATURE_ENABLED
-              ? task.labels.map(id => (
-                  <span
-                    key={id}
-                    className="circle"
-                    style={{ backgroundColor: labels[id]?.color }}
+                      setSelectedTask(undefined)
+                    }}
+                    onFocus={() => setSelectedTask(task)}
                   />
-                ))
-              : null}
+                )}
 
-            <span className="remove-icon" onClick={() => onRemoveTask(task)}>
-              <CrossIcon />
-            </span>
-          </Flex>
-        </li>
-      ))}
-    </ul>
+                {task.description && !task.completed && (
+                  <div>
+                    <small className="description">{task.description}</small>
+                  </div>
+                )}
+
+                {isSelected(selected, task) && FEATURE_ENABLED && (
+                  <Box mt={2}>
+                    {task.labels.map(id => (
+                      <Label key={id} active label={labels[id]} />
+                    ))}
+                  </Box>
+                )}
+              </Box>
+
+              {!isSelected(selected, task) || !FEATURE_ENABLED
+                ? task.labels.map(id => (
+                    <span
+                      key={id}
+                      className="circle"
+                      data-tip={labels[id].title}
+                      style={{ backgroundColor: labels[id]?.color }}
+                      onClick={event => {
+                        if (filters.includes(id)) {
+                          onFilter(filters.filter(f => f !== id))
+                        } else {
+                          if (event.metaKey) {
+                            onFilter([...filters, id])
+                          } else {
+                            onFilter([id])
+                          }
+                        }
+                      }}
+                    />
+                  ))
+                : null}
+
+              <span className="remove-icon" onClick={() => onRemoveTask(task)}>
+                <CrossIcon />
+              </span>
+            </Flex>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

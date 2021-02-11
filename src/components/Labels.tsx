@@ -169,7 +169,7 @@ const Labels: React.FC<Props> = ({
       </ul>
 
       {!newLabel && labels.length < limit && (
-        <Box alignSelf="center" p={3}>
+        <Box alignSelf="center" pt={3}>
           <span className="button-link" onClick={handleCreate}>
             <PlusIcon />
             {"  "}Create new label

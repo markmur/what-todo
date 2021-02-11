@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid"
 
 // Types
 import { Action, Data, Label, Task } from "./index.d"
+import { encrichItemWithId } from "./decorators"
 
 type Item = Task | Label
 type ItemKey = "tasks" | "labels"
@@ -37,12 +38,12 @@ class StorageManager {
     action: Action,
     addToStart = false
   ) {
+    const newItems = [...data[key]]
+
     const newItem = {
       ...item,
       id: uuid()
     }
-
-    const newItems = [...data[key]]
 
     if (addToStart) {
       newItems.unshift(newItem)
@@ -96,13 +97,18 @@ class StorageManager {
   getData(): Promise<Data> {
     return new Promise((resolve, reject) => {
       browser.storage.sync.get().then(data => {
+        console.groupCollapsed("GET_STORAGE_DATA")
         // Do some data parsing here
         if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError)
+          console.groupEnd()
           return reject(chrome.runtime.lastError)
         }
 
         const valid = this.validateData(data)
 
+        console.log(valid ? data : this.defaultData)
+        console.groupEnd()
         return resolve((valid ? data : this.defaultData) as Data)
       })
     })
@@ -130,7 +136,11 @@ class StorageManager {
 
   // Tasks
   addTask = (data: Data, task: Task): Data => {
-    return this.add(data, "tasks", task, "ADD_TASK", true)
+    const newTask = {
+      ...task,
+      completed: false
+    }
+    return this.add(data, "tasks", newTask, "ADD_TASK", true)
   }
 
   updateTask = (data: Data, task: Task): Data => {
@@ -143,6 +153,14 @@ class StorageManager {
 
   // Notes
   updateNote = (data: Data, note: string, date: string): Data => {
+    if (note.trim().length === 0) {
+      return data
+    }
+
+    if (!data) {
+      return data
+    }
+
     if (data.notes[date] && data.notes[date] === note) {
       return data
     }

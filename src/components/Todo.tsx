@@ -17,6 +17,7 @@ import TaskInput from "@src/components/TaskInput"
 import List from "@src/components/List"
 import Labels from "@src/components/Labels"
 import Notes from "./Notes"
+import Footer from "./Footer"
 
 const getTasksFor = (date: string) => (data: Data): Task[] => {
   return data.tasks.filter(
@@ -56,6 +57,7 @@ const Todo: React.FC<Props> = ({
   onRemoveLabel,
   onUpdateNote
 }: Props) => {
+  const [filters, setFilters] = React.useState<string[]>([])
   const [activeDay, setActiveDay] = React.useState(today().toDateString())
   const todaysTasks = getTasksForToday(data)
   const yesterdaysTasks = getTasksForYesterday(data)
@@ -109,6 +111,8 @@ const Todo: React.FC<Props> = ({
               <List
                 tasks={yesterdaysTasks}
                 labels={labelsById}
+                filters={filters}
+                onFilter={setFilters}
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
@@ -141,6 +145,8 @@ const Todo: React.FC<Props> = ({
               <List
                 tasks={todaysTasks}
                 labels={labelsById}
+                filters={filters}
+                onFilter={setFilters}
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
@@ -208,6 +214,10 @@ const Todo: React.FC<Props> = ({
                 />
               </Box>
             </Flex>
+
+            <Box mt={4}>
+              <Footer />
+            </Box>
           </Flex>
         </Flex>
       </Flex>

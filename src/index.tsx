@@ -2,7 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { browser } from "webextension-polyfill-ts"
 import { ThemeProvider } from "@emotion/react"
-import theme from "@rebass/preset"
+import Tooltip from "react-tooltip"
 
 // Helpers
 import { v4 as uuid } from "uuid"
@@ -12,7 +12,7 @@ import colors from "./color-palette"
 import Todo from "./components/Todo"
 
 // Types
-import { Label, Task, Data, Note } from "./index.d"
+import { Label, Task, Data } from "./index.d"
 import StorageManager from "./StorageManager"
 import { getPastSevenDays } from "./utils"
 
@@ -27,13 +27,25 @@ const defaultData: Data = {
   labels: defaultLabels
 }
 
+export const DataContext = React.createContext<Data>(defaultData)
+
 const storage = new StorageManager(defaultData)
 
 const App = () => {
   const [data, setData] = React.useState<Data>(defaultData)
 
-  React.useEffect(() => {
+  const fetchData = () => {
     storage.getData().then(setData)
+  }
+
+  React.useEffect(() => {
+    fetchData()
+
+    window.addEventListener("focus", fetchData)
+
+    return () => {
+      window.removeEventListener("focus", fetchData)
+    }
   }, [])
 
   function createAction<T>(fn: (data: Data, dataType: T) => Data) {
@@ -70,25 +82,35 @@ const App = () => {
   const pastWeek = getPastSevenDays()
 
   return (
-    <ThemeProvider
-      theme={{
-        breakpoints: ["40em", "52em", "64em"]
-      }}
-    >
-      <Todo
-        data={data}
-        pastWeek={pastWeek}
-        labelsById={labelsById}
-        onAddTask={handleAddTask}
-        onUpdateTask={handleUpdateTask}
-        onRemoveTask={handleRemoveTask}
-        onMarkAsComplete={handleUpdateTask}
-        onAddLabel={handleAddLabel}
-        onRemoveLabel={handleRemoveLabel}
-        onUpdateLabel={handleUpdateLabel}
-        onUpdateNote={handleUpdateNote}
+    <DataContext.Provider value={data}>
+      <ThemeProvider
+        theme={{
+          breakpoints: ["40em", "52em", "64em"]
+        }}
+      >
+        <Todo
+          data={data}
+          pastWeek={pastWeek}
+          labelsById={labelsById}
+          onAddTask={handleAddTask}
+          onUpdateTask={handleUpdateTask}
+          onRemoveTask={handleRemoveTask}
+          onMarkAsComplete={handleUpdateTask}
+          onAddLabel={handleAddLabel}
+          onRemoveLabel={handleRemoveLabel}
+          onUpdateLabel={handleUpdateLabel}
+          onUpdateNote={handleUpdateNote}
+        />
+      </ThemeProvider>
+
+      <Tooltip
+        multiline={false}
+        place="top"
+        effect="solid"
+        type="dark"
+        backgroundColor="black"
       />
-    </ThemeProvider>
+    </DataContext.Provider>
   )
 }
 

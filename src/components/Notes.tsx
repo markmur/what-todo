@@ -25,7 +25,7 @@ const Notes: React.FC<Props> = ({ note = "", onChange }) => {
 
   return (
     <textarea
-      rows={25}
+      rows={15}
       value={state}
       placeholder="Notes"
       className="notes-input"
