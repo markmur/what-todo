@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
               download="what-todo-data.json"
             />
             <SaveIcon
-              data-tip="Save data"
+              data-tip="Download your data"
               {...iconProps}
               onClick={downloadJSON}
             />

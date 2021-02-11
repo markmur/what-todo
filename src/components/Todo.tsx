@@ -197,16 +197,18 @@ const Todo: React.FC<Props> = ({
                 ))}
               </Flex>
 
-              <Notes
-                note={data.notes[activeDay] || ""}
-                onChange={note => handleUpdateNote(note, activeDay)}
-              />
+              <Box height="100%">
+                <Notes
+                  note={data.notes[activeDay] || ""}
+                  onChange={note => handleUpdateNote(note, activeDay)}
+                />
+              </Box>
             </Box>
 
-            <Flex flexDirection="column" maxHeight="50%">
+            <Flex flexDirection="column" maxHeight="40%">
               <h1>Labels</h1>
 
-              <Box flex={1} overflowY="scroll">
+              <Box flex={1} overflowY="scroll" pb={3}>
                 <Labels
                   labels={data.labels}
                   limit={10}
@@ -218,7 +220,7 @@ const Todo: React.FC<Props> = ({
               </Box>
             </Flex>
 
-            <Box mt={4}>
+            <Box>
               <Footer />
             </Box>
           </Flex>

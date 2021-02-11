@@ -151,7 +151,7 @@ const List: React.FC<Props> = ({
                     <span
                       key={id}
                       className="circle"
-                      data-tip={labels[id].title}
+                      data-tip={"labels[id].title"}
                       style={{ backgroundColor: labels[id]?.color }}
                       onClick={event => {
                         if (filters.includes(id)) {
