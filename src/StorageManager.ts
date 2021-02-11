@@ -108,6 +108,7 @@ class StorageManager {
     })
   }
 
+  // Labels
   getLabelsById(data: Data): Record<string, Label> {
     return data.labels.reduce((state, label) => {
       state[label.id] = label
@@ -127,6 +128,7 @@ class StorageManager {
     return this.remove(data, "labels", label, "REMOVE_LABEL")
   }
 
+  // Tasks
   addTask = (data: Data, task: Task): Data => {
     return this.add(data, "tasks", task, "ADD_TASK", true)
   }
@@ -137,6 +139,23 @@ class StorageManager {
 
   removeTask = (data: Data, task: Task): Data => {
     return this.remove(data, "tasks", task, "REMOVE_TASK")
+  }
+
+  // Notes
+  updateNote = (data: Data, note: string): Data => {
+    const date = new Date().toDateString()
+
+    if (data.notes[date] && data.notes[date] === note) {
+      return data
+    }
+
+    const newData = { ...data }
+
+    newData.notes[date] = note
+
+    this.sync(newData, "UPDATE_NOTE")
+
+    return newData
   }
 }
 

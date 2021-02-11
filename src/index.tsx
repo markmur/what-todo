@@ -12,7 +12,7 @@ import colors from "./color-palette"
 import Todo from "./components/Todo"
 
 // Types
-import { Label, Task, Data } from "./index.d"
+import { Label, Task, Data, Note } from "./index.d"
 import StorageManager from "./StorageManager"
 
 const defaultLabels: Label[] = [
@@ -56,6 +56,9 @@ const App = () => {
   const handleRemoveLabel = createAction<Label>(storage.removeLabel)
   const handleUpdateLabel = createAction<Label>(storage.updateLabel)
 
+  // Callbacks for notes
+  const handleUpdateNote = createAction<Note>(storage.updateNote)
+
   const labelsById = storage.getLabelsById(data)
 
   return (
@@ -74,6 +77,7 @@ const App = () => {
         onAddLabel={handleAddLabel}
         onRemoveLabel={handleRemoveLabel}
         onUpdateLabel={handleUpdateLabel}
+        onUpdateNote={handleUpdateNote}
       />
     </ThemeProvider>
   )

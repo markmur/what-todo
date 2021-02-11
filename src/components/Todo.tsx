@@ -9,12 +9,13 @@ import { today, yesterday, formatDateHeading } from "../utils"
 import "../styles.scss"
 
 // Types
-import { Label, Task, Data, IntermediateLabel } from "../index.d"
+import { Label, Task, Data, IntermediateLabel, Note } from "../index.d"
 
 // Components
 import TaskInput from "@src/components/TaskInput"
 import List from "@src/components/List"
 import Labels from "@src/components/Labels"
+import Notes from "./Notes"
 
 const getTasksFor = (date: string) => (data: Data): Task[] => {
   return data.tasks.filter(
@@ -37,6 +38,7 @@ interface Props {
   onAddLabel: (label: IntermediateLabel) => void
   onUpdateLabel: (label: Label) => void
   onRemoveLabel: (label: Label) => void
+  onUpdateNote: (note: Note) => void
 }
 
 const Todo: React.FC<Props> = ({
@@ -48,7 +50,8 @@ const Todo: React.FC<Props> = ({
   onMarkAsComplete,
   onAddLabel,
   onUpdateLabel,
-  onRemoveLabel
+  onRemoveLabel,
+  onUpdateNote
 }: Props) => {
   const todaysTasks = getTasksForToday(data)
   const yesterdaysTasks = getTasksForYesterday(data)
@@ -80,6 +83,9 @@ const Todo: React.FC<Props> = ({
   const handleAddLabel = createCallback<Label>(onAddLabel)
   const handleRemoveLabel = createCallback<Label>(onRemoveLabel)
   const handleUpdateLabel = createCallback<Label>(onUpdateLabel)
+
+  // Notes callbacks
+  const handleUpdateNote = createCallback<Note>(onUpdateNote)
 
   return (
     <main>
@@ -146,7 +152,10 @@ const Todo: React.FC<Props> = ({
           <Flex flexDirection="column" flexGrow={1} justifyContent="flex-start">
             <Box flex={1} mb={padding}>
               <h1>Notes</h1>
-              <textarea rows={25} placeholder="Notes" className="notes-input" />
+              <Notes
+                note={data.notes[today().toDateString()] || ""}
+                onChange={handleUpdateNote}
+              />
             </Box>
 
             <Flex flexDirection="column" maxHeight="50%">

@@ -13,9 +13,13 @@ export interface Task {
   labels?: string[]
 }
 
+export type Note = string
+
+export type Notes = Record<string, Note>
+
 export interface Data {
   tasks: Task[]
-  notes?: {}
+  notes: Notes
   labels: Label[]
 }
 
@@ -26,5 +30,6 @@ export type IntermediateLabel = Partial<Label> & {
 
 type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK"
 type LabelAction = "ADD_LABEL" | "REMOVE_LABEL" | "UPDATE_LABEL"
+type NoteAction = "UPDATE_NOTE"
 
-export type Action = TaskAction | LabelAction
+export type Action = TaskAction | LabelAction | NoteAction
