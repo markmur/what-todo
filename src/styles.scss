@@ -70,7 +70,6 @@ label {
   text-transform: uppercase;
   color: #333;
   font-weight: bold;
-  margin-bottom: 10px;
 }
 
 .task-title {
@@ -201,4 +200,33 @@ button {
 .checkbox label {
   font-size: 20px;
   cursor: pointer;
+}
+
+.calendar-day {
+  text-align: center;
+  opacity: 0.4;
+  cursor: pointer;
+  border-top: 2px solid transparent;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &.active {
+    border-top: 2px solid #ff6b81;
+    opacity: 1;
+  }
+
+  &.today small {
+    font-weight: bold;
+  }
+
+  small {
+    font-size: 11px;
+  }
+
+  em {
+    font-weight: bold;
+    font-size: 13px;
+  }
 }

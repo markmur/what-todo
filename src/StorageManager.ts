@@ -142,9 +142,7 @@ class StorageManager {
   }
 
   // Notes
-  updateNote = (data: Data, note: string): Data => {
-    const date = new Date().toDateString()
-
+  updateNote = (data: Data, note: string, date: string): Data => {
     if (data.notes[date] && data.notes[date] === note) {
       return data
     }

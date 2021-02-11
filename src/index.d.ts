@@ -1,3 +1,10 @@
+export interface Day {
+  date: Date
+  name: string
+  number: number
+  isToday: boolean
+}
+
 export interface Label {
   id: string
   title: string

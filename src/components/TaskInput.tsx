@@ -104,7 +104,9 @@ const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
           </Box>
 
           <Box>
-            <label htmlFor="">Labels</label>
+            <Box mb={2}>
+              <label htmlFor="">Labels</label>
+            </Box>
             <Box>
               {labels.map(label => (
                 <Label

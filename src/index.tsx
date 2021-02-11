@@ -14,6 +14,7 @@ import Todo from "./components/Todo"
 // Types
 import { Label, Task, Data, Note } from "./index.d"
 import StorageManager from "./StorageManager"
+import { getPastSevenDays } from "./utils"
 
 const defaultLabels: Label[] = [
   { id: uuid(), title: "Work", color: colors[0].backgroundColor },
@@ -57,9 +58,16 @@ const App = () => {
   const handleUpdateLabel = createAction<Label>(storage.updateLabel)
 
   // Callbacks for notes
-  const handleUpdateNote = createAction<Note>(storage.updateNote)
+  const handleUpdateNote = React.useCallback(
+    (note, date) => {
+      const newData = storage.updateNote(data, note, date)
+      setData(newData)
+    },
+    [data]
+  )
 
   const labelsById = storage.getLabelsById(data)
+  const pastWeek = getPastSevenDays()
 
   return (
     <ThemeProvider
@@ -69,6 +77,7 @@ const App = () => {
     >
       <Todo
         data={data}
+        pastWeek={pastWeek}
         labelsById={labelsById}
         onAddTask={handleAddTask}
         onUpdateTask={handleUpdateTask}

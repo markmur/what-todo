@@ -1,4 +1,5 @@
 import React from "react"
+import cx from "classnames"
 import { Box, Flex } from "rebass"
 import colors from "../color-palette"
 
@@ -9,7 +10,7 @@ import { today, yesterday, formatDateHeading } from "../utils"
 import "../styles.scss"
 
 // Types
-import { Label, Task, Data, IntermediateLabel, Note } from "../index.d"
+import { Label, Task, Data, IntermediateLabel, Note, Day } from "../index.d"
 
 // Components
 import TaskInput from "@src/components/TaskInput"
@@ -30,6 +31,7 @@ const padding = 4
 
 interface Props {
   data: Data
+  pastWeek: Day[]
   labelsById: Record<string, Label>
   onAddTask: (task: Task) => void
   onUpdateTask: (task: Task) => void
@@ -38,11 +40,12 @@ interface Props {
   onAddLabel: (label: IntermediateLabel) => void
   onUpdateLabel: (label: Label) => void
   onRemoveLabel: (label: Label) => void
-  onUpdateNote: (note: Note) => void
+  onUpdateNote: (note: Note, date: string) => void
 }
 
 const Todo: React.FC<Props> = ({
   data,
+  pastWeek,
   labelsById,
   onAddTask,
   onUpdateTask,
@@ -53,6 +56,7 @@ const Todo: React.FC<Props> = ({
   onRemoveLabel,
   onUpdateNote
 }: Props) => {
+  const [activeDay, setActiveDay] = React.useState(today().toDateString())
   const todaysTasks = getTasksForToday(data)
   const yesterdaysTasks = getTasksForYesterday(data)
 
@@ -85,7 +89,12 @@ const Todo: React.FC<Props> = ({
   const handleUpdateLabel = createCallback<Label>(onUpdateLabel)
 
   // Notes callbacks
-  const handleUpdateNote = createCallback<Note>(onUpdateNote)
+  const handleUpdateNote = React.useCallback(
+    (note, date) => {
+      onUpdateNote(note, date)
+    },
+    [onUpdateNote]
+  )
 
   return (
     <main>
@@ -152,9 +161,36 @@ const Todo: React.FC<Props> = ({
           <Flex flexDirection="column" flexGrow={1} justifyContent="flex-start">
             <Box flex={1} mb={padding}>
               <h1>Notes</h1>
+
+              <Flex width="100%" pb={2}>
+                {pastWeek.map(day => (
+                  <Box
+                    p={1}
+                    key={day.number}
+                    flex={1}
+                    onClick={() => setActiveDay(day.date.toDateString())}
+                  >
+                    <Box
+                      className={cx("calendar-day", {
+                        active: day.date.toDateString() === activeDay,
+                        today: day.isToday
+                      })}
+                      p={1}
+                    >
+                      <div>
+                        <small>{day.name}</small>
+                      </div>
+                      <div>
+                        <em>{day.number}</em>
+                      </div>
+                    </Box>
+                  </Box>
+                ))}
+              </Flex>
+
               <Notes
-                note={data.notes[today().toDateString()] || ""}
-                onChange={handleUpdateNote}
+                note={data.notes[activeDay] || ""}
+                onChange={note => handleUpdateNote(note, activeDay)}
               />
             </Box>
 
