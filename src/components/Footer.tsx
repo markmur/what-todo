@@ -14,6 +14,11 @@ const iconProps = {
   cursor: "pointer"
 }
 
+const linkProps = {
+  target: "_blank",
+  rel: "noreferrer"
+}
+
 const Footer: React.FC = () => {
   const data = React.useContext(DataContext)
   const dataStr =
@@ -31,7 +36,9 @@ const Footer: React.FC = () => {
     <footer>
       <Flex justifyContent="space-between">
         <em data-tip="🤷‍♂️">
-          <a href="https://github.com/markmur/what-todo">What Todo</a>
+          <a {...linkProps} href="https://github.com/markmur/what-todo">
+            What Todo
+          </a>
         </em>
 
         <Flex>
@@ -57,9 +64,8 @@ const Footer: React.FC = () => {
 
           <Box ml={2}>
             <a
+              {...linkProps}
               data-tip="Request a feature"
-              target="_blank"
-              rel="noreferrer"
               href="https://github.com/markmur/what-todo/issues/new?title=[Feature Request]"
             >
               <RequestIcon {...iconProps} />
@@ -68,9 +74,8 @@ const Footer: React.FC = () => {
 
           <Box ml={2}>
             <a
+              {...linkProps}
               data-tip="Report a bug"
-              target="_blank"
-              rel="noreferrer"
               href="https://github.com/markmur/what-todo/issues/new?title=[Bug Report]"
             >
               <ReportIcon {...iconProps} />

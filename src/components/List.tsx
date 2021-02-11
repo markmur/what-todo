@@ -70,6 +70,15 @@ const List: React.FC<Props> = ({
         })
       : tasks
 
+  const sortedTasks = filteredTasks.sort((a, b) => +a.completed - +b.completed)
+
+  // TODO
+  // const sortedTasks = [[], []]
+
+  // for (const task of filteredTasks) {
+  //   sortedTasks[task.completed ? 1 : 0].push(task)
+  // }
+
   return (
     <div>
       {filters.length ? (
@@ -88,7 +97,7 @@ const List: React.FC<Props> = ({
         </Box>
       ) : null}
       <ul>
-        {filteredTasks.map(task => (
+        {sortedTasks.map(task => (
           <li className="task" key={task.id}>
             <Flex alignItems="flex-start" py={3}>
               <Box width={20} mr={2}>
