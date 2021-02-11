@@ -22,7 +22,7 @@ const defaultLabels: Label[] = [
 ]
 
 const defaultData: Data = {
-  tasks: [],
+  tasks: {},
   notes: {},
   labels: defaultLabels
 }

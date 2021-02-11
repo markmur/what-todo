@@ -1,12 +1,12 @@
 import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
+import * as _ from "lodash-es"
 
 // Types
 import { Action, Data, Label, Task } from "./index.d"
-import { encrichItemWithId } from "./decorators"
 
-type Item = Task | Label
-type ItemKey = "tasks" | "labels"
+type Item = Label
+type ItemKey = "labels"
 
 // Class
 class StorageManager {
@@ -93,23 +93,34 @@ class StorageManager {
     return newData
   }
 
+  private getTaskKey = (task: Task) => {
+    return new Date(task.created_at).toDateString()
+  }
+
+  private cloneData = (data: Data): Data => {
+    return { ...data }
+  }
+
   // PUBLIC API
   getData(): Promise<Data> {
     return new Promise((resolve, reject) => {
       browser.storage.sync.get().then(data => {
         console.groupCollapsed("GET_STORAGE_DATA")
-        // Do some data parsing here
+
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError)
           console.groupEnd()
           return reject(chrome.runtime.lastError)
         }
 
-        const valid = this.validateData(data)
+        // Do some data parsing here
+        const parsedData = data
 
-        console.log(valid ? data : this.defaultData)
+        const valid = this.validateData(parsedData)
+
+        console.log(valid ? parsedData : this.defaultData)
         console.groupEnd()
-        return resolve((valid ? data : this.defaultData) as Data)
+        return resolve((valid ? parsedData : this.defaultData) as Data)
       })
     })
   }
@@ -136,19 +147,49 @@ class StorageManager {
 
   // Tasks
   addTask = (data: Data, task: Task): Data => {
-    const newTask = {
+    const newTask: Task = {
       ...task,
-      completed: false
+      completed: false,
+      id: uuid()
     }
-    return this.add(data, "tasks", newTask, "ADD_TASK", true)
+    const key = this.getTaskKey(task)
+    const newData = this.cloneData(data)
+
+    _.set(newData, `tasks.${key}`, [newTask, ...(newData.tasks[key] ?? [])])
+
+    this.sync(newData, "ADD_TASK")
+
+    return newData
   }
 
   updateTask = (data: Data, task: Task): Data => {
-    return this.update(data, "tasks", task, "UPDATE_TASK")
+    const newData = this.cloneData(data)
+    const key = this.getTaskKey(task)
+
+    const index = newData.tasks[key]?.findIndex(t => t.id === task.id)
+
+    if (index > -1) {
+      _.set(newData, `tasks.${key}.${index}`, task)
+    }
+
+    this.sync(newData, "UPDATE_TASK")
+
+    return newData
   }
 
   removeTask = (data: Data, task: Task): Data => {
-    return this.remove(data, "tasks", task, "REMOVE_TASK")
+    const newData = this.cloneData(data)
+    const key = this.getTaskKey(task)
+
+    _.set(
+      newData,
+      `tasks.${key}`,
+      newData.tasks[key].filter(t => t.id !== task.id)
+    )
+
+    this.sync(newData, "REMOVE_TASK")
+
+    return newData
   }
 
   // Notes
@@ -165,7 +206,7 @@ class StorageManager {
       return data
     }
 
-    const newData = { ...data }
+    const newData = this.cloneData(data)
 
     newData.notes[date] = note
 

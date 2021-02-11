@@ -23,9 +23,10 @@ export interface Task {
 export type Note = string
 
 export type Notes = Record<string, Note>
+export type Tasks = Record<string, Task[]>
 
 export interface Data {
-  tasks: Task[]
+  tasks: Tasks
   notes: Notes
   labels: Label[]
 }

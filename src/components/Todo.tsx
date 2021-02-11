@@ -20,8 +20,10 @@ import Notes from "./Notes"
 import Footer from "./Footer"
 
 const getTasksFor = (date: string) => (data: Data): Task[] => {
-  return data.tasks.filter(
-    task => date === new Date(task.created_at).toDateString()
+  return (
+    data.tasks[date]?.filter(
+      task => date === new Date(task.created_at).toDateString()
+    ) ?? []
   )
 }
 
@@ -57,10 +59,14 @@ const Todo: React.FC<Props> = ({
   onRemoveLabel,
   onUpdateNote
 }: Props) => {
+  const todayDateStr = today().toDateString()
+  const yesterdayDateStr = yesterday().toDateString()
+
   const [filters, setFilters] = React.useState<string[]>([])
-  const [activeDay, setActiveDay] = React.useState(today().toDateString())
-  const todaysTasks = getTasksForToday(data)
-  const yesterdaysTasks = getTasksForYesterday(data)
+  const [activeDay, setActiveDay] = React.useState(todayDateStr)
+
+  const todaysTasks = getTasksFor(todayDateStr)(data)
+  const yesterdaysTasks = getTasksFor(yesterdayDateStr)(data)
 
   function createCallback<T>(fn: (item: T) => void) {
     return React.useCallback(
@@ -76,7 +82,7 @@ const Todo: React.FC<Props> = ({
     (task, created_at) => {
       onAddTask({
         ...task,
-        created_at
+        created_at: new Date(created_at).toISOString()
       })
     },
     [onAddTask]
@@ -104,7 +110,7 @@ const Todo: React.FC<Props> = ({
         <Flex width={1 / 3} height="100vh" p={padding} flexDirection="column">
           <Box pb={1}>
             <h1>Yesterday</h1>
-            <h5>{formatDateHeading(yesterday().toDateString())}</h5>
+            <h5>{formatDateHeading(yesterdayDateStr)}</h5>
           </Box>
           <Box width={1} overflowY="auto" flex={2}>
             <Box>
@@ -124,7 +130,7 @@ const Todo: React.FC<Props> = ({
             <TaskInput
               placeholder="Forget something?"
               labels={data.labels}
-              onAdd={task => handleAddTask(task, yesterday().toISOString())}
+              onAdd={task => handleAddTask(task, yesterday())}
             />
           </Box>
         </Flex>
@@ -138,7 +144,7 @@ const Todo: React.FC<Props> = ({
         >
           <Box pb={1}>
             <h1>Today</h1>
-            <h5>{formatDateHeading(today().toDateString())}</h5>
+            <h5>{formatDateHeading(todayDateStr)}</h5>
           </Box>
           <Box width={1} overflowY="auto" flex={2}>
             <Box>
@@ -158,7 +164,7 @@ const Todo: React.FC<Props> = ({
             <TaskInput
               placeholder="Write a todo for today..."
               labels={data.labels}
-              onAdd={task => handleAddTask(task, today().toDateString())}
+              onAdd={task => handleAddTask(task, today())}
             />
           </Box>
         </Flex>
