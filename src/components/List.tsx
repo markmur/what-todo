@@ -1,5 +1,6 @@
 import React from "react"
 import { Flex, Box } from "rebass"
+import Tooltip from "react-tooltip"
 import {
   FiX as CrossIcon,
   FiArrowRight as RightArrowIcon
@@ -46,6 +47,11 @@ const List: React.FC<Props> = ({
   onMoveToToday
 }) => {
   const [selected, setSelectedTask] = React.useState<Task>()
+
+  React.useEffect(() => {
+    console.log("rebuild")
+    Tooltip.rebuild()
+  })
 
   const handleChange = (field: keyof Task) => event => {
     setSelectedTask({
@@ -151,7 +157,8 @@ const List: React.FC<Props> = ({
                     <span
                       key={id}
                       className="circle"
-                      data-tip={"labels[id].title"}
+                      data-tip={labels[id].title}
+                      data-background-color={labels[id]?.color}
                       style={{ backgroundColor: labels[id]?.color }}
                       onClick={event => {
                         if (filters.includes(id)) {
