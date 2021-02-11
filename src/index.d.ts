@@ -15,6 +15,7 @@ export interface Task {
   id: string
   title: string
   description?: string
+  url?: string
   created_at: string
   completed: boolean
   labels?: string[]

@@ -49,7 +49,6 @@ const List: React.FC<Props> = ({
   const [selected, setSelectedTask] = React.useState<Task>()
 
   React.useEffect(() => {
-    console.log("rebuild")
     Tooltip.rebuild()
   })
 
@@ -127,7 +126,7 @@ const List: React.FC<Props> = ({
                   />
                 )}
 
-                {task.description && !task.completed && (
+                {task.description && (
                   <div>
                     <small className="description">{task.description}</small>
                   </div>

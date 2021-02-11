@@ -48,7 +48,7 @@ const App = () => {
 
     return () => {
       window.removeEventListener("focus", fetchData)
-      clearInterval(interval)
+      clearTimeout(interval)
     }
   }, [])
 
