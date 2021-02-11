@@ -15,6 +15,7 @@ import Todo from "./components/Todo"
 import { Label, Task, Data } from "./index.d"
 import StorageManager from "./StorageManager"
 import { getPastSevenDays } from "./utils"
+import { clearInterval } from "timers"
 
 const defaultLabels: Label[] = [
   { id: uuid(), title: "Work", color: colors[0].backgroundColor },
@@ -41,10 +42,13 @@ const App = () => {
   React.useEffect(() => {
     fetchData()
 
+    // Fetch data every 30mins
+    const interval = setInterval(fetchData, 1000 * 60 * 30)
     window.addEventListener("focus", fetchData)
 
     return () => {
       window.removeEventListener("focus", fetchData)
+      clearInterval(interval)
     }
   }, [])
 
