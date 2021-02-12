@@ -171,13 +171,13 @@ const Todo: React.FC<Props> = ({
 
         <Flex width={[1 / 4, 1 / 4, 1 / 3]} p={padding} pl={0} height="100vh">
           <Flex flexDirection="column" flexGrow={1} justifyContent="flex-start">
-            <Box flex={"0 1"} mb={3}>
+            <Box mb={1}>
               <h1>Notes</h1>
 
-              <Flex width="100%" pb={2}>
+              <Flex width="100%">
                 {pastWeek.map(day => (
                   <Box
-                    p={1}
+                    pb={1}
                     key={day.number}
                     flex={1}
                     onClick={() => setActiveDay(day.date.toDateString())}
@@ -199,20 +199,20 @@ const Todo: React.FC<Props> = ({
                   </Box>
                 ))}
               </Flex>
+            </Box>
 
-              <div ref={heightRef} style={{ height: "100%" }}>
-                <Notes
-                  heightRef={heightRef}
-                  note={data.notes[activeDay] || ""}
-                  onChange={note => handleUpdateNote(note, activeDay)}
-                />
-              </div>
+            <Box ref={heightRef} flex={1} mb={5}>
+              <Notes
+                heightRef={heightRef}
+                note={data.notes[activeDay] || ""}
+                onChange={note => handleUpdateNote(note, activeDay)}
+              />
             </Box>
 
             <Flex flexDirection="column" height="34%">
               <h1>Labels</h1>
 
-              <Box flex={1} overflowY="scroll" pb={3}>
+              <Box flex={1} overflowY="scroll" pb={2}>
                 <Labels
                   labels={data.labels}
                   limit={10}

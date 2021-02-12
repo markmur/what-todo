@@ -6,31 +6,13 @@ interface Props {
   onChange: (note: string) => void
 }
 
-const Notes: React.FC<Props> = ({ note = "", heightRef, onChange }) => {
+const Notes: React.FC<Props> = ({ note = "", onChange }) => {
   const [state, setState] = React.useState("")
-  const [rows, setRows] = React.useState(2)
+  const [rows] = React.useState(2)
 
   React.useEffect(() => {
     setState(note)
   }, [note])
-
-  React.useEffect(() => {
-    const handler = () => {
-      // @ts-ignore
-      if (heightRef && heightRef.current) {
-        // @ts-ignore
-        setRows(Math.ceil(heightRef.current.clientHeight / 10))
-      }
-    }
-
-    handler()
-
-    window.addEventListener("resize", handler)
-
-    return () => {
-      window.removeEventListener("resize", handler)
-    }
-  }, [])
 
   const handleBlur = React.useCallback(() => {
     onChange(state)
@@ -49,6 +31,7 @@ const Notes: React.FC<Props> = ({ note = "", heightRef, onChange }) => {
       value={state}
       placeholder="Notes"
       className="notes-input"
+      style={{ height: "100%" }}
       onBlur={handleBlur}
       onChange={handleChange}
     />
