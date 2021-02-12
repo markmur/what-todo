@@ -31,7 +31,7 @@ const colors: Color[] = [
   createColor("French Sky Blue", "#70a1ff"),
   createColor("Saturated Sky", "#5352ed"),
   createColor("City Lights", "#dfe4ea", BLACK),
-  createColor("UFO Green", "#2ed573"),
+  createColor("UFO Green", "#45b975"),
   createColor("Clear chill", "#1e90ff"),
   createColor("Bright Greek", "#3742fa"),
   createColor("Anti-flash White", "#f1f2f6", BLACK),

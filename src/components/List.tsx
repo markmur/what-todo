@@ -165,7 +165,7 @@ const List: React.FC<Props> = ({
                     <span
                       key={id}
                       className="circle"
-                      data-tip={labels[id].title}
+                      data-tip={labels[id]?.title}
                       data-background-color={labels[id]?.color}
                       style={{ backgroundColor: labels[id]?.color }}
                       onClick={event => {
