@@ -130,6 +130,7 @@ const Todo: React.FC<Props> = ({
             <TaskInput
               placeholder="Forget something?"
               labels={data.labels}
+              filters={filters}
               onAdd={task => handleAddTask(task, yesterday())}
             />
           </Box>
@@ -164,6 +165,7 @@ const Todo: React.FC<Props> = ({
             <TaskInput
               placeholder="Write a todo for today..."
               labels={data.labels}
+              filters={filters}
               onAdd={task => handleAddTask(task, today())}
             />
           </Box>

@@ -25,6 +25,7 @@
     "react-dom": "^16.13.1",
     "react-icons": "^4.2.0",
     "react-test-renderer": "^16.13.1",
+    "react-textarea-autosize": "^8.3.1",
     "react-tooltip": "^4.2.13",
     "rebass": "^4.0.7",
     "uuid": "^8.3.2"
@@ -42,6 +43,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-icons": "^3.0.0",
     "@types/react-test-renderer": "^16.9.3",
+    "@types/react-textarea-autosize": "^4.3.5",
     "@types/react-tooltip": "^4.2.4",
     "@types/rebass": "^4.0.7",
     "@types/uuid": "^8.3.0",

@@ -6,12 +6,6 @@ import { Label as LabelType, Task } from "../index.d"
 import useOnClickOutside from "../hooks/onclickoutside"
 import Label from "./Label"
 
-const emptyTask = {
-  title: "",
-  description: "",
-  labels: []
-}
-
 const validTask = (task: Partial<Task>): boolean => {
   return task.title.trim().length > 0
 }
@@ -19,14 +13,28 @@ const validTask = (task: Partial<Task>): boolean => {
 interface Props {
   placeholder: string
   labels: LabelType[]
+  filters?: string[]
   onAdd: (task: Task) => void
 }
 
-const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
+const TaskInput: React.FC<Props> = ({
+  placeholder,
+  filters = [],
+  labels,
+  onAdd
+}) => {
   const ref = React.useRef()
 
-  const [task, setTask] = React.useState<Partial<Task>>(emptyTask)
+  const [task, setTask] = React.useState<Partial<Task>>({
+    title: "",
+    description: "",
+    labels: [...filters]
+  })
   const [open, setOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    setTask({ ...task, labels: [...filters] })
+  }, [filters])
 
   const clearTask = () => {
     setTask({
@@ -79,7 +87,7 @@ const TaskInput: React.FC<Props> = ({ placeholder, labels, onAdd }) => {
       setTask({
         title: "",
         description: "",
-        labels: []
+        labels: [...filters]
       })
     }
   })

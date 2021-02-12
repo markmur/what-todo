@@ -7,16 +7,23 @@ import { Label } from "../index.d"
 
 interface Props {
   label: Label
+  small?: boolean
   active: boolean
   onClick?: () => void
   onRemove?: () => void
 }
 
-const Label: React.FC<Props> = ({ label, active, onClick, onRemove }) => {
+const Label: React.FC<Props> = ({
+  small = false,
+  label,
+  active,
+  onClick,
+  onRemove
+}) => {
   return (
     <Box
       display="inline-flex"
-      className={cx("label", { active })}
+      className={cx("label", { active, small })}
       style={active ? { backgroundColor: label.color } : {}}
       onClick={onClick}
     >

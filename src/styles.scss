@@ -12,6 +12,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+hr {
+  display: block;
+  outline: none;
+  height: 1px;
+  border-top: 1px solid #eee;
+  width: 100%;
+}
+
 p,
 s,
 em,
@@ -91,6 +99,25 @@ label {
   resize: none;
 }
 
+textarea.unstyled {
+  resize: none;
+  outline: none;
+  border: none;
+  font-family: inherit;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.task {
+  .task-description-input {
+    padding-top: 5px;
+    font-size: 13px;
+    color: rgb(123, 130, 150);
+    font-weight: 400;
+  }
+}
+
 button {
   cursor: pointer;
 }
@@ -121,6 +148,13 @@ button {
     color: white;
     border: 1px solid;
     border-color: inherit;
+  }
+
+  &.small {
+    border: none;
+    padding: 2px 4px;
+    font-size: 11px;
+    background: #eee;
   }
 }
 

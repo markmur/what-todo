@@ -221,7 +221,7 @@ class StorageManager {
 
     const todayTasks =
       todayKey in newData.tasks
-        ? [...newData.tasks[todayKey], newTask]
+        ? [newTask, ...newData.tasks[todayKey]]
         : [newTask]
 
     // Add to today

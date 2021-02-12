@@ -1,40 +1,40 @@
 import React from "react"
-import { Flex, Box } from "rebass"
+import { Box } from "rebass"
 import Tooltip from "react-tooltip"
-import {
-  FiX as CrossIcon,
-  FiArrowRight as RightArrowIcon
-} from "react-icons/fi"
 
 import Label from "./Label"
 
-import { Task, Label as LabelType } from "../index.d"
-import Checkbox from "./Checkbox"
+import { Task as TaskType, Label as LabelType } from "../index.d"
+import useOnClickOutside from "@src/hooks/onclickoutside"
+import Task from "./Task"
 
 interface Props {
-  tasks?: Task[]
+  tasks?: TaskType[]
   filters?: string[]
   labels: Record<string, LabelType>
   onFilter: (labelIds: string[]) => void
-  onUpdateTask: (task: Task) => void
-  onRemoveTask: (task: Task) => void
-  onMarkAsComplete: (task: Task) => void
-  onMoveToToday?: (task: Task) => void
+  onUpdateTask: (task: TaskType) => void
+  onRemoveTask: (task: TaskType) => void
+  onMarkAsComplete: (task: TaskType) => void
+  onMoveToToday?: (task: TaskType) => void
 }
 
-const taskHasChanged = (prevTask: Task, newTask: Task): boolean => {
+const taskHasChanged = (
+  prevTask: TaskType | undefined,
+  newTask: TaskType
+): boolean => {
+  if (!prevTask) return false
+
   return (
     prevTask.title !== newTask.title ||
     prevTask.description !== newTask.description ||
-    prevTask.labels.length !== newTask.labels.length
+    prevTask.labels.join(",") !== newTask.labels.join(",")
   )
 }
 
-const isSelected = (selected: Task | undefined, task: Task) => {
-  return task.id === selected?.id
+const isSelected = (selected: TaskType | undefined, task: TaskType) => {
+  return task.id && task.id === selected?.id
 }
-
-const FEATURE_ENABLED = false
 
 const List: React.FC<Props> = ({
   filters = [],
@@ -46,13 +46,29 @@ const List: React.FC<Props> = ({
   onMarkAsComplete,
   onMoveToToday
 }) => {
-  const [selected, setSelectedTask] = React.useState<Task>()
+  const selectedRef = React.useRef<any>()
+  const [selected, setSelectedTask] = React.useState<TaskType>()
+
+  useOnClickOutside(selectedRef, () => {
+    setTimeout(() => {
+      setSelectedTask(undefined)
+    })
+  })
 
   React.useEffect(() => {
     Tooltip.rebuild()
   })
 
-  const handleChange = (field: keyof Task) => event => {
+  const handleLabelsChange = (newLabels: string[]) => {
+    setSelectedTask({
+      ...selected,
+      labels: newLabels
+    })
+  }
+
+  const handleChange = (field: keyof TaskType) => (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
     setSelectedTask({
       ...selected,
       [field]: event.target.value
@@ -72,12 +88,19 @@ const List: React.FC<Props> = ({
 
   const sortedTasks = filteredTasks.sort((a, b) => +a.completed - +b.completed)
 
-  // TODO
-  // const sortedTasks = [[], []]
+  const handleFocus = (originalTask: TaskType) => () => {
+    if (!isSelected(selected, originalTask)) {
+      setSelectedTask(originalTask)
+    }
+  }
 
-  // for (const task of filteredTasks) {
-  //   sortedTasks[task.completed ? 1 : 0].push(task)
-  // }
+  const handleBlur = (originalTask: TaskType) => () => {
+    setTimeout(() => {
+      if (taskHasChanged(selected, originalTask)) {
+        onUpdateTask(selected)
+      }
+    })
+  }
 
   return (
     <div>
@@ -97,98 +120,32 @@ const List: React.FC<Props> = ({
         </Box>
       ) : null}
       <ul>
-        {sortedTasks.map(task => (
-          <li className="task" key={task.id}>
-            <Flex alignItems="flex-start" py={3}>
-              <Box width={20} mr={2}>
-                <Checkbox
-                  id={task.id}
-                  checked={task.completed}
-                  onChange={() =>
-                    onMarkAsComplete({
-                      ...task,
-                      completed: !task.completed
-                    })
-                  }
-                />
-              </Box>
+        {sortedTasks.map(task => {
+          const active = isSelected(selected, task)
 
-              <Box width={1}>
-                {task.completed ? (
-                  <div>
-                    <s>{task.title}</s>
-                  </div>
-                ) : (
-                  <input
-                    value={
-                      isSelected(selected, task) ? selected.title : task.title
-                    }
-                    onChange={handleChange("title")}
-                    onBlur={() => {
-                      if (taskHasChanged(task, selected)) {
-                        onUpdateTask(selected)
-                      }
-
-                      setSelectedTask(undefined)
-                    }}
-                    onFocus={() => setSelectedTask(task)}
-                  />
-                )}
-
-                {task.description && (
-                  <div>
-                    <small className="description">{task.description}</small>
-                  </div>
-                )}
-
-                {isSelected(selected, task) && FEATURE_ENABLED && (
-                  <Box mt={2}>
-                    {task.labels.map(id => (
-                      <Label key={id} active label={labels[id]} />
-                    ))}
-                  </Box>
-                )}
-              </Box>
-
-              {onMoveToToday && (
-                <div
-                  data-tip="Move to today"
-                  className="remove-icon"
-                  onClick={() => onMoveToToday(task)}
-                >
-                  <RightArrowIcon />
-                </div>
-              )}
-
-              {!isSelected(selected, task) || !FEATURE_ENABLED
-                ? task.labels.map(id => (
-                    <span
-                      key={id}
-                      className="circle"
-                      data-tip={labels[id]?.title}
-                      data-background-color={labels[id]?.color}
-                      style={{ backgroundColor: labels[id]?.color }}
-                      onClick={event => {
-                        if (filters.includes(id)) {
-                          onFilter(filters.filter(f => f !== id))
-                        } else {
-                          if (event.metaKey) {
-                            onFilter([...filters, id])
-                          } else {
-                            onFilter([id])
-                          }
-                        }
-                      }}
-                    />
-                  ))
-                : null}
-
-              <span className="remove-icon" onClick={() => onRemoveTask(task)}>
-                <CrossIcon />
-              </span>
-            </Flex>
-          </li>
-        ))}
+          return (
+            <li
+              key={task.id}
+              className="task"
+              ref={active ? selectedRef : undefined}
+            >
+              <Task
+                active={active}
+                task={active ? selected : task}
+                labels={labels}
+                filters={filters}
+                onFilter={onFilter}
+                onSelect={handleFocus(task)}
+                onDeselect={handleBlur(task)}
+                onChange={handleChange}
+                onChangeLabels={handleLabelsChange}
+                onRemoveTask={onRemoveTask}
+                onMarkAsComplete={onMarkAsComplete}
+                onMoveToToday={onMoveToToday}
+              />
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
