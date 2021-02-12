@@ -30,18 +30,22 @@ yarn dev
 3. Choose the `what-todo/dist` folder
 4. Open a new tab
 
+---
+
 ### Releasing
 
-Steps:
-
-#### Bump version
+#### 1. Bump version
 
 Bump the version in the `package.json` file.
 
-#### Create a new release
+#### 2. Create a new release
 
 Run the following script to generate a new release:
 
 ```sh
 yarn release
 ```
+
+Releases are created under `releases/what-todo.{version}.zip`.
+
+New releases should be uploaded to the Chrome Web Store manually.
