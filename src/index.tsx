@@ -42,13 +42,10 @@ const App = () => {
   React.useEffect(() => {
     fetchData()
 
-    // Fetch data every 30mins
-    const interval = setInterval(fetchData, 1000 * 60 * 30)
     window.addEventListener("focus", fetchData)
 
     return () => {
       window.removeEventListener("focus", fetchData)
-      clearTimeout(interval)
     }
   }, [])
 

@@ -217,6 +217,8 @@ const Todo: React.FC<Props> = ({
                   labels={data.labels}
                   limit={10}
                   colors={colors}
+                  filters={filters}
+                  onFilter={setFilters}
                   onAddLabel={handleAddLabel}
                   onUpdateLabel={handleUpdateLabel}
                   onRemoveLabel={handleRemoveLabel}
@@ -224,7 +226,7 @@ const Todo: React.FC<Props> = ({
               </Box>
             </Flex>
 
-            <Box>
+            <Box height="55px">
               <Footer />
             </Box>
           </Flex>

@@ -1,5 +1,11 @@
 import React from "react"
-import { FiX as CrossIcon, FiPlus as PlusIcon } from "react-icons/fi"
+import cx from "classnames"
+import {
+  FiX as CrossIcon,
+  FiPlus as PlusIcon,
+  FiFilter as FilterIcon
+} from "react-icons/fi"
+import Tooltip from "react-tooltip"
 import { Flex, Box } from "rebass"
 
 import { Label, IntermediateLabel } from "../index.d"
@@ -10,7 +16,9 @@ interface Props {
   labels: Label[]
   colors: Color[]
   limit: number
+  filters?: string[]
   onAddLabel: (label: IntermediateLabel) => void
+  onFilter: (labelIds: string[]) => void
   onUpdateLabel: (label: Label) => void
   onRemoveLabel: (label: Label) => void
 }
@@ -19,6 +27,8 @@ const Labels: React.FC<Props> = ({
   labels,
   colors,
   limit,
+  filters = [],
+  onFilter,
   onAddLabel,
   onUpdateLabel,
   onRemoveLabel
@@ -29,6 +39,11 @@ const Labels: React.FC<Props> = ({
   >({})
 
   const [newLabel, setNewLabel] = React.useState<IntermediateLabel>()
+
+  React.useEffect(() => {
+    // Rebuild tooltip on every render
+    Tooltip.rebuild()
+  })
 
   React.useEffect(() => {
     const labelsById = labels.reduce((state, label) => {
@@ -128,6 +143,26 @@ const Labels: React.FC<Props> = ({
                   onChange={event => handleChangeTitle(label.id, event)}
                 />
               </Box>
+
+              <span
+                data-tip={`Filter by: ${label.title}`}
+                className={cx("remove-icon", {
+                  active: filters.includes(label.id)
+                })}
+                onClick={event => {
+                  if (filters.includes(label.id)) {
+                    onFilter(filters.filter(x => x !== label.id))
+                  } else {
+                    if (event.metaKey) {
+                      onFilter([...filters, label.id])
+                    } else {
+                      onFilter([label.id])
+                    }
+                  }
+                }}
+              >
+                <FilterIcon />
+              </span>
 
               <span
                 className="remove-icon"

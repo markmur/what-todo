@@ -141,6 +141,10 @@ button {
 .task {
   .remove-icon {
     visibility: hidden;
+
+    &.active {
+      visibility: visible;
+    }
   }
 
   &:hover {
@@ -238,7 +242,7 @@ button {
 }
 
 footer {
-  padding: 1em 0 0;
+  padding: 1.5em 0 0;
   border-top: 2px solid #e3e3e3;
   border-top: 2px solid black;
   font-size: 14px;
