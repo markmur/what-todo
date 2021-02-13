@@ -9,7 +9,7 @@
 - Use labels to sort, filter and manage your tasks.
 - Use the notes section to manage your notes for the past 6 days + tomorrow.
 
-![What Todo](https://github.com/markmur/what-todo/blob/master/media/what-todo.png)
+![What Todo](https://github.com/markmur/what-todo/blob/master/media/screenshot.png)
 
 ---
 
