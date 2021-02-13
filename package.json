@@ -1,6 +1,6 @@
 {
   "name": "what-to-do",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A Chrome Extension for managing your todos",
   "main": "index.js",
   "scripts": {
