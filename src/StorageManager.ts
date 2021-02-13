@@ -3,6 +3,7 @@ import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
 import * as _ from "lodash-es"
 import colors from "./color-palette"
+import sizeOf from "object-sizeof"
 
 // Types
 import { Action, Data, Label, Task } from "./index.d"
@@ -27,7 +28,7 @@ class StorageManager {
   private async sync(newData: Data, action: Action): Promise<Data> {
     console.groupCollapsed(`Sync (${action})`)
 
-    await browser.storage.sync.set(newData)
+    await browser.storage.local.set(newData)
 
     console.debug("Sync successful")
     console.debug(action, newData)
@@ -117,24 +118,26 @@ class StorageManager {
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
     console.groupCollapsed("GET_STORAGE_DATA")
     try {
-      const data = await browser.storage.sync.get()
-      // Do some data parsing here
-      const parsedData = data
+      const data = await browser.storage.local.get()
 
-      const valid = this.validateData(parsedData)
+      console.log("Clearing all sync storage data")
+      await browser.storage.sync.clear()
 
-      console.log(valid ? parsedData : this.defaultData)
+      const valid = this.validateData(data)
+      const parsedData = (valid ? data : this.defaultData) as Data
+
+      console.log(parsedData)
 
       // Usage
-      const usage = await this.getStorageUsagePercent()
+      const usage = await this.getStorageUsagePercent(parsedData)
       const usagePct = Number(usage * 100).toFixed(1) + "%"
 
       console.log("USAGE", usagePct)
 
       return {
-        data: (valid ? parsedData : this.defaultData) as Data,
+        data: parsedData,
         usage: usagePct,
-        quota: bytesToSize(browser.storage.sync.QUOTA_BYTES)
+        quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
       }
     } catch (error) {
       console.error(error)
@@ -154,9 +157,9 @@ class StorageManager {
     return this.defaultData
   }
 
-  getStorageUsagePercent = async (): Promise<number> => {
-    const inUse = await browser.storage.sync.getBytesInUse()
-    return inUse / browser.storage.sync.QUOTA_BYTES
+  getStorageUsagePercent = async (data: Data): Promise<number> => {
+    const inUse = sizeOf(data)
+    return inUse / browser.storage.local.QUOTA_BYTES
   }
 
   // Labels
