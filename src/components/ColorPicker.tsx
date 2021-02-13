@@ -43,12 +43,14 @@ const ColorPicker: React.FC<Props> = ({
         <Portal>
           <div className="color-picker" style={style} ref={internalRef}>
             <Flex flexWrap="wrap" width={width}>
-              {colors.map((color) => (
+              {colors.map(color => (
                 <Box
                   key={color.name}
                   m={1}
                   flex="0 0 16px"
                   className="circle"
+                  data-tip={color.name}
+                  data-background-color={color.backgroundColor}
                   style={{ backgroundColor: color.backgroundColor }}
                   onClick={() => onChange(color)}
                 />
