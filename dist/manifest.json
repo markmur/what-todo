@@ -13,7 +13,7 @@
     "48": "icon-48.png",
     "128": "icon-128.png"
   },
-  "permissions": ["tabs", "unlimitedStorage"],
+  "permissions": ["storage"],
   "chrome_url_overrides": {
     "newtab": "extension.html"
   }
