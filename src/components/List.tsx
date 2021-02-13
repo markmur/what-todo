@@ -36,6 +36,28 @@ const isSelected = (selected: TaskType | undefined, task: TaskType) => {
   return task.id && task.id === selected?.id
 }
 
+const getFilteredTasks = (tasks: TaskType[], filters: string[]) => {
+  if (!filters.length) {
+    return tasks
+  }
+
+  // If more than one selected, filter by tasks containing only both
+  if (filters.length > 1) {
+    return tasks.filter(task => {
+      return task.labels.sort().join(",") === filters.sort().join(",")
+    })
+  }
+
+  // By default include any task that includes a selected filter
+  return tasks.filter(task => {
+    for (const id of filters) {
+      if (task.labels.includes(id)) return true
+    }
+
+    return false
+  })
+}
+
 const List: React.FC<Props> = ({
   filters = [],
   tasks = [],
@@ -75,16 +97,7 @@ const List: React.FC<Props> = ({
     })
   }
 
-  const filteredTasks =
-    filters.length > 0
-      ? tasks.filter(task => {
-          for (const id of filters) {
-            if (task.labels.includes(id)) return true
-          }
-
-          return false
-        })
-      : tasks
+  const filteredTasks = getFilteredTasks(tasks, filters)
 
   const sortedTasks = filteredTasks.sort((a, b) => +a.completed - +b.completed)
 
