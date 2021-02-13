@@ -8,6 +8,8 @@ import {
 } from "react-icons/fi"
 
 import { DataContext } from "../index"
+import { Data } from "../index.d"
+import { parseDataStr } from "@src/utils"
 
 const iconProps = {
   fontSize: 22,
@@ -20,7 +22,7 @@ const linkProps = {
 }
 
 const Footer: React.FC = () => {
-  const { data, usage, quota } = React.useContext(DataContext)
+  const { data, usage, quota, uploadData } = React.useContext(DataContext)
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
   const downloadLinkRef = React.useRef()
@@ -42,7 +44,17 @@ const Footer: React.FC = () => {
         </em>
 
         <Flex alignItems="center">
-          <Box mt={-1}>
+          <Box
+            mt={-1}
+            onDoubleClick={() => {
+              const value = window.prompt("Insert todo data object")
+              const parsed = parseDataStr(value) as any
+
+              if (Object.keys(parsed).length > 0) {
+                uploadData(parsed)
+              }
+            }}
+          >
             <div data-tip={`Storage usage (MAX: ${quota})`} {...iconProps}>
               ({usage})
             </div>

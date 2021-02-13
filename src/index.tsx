@@ -21,10 +21,12 @@ export const DataContext = React.createContext<{
   data: Data
   usage: string
   quota: string
+  uploadData: typeof storage.uploadData
 }>({
   data: storage.defaultData,
   usage: "0%",
-  quota: "0"
+  quota: "0",
+  uploadData: storage.uploadData
 })
 
 const App = () => {
@@ -92,7 +94,9 @@ const App = () => {
   const pastWeek = getPastSevenDays()
 
   return (
-    <DataContext.Provider value={{ data, ...dataUsage }}>
+    <DataContext.Provider
+      value={{ data, ...dataUsage, uploadData: storage.uploadData }}
+    >
       <ThemeProvider
         theme={{
           breakpoints

@@ -1,4 +1,4 @@
-import { Day } from "./index.d"
+import { Data, Day } from "./index.d"
 
 export const today = (): Date => {
   return new Date()
@@ -46,4 +46,12 @@ export const bytesToSize = (bytes: number): string => {
   const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))))
 
   return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i]
+}
+
+export const parseDataStr = (data: string): Record<string, unknown> => {
+  try {
+    return JSON.parse(data)
+  } catch (error) {
+    return {}
+  }
 }

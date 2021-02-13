@@ -114,6 +114,14 @@ class StorageManager {
     return { ...data }
   }
 
+  // TODO
+  // private validateData = (data: Record<string, unknown>): boolean => {
+  //   return (
+  //     typeof data === "object" &&
+  //     "tasks"
+  //   )
+  // }
+
   // PUBLIC API
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
     console.groupCollapsed("GET_STORAGE_DATA")
@@ -160,6 +168,10 @@ class StorageManager {
   getStorageUsagePercent = async (data: Data): Promise<number> => {
     const inUse = sizeOf(data)
     return inUse / browser.storage.local.QUOTA_BYTES
+  }
+
+  uploadData = (data: Data): void => {
+    this.sync(data, "UPLOAD_DATA")
   }
 
   // Labels

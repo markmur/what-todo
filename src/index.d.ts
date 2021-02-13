@@ -45,7 +45,7 @@ type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK" | "MOVE_TASK"
 type LabelAction = "ADD_LABEL" | "REMOVE_LABEL" | "UPDATE_LABEL"
 type NoteAction = "UPDATE_NOTE"
 type FilterAction = "UPDATE_FILTERS"
-type StorageAction = "CLEAR_DATA"
+type StorageAction = "CLEAR_DATA" | "UPLOAD_DATA"
 
 export type Action =
   | TaskAction
