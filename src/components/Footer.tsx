@@ -20,7 +20,7 @@ const linkProps = {
 }
 
 const Footer: React.FC = () => {
-  const data = React.useContext(DataContext)
+  const { data, usage, quota } = React.useContext(DataContext)
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
   const downloadLinkRef = React.useRef()
@@ -41,7 +41,13 @@ const Footer: React.FC = () => {
           </a>
         </em>
 
-        <Flex>
+        <Flex alignItems="center">
+          <Box mt={-1}>
+            <div data-tip={`Storage usage (MAX: ${quota})`} {...iconProps}>
+              ({usage})
+            </div>
+          </Box>
+
           <Box ml={2}>
             <a
               ref={downloadLinkRef}

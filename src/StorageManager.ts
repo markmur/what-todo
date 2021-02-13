@@ -1,3 +1,4 @@
+import { bytesToSize } from "./utils"
 import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
 import * as _ from "lodash-es"
@@ -113,33 +114,49 @@ class StorageManager {
   }
 
   // PUBLIC API
-  getData(): Promise<Data> {
-    return new Promise((resolve, reject) => {
-      browser.storage.sync.get().then(data => {
-        console.groupCollapsed("GET_STORAGE_DATA")
+  async getData(): Promise<{ data: Data; usage: string; quota: string }> {
+    console.groupCollapsed("GET_STORAGE_DATA")
+    try {
+      const data = await browser.storage.sync.get()
+      // Do some data parsing here
+      const parsedData = data
 
-        if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError)
-          console.groupEnd()
-          return reject(chrome.runtime.lastError)
-        }
+      const valid = this.validateData(parsedData)
 
-        // Do some data parsing here
-        const parsedData = data
+      console.log(valid ? parsedData : this.defaultData)
 
-        const valid = this.validateData(parsedData)
+      // Usage
+      const usage = await this.getStorageUsagePercent()
+      const usagePct = Number(usage * 100).toFixed(1) + "%"
 
-        console.log(valid ? parsedData : this.defaultData)
-        console.groupEnd()
-        return resolve((valid ? parsedData : this.defaultData) as Data)
-      })
-    })
+      console.log("USAGE", usagePct)
+
+      return {
+        data: (valid ? parsedData : this.defaultData) as Data,
+        usage: usagePct,
+        quota: bytesToSize(browser.storage.sync.QUOTA_BYTES)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError)
+        throw chrome.runtime.lastError
+      }
+
+      console.groupEnd()
+    }
   }
 
   clearAllData = (): Data => {
     this.sync(this.defaultData, "CLEAR_DATA")
 
     return this.defaultData
+  }
+
+  getStorageUsagePercent = async (): Promise<number> => {
+    const inUse = await browser.storage.sync.getBytesInUse()
+    return inUse / browser.storage.sync.QUOTA_BYTES
   }
 
   // Labels

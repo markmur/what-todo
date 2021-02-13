@@ -17,13 +17,31 @@ import { getPastSevenDays } from "./utils"
 
 const storage = new StorageManager()
 
-export const DataContext = React.createContext<Data>(storage.defaultData)
+export const DataContext = React.createContext<{
+  data: Data
+  usage: string
+  quota: string
+}>({
+  data: storage.defaultData,
+  usage: "0%",
+  quota: "0"
+})
 
 const App = () => {
   const [data, setData] = React.useState<Data>(storage.defaultData)
+  const [dataUsage, setDataUsage] = React.useState<{
+    usage: string
+    quota: string
+  }>({
+    usage: "0%",
+    quota: "0"
+  })
 
   const fetchData = () => {
-    storage.getData().then(setData)
+    storage.getData().then(({ data, usage, quota }) => {
+      setData(data)
+      setDataUsage({ usage, quota })
+    })
   }
 
   React.useEffect(() => {
@@ -74,7 +92,7 @@ const App = () => {
   const pastWeek = getPastSevenDays()
 
   return (
-    <DataContext.Provider value={data}>
+    <DataContext.Provider value={{ data, ...dataUsage }}>
       <ThemeProvider
         theme={{
           breakpoints
