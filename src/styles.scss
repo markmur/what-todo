@@ -140,14 +140,17 @@ button {
   cursor: pointer;
   font-size: 12px;
   padding: 4px 6px;
-  background-color: white;
-  border: 1px solid;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid transparent;
   outline: none;
+
+  &:hover:not(.active) {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 
   &.active {
     color: white;
     border: 1px solid;
-    border-color: inherit;
   }
 
   &.small {

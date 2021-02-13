@@ -24,7 +24,9 @@ const Label: React.FC<Props> = ({
     <Box
       display="inline-flex"
       className={cx("label", { active, small })}
-      style={active ? { backgroundColor: label.color } : {}}
+      style={
+        active ? { backgroundColor: label.color, borderColor: label.color } : {}
+      }
       onClick={onClick}
     >
       <Flex alignItems="center">

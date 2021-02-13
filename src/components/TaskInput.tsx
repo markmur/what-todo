@@ -127,7 +127,7 @@ const TaskInput: React.FC<Props> = ({
             </Box>
             <Box>
               {labels.map(label => (
-                <Box display="inline-flex" key={label.id} mr={1}>
+                <Box display="inline-flex" key={label.id} mr={1} mb={1}>
                   <Label
                     label={label}
                     active={task.labels.includes(label.id)}
