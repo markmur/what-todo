@@ -36,6 +36,11 @@ module.exports = {
     extensions: [".ts", ".tsx", ".js"],
     alias: {
       "@src": path.resolve(__dirname, "src/")
-    }
+    },
+    mainFields: ["module", "main"]
+  },
+  stats: {
+    // Display bailout reasons
+    optimizationBailout: false
   }
 }

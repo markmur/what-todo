@@ -1,7 +1,7 @@
 import { bytesToSize } from "./utils"
 import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
-import * as _ from "lodash-es"
+import set from "lodash-es/set"
 import colors from "./color-palette"
 import sizeOf from "object-sizeof"
 
@@ -204,7 +204,7 @@ class StorageManager {
     const key = this.getTaskKey(task)
     const newData = this.cloneData(data)
 
-    _.set(newData, `tasks.${key}`, [newTask, ...(newData.tasks[key] ?? [])])
+    set(newData, `tasks.${key}`, [newTask, ...(newData.tasks[key] ?? [])])
 
     this.sync(newData, "ADD_TASK")
 
@@ -218,7 +218,7 @@ class StorageManager {
     const index = newData.tasks[key]?.findIndex(t => t.id === task.id)
 
     if (index > -1) {
-      _.set(newData, `tasks.${key}.${index}`, task)
+      set(newData, `tasks.${key}.${index}`, task)
     }
 
     this.sync(newData, "UPDATE_TASK")
@@ -230,7 +230,7 @@ class StorageManager {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
 
-    _.set(
+    set(
       newData,
       `tasks.${key}`,
       newData.tasks[key].filter(t => t.id !== task.id)
@@ -247,7 +247,7 @@ class StorageManager {
     const newData = this.cloneData(data)
 
     // Remove from yesterday
-    _.set(
+    set(
       newData,
       `tasks.${oldKey}`,
       newData.tasks[oldKey]?.filter(t => t.id !== task.id)
@@ -264,7 +264,7 @@ class StorageManager {
         : [newTask]
 
     // Add to today
-    _.set(newData, `tasks.${todayKey}`, todayTasks)
+    set(newData, `tasks.${todayKey}`, todayTasks)
 
     this.sync(newData, "MOVE_TASK")
 
