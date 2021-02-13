@@ -121,14 +121,15 @@ const List: React.FC<Props> = ({
         <Box my={2}>
           <small>Showing: </small>
           {filters.map(id => (
-            <Label
-              active
-              key={id}
-              label={labels[id]}
-              onRemove={() => {
-                onFilter(filters.filter(x => x !== id))
-              }}
-            />
+            <Box display="inline" key={id} mr={1} mb={1}>
+              <Label
+                active
+                label={labels[id]}
+                onRemove={() => {
+                  onFilter(filters.filter(x => x !== id))
+                }}
+              />
+            </Box>
           ))}
         </Box>
       ) : null}
