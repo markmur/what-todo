@@ -5,6 +5,7 @@ import colors from "../color-palette"
 
 // Hooks
 import { today, yesterday, formatDateHeading } from "../utils"
+import useMedia, { Breakpoints } from "@src/hooks/media"
 
 // Styles
 import "../styles.scss"
@@ -23,6 +24,7 @@ const getTasksFor = (date: string) => (data: Data): Task[] => {
   return data.tasks[date] ?? []
 }
 
+const mobilePadding = 3
 const padding = 4
 
 interface Props {
@@ -54,6 +56,9 @@ const Todo: React.FC<Props> = ({
   onRemoveLabel,
   onUpdateNote
 }: Props) => {
+  // Hooks
+  const breakpoint = useMedia()
+
   // Refs
   const heightRef = React.createRef<HTMLDivElement>()
 
@@ -106,40 +111,47 @@ const Todo: React.FC<Props> = ({
   return (
     <main>
       <Flex>
-        <Flex width={1 / 3} height="100vh" p={padding} flexDirection="column">
-          <Box pb={1}>
-            <h1>Yesterday</h1>
-            <h5>{formatDateHeading(yesterdayDateStr)}</h5>
-          </Box>
-          <Box width={1} overflowY="auto" flex={2}>
-            <Box>
-              <List
-                tasks={yesterdaysTasks}
-                labels={labelsById}
+        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET && (
+          <Flex
+            width={[0, 1 / 3]}
+            height="100vh"
+            p={padding}
+            flexDirection="column"
+          >
+            <Box pb={1}>
+              <h1>Yesterday</h1>
+              <h5>{formatDateHeading(yesterdayDateStr)}</h5>
+            </Box>
+            <Box width={1} overflowY="auto" flex={2}>
+              <Box>
+                <List
+                  tasks={yesterdaysTasks}
+                  labels={labelsById}
+                  filters={filters}
+                  onFilter={setFilters}
+                  onUpdateTask={handleUpdateTask}
+                  onRemoveTask={handleRemoveTask}
+                  onMarkAsComplete={onMarkAsComplete}
+                  onMoveToToday={handleMoveToToday}
+                />
+              </Box>
+            </Box>
+
+            <Box pt={3}>
+              <TaskInput
+                placeholder="Forget something?"
+                labels={data.labels}
                 filters={filters}
-                onFilter={setFilters}
-                onUpdateTask={handleUpdateTask}
-                onRemoveTask={handleRemoveTask}
-                onMarkAsComplete={onMarkAsComplete}
-                onMoveToToday={handleMoveToToday}
+                onAdd={task => handleAddTask(task, yesterday())}
               />
             </Box>
-          </Box>
-
-          <Box pt={3}>
-            <TaskInput
-              placeholder="Forget something?"
-              labels={data.labels}
-              filters={filters}
-              onAdd={task => handleAddTask(task, yesterday())}
-            />
-          </Box>
-        </Flex>
+          </Flex>
+        )}
 
         <Flex
-          width={[1 / 3, 1 / 3, 1 / 2]}
-          p={padding}
-          pl={0}
+          width={[1, 3 / 5, 1 / 3, 1 / 2]}
+          p={[mobilePadding, padding]}
+          pl={[mobilePadding, mobilePadding, 0]}
           height="100vh"
           flexDirection="column"
         >
@@ -171,68 +183,74 @@ const Todo: React.FC<Props> = ({
           </Box>
         </Flex>
 
-        <Flex width={[1 / 4, 1 / 4, 1 / 3]} p={padding} pl={0} height="100vh">
-          <Flex flexDirection="column" flexGrow={1} justifyContent="flex-start">
-            <Box mb={1}>
-              <h1>Notes</h1>
+        {breakpoint != Breakpoints.MOBILE && (
+          <Flex width={[0, 2 / 5, 1 / 3]} p={padding} pl={0} height="100vh">
+            <Flex
+              flexDirection="column"
+              flexGrow={1}
+              justifyContent="flex-start"
+            >
+              <Box mb={1}>
+                <h1>Notes</h1>
 
-              <Flex width="100%">
-                {pastWeek.map(day => (
-                  <Box
-                    pb={1}
-                    key={day.number}
-                    flex={1}
-                    onClick={() => setActiveDay(day.date.toDateString())}
-                  >
+                <Flex width="100%">
+                  {pastWeek.map(day => (
                     <Box
-                      className={cx("calendar-day", {
-                        active: day.date.toDateString() === activeDay,
-                        today: day.isToday
-                      })}
-                      p={1}
+                      pb={1}
+                      key={day.number}
+                      flex={1}
+                      onClick={() => setActiveDay(day.date.toDateString())}
                     >
-                      <div>
-                        <small>{day.name}</small>
-                      </div>
-                      <div>
-                        <em>{day.number}</em>
-                      </div>
+                      <Box
+                        className={cx("calendar-day", {
+                          active: day.date.toDateString() === activeDay,
+                          today: day.isToday
+                        })}
+                        p={1}
+                      >
+                        <div>
+                          <small>{day.name}</small>
+                        </div>
+                        <div>
+                          <em>{day.number}</em>
+                        </div>
+                      </Box>
                     </Box>
-                  </Box>
-                ))}
-              </Flex>
-            </Box>
+                  ))}
+                </Flex>
+              </Box>
 
-            <Box ref={heightRef} flex={1} mb={5}>
-              <Notes
-                heightRef={heightRef}
-                note={data.notes[activeDay] || ""}
-                onChange={note => handleUpdateNote(note, activeDay)}
-              />
-            </Box>
-
-            <Flex flexDirection="column" height="34%">
-              <h1>Labels</h1>
-
-              <Box flex={1} overflowY="scroll" pb={2}>
-                <Labels
-                  labels={data.labels}
-                  limit={10}
-                  colors={colors}
-                  filters={filters}
-                  onFilter={setFilters}
-                  onAddLabel={handleAddLabel}
-                  onUpdateLabel={handleUpdateLabel}
-                  onRemoveLabel={handleRemoveLabel}
+              <Box ref={heightRef} flex={1} mb={5}>
+                <Notes
+                  heightRef={heightRef}
+                  note={data.notes[activeDay] || ""}
+                  onChange={note => handleUpdateNote(note, activeDay)}
                 />
               </Box>
-            </Flex>
 
-            <Box height="55px">
-              <Footer />
-            </Box>
+              <Flex flexDirection="column" height="34%">
+                <h1>Labels</h1>
+
+                <Box flex={1} overflowY="scroll" pb={2}>
+                  <Labels
+                    labels={data.labels}
+                    limit={10}
+                    colors={colors}
+                    filters={filters}
+                    onFilter={setFilters}
+                    onAddLabel={handleAddLabel}
+                    onUpdateLabel={handleUpdateLabel}
+                    onRemoveLabel={handleRemoveLabel}
+                  />
+                </Box>
+              </Flex>
+
+              <Box height="55px">
+                <Footer />
+              </Box>
+            </Flex>
           </Flex>
-        </Flex>
+        )}
       </Flex>
     </main>
   )

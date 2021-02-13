@@ -7,6 +7,7 @@ import Tooltip from "react-tooltip"
 // Helpers
 import { v4 as uuid } from "uuid"
 import colors from "./color-palette"
+import { breakpoints } from "./hooks/media"
 
 // Components
 import Todo from "./components/Todo"
@@ -15,7 +16,6 @@ import Todo from "./components/Todo"
 import { Label, Task, Data } from "./index.d"
 import StorageManager from "./StorageManager"
 import { getPastSevenDays } from "./utils"
-import { clearInterval } from "timers"
 
 const defaultLabels: Label[] = [
   { id: uuid(), title: "Work", color: colors[0].backgroundColor },
@@ -87,7 +87,7 @@ const App = () => {
     <DataContext.Provider value={data}>
       <ThemeProvider
         theme={{
-          breakpoints: ["40em", "52em", "64em"]
+          breakpoints
         }}
       >
         <Todo
