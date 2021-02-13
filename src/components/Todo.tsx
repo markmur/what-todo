@@ -40,6 +40,7 @@ interface Props {
   onUpdateLabel: (label: Label) => void
   onRemoveLabel: (label: Label) => void
   onUpdateNote: (note: Note, date: string) => void
+  onUpdateFilters: (filters: string[]) => void
 }
 
 const Todo: React.FC<Props> = ({
@@ -54,7 +55,8 @@ const Todo: React.FC<Props> = ({
   onAddLabel,
   onUpdateLabel,
   onRemoveLabel,
-  onUpdateNote
+  onUpdateNote,
+  onUpdateFilters
 }: Props) => {
   // Hooks
   const breakpoint = useMedia()
@@ -65,7 +67,6 @@ const Todo: React.FC<Props> = ({
   const todayDateStr = today().toDateString()
   const yesterdayDateStr = yesterday().toDateString()
 
-  const [filters, setFilters] = React.useState<string[]>([])
   const [activeDay, setActiveDay] = React.useState(todayDateStr)
 
   const todaysTasks = getTasksFor(todayDateStr)(data)
@@ -127,8 +128,8 @@ const Todo: React.FC<Props> = ({
                 <List
                   tasks={yesterdaysTasks}
                   labels={labelsById}
-                  filters={filters}
-                  onFilter={setFilters}
+                  filters={data.filters}
+                  onFilter={onUpdateFilters}
                   onUpdateTask={handleUpdateTask}
                   onRemoveTask={handleRemoveTask}
                   onMarkAsComplete={onMarkAsComplete}
@@ -141,7 +142,7 @@ const Todo: React.FC<Props> = ({
               <TaskInput
                 placeholder="Forget something?"
                 labels={data.labels}
-                filters={filters}
+                filters={data.filters}
                 onAdd={task => handleAddTask(task, yesterday())}
               />
             </Box>
@@ -164,8 +165,8 @@ const Todo: React.FC<Props> = ({
               <List
                 tasks={todaysTasks}
                 labels={labelsById}
-                filters={filters}
-                onFilter={setFilters}
+                filters={data.filters}
+                onFilter={onUpdateFilters}
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
@@ -177,7 +178,7 @@ const Todo: React.FC<Props> = ({
             <TaskInput
               placeholder="Write a todo for today..."
               labels={data.labels}
-              filters={filters}
+              filters={data.filters}
               onAdd={task => handleAddTask(task, today())}
             />
           </Box>
@@ -236,8 +237,8 @@ const Todo: React.FC<Props> = ({
                     labels={data.labels}
                     limit={10}
                     colors={colors}
-                    filters={filters}
-                    onFilter={setFilters}
+                    filters={data.filters}
+                    onFilter={onUpdateFilters}
                     onAddLabel={handleAddLabel}
                     onUpdateLabel={handleUpdateLabel}
                     onRemoveLabel={handleRemoveLabel}

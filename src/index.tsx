@@ -5,35 +5,22 @@ import { ThemeProvider } from "@emotion/react"
 import Tooltip from "react-tooltip"
 
 // Helpers
-import { v4 as uuid } from "uuid"
-import colors from "./color-palette"
 import { breakpoints } from "./hooks/media"
 
 // Components
 import Todo from "./components/Todo"
 
 // Types
-import { Label, Task, Data } from "./index.d"
+import { Label, Task, Data, Filters } from "./index.d"
 import StorageManager from "./StorageManager"
 import { getPastSevenDays } from "./utils"
 
-const defaultLabels: Label[] = [
-  { id: uuid(), title: "Work", color: colors[0].backgroundColor },
-  { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
-]
+const storage = new StorageManager()
 
-const defaultData: Data = {
-  tasks: {},
-  notes: {},
-  labels: defaultLabels
-}
-
-export const DataContext = React.createContext<Data>(defaultData)
-
-const storage = new StorageManager(defaultData)
+export const DataContext = React.createContext<Data>(storage.defaultData)
 
 const App = () => {
-  const [data, setData] = React.useState<Data>(defaultData)
+  const [data, setData] = React.useState<Data>(storage.defaultData)
 
   const fetchData = () => {
     storage.getData().then(setData)
@@ -71,6 +58,9 @@ const App = () => {
   const handleRemoveLabel = createAction<Label>(storage.removeLabel)
   const handleUpdateLabel = createAction<Label>(storage.updateLabel)
 
+  // Callbacks for filters
+  const handleUpdateFilters = createAction<Filters>(storage.updateFilters)
+
   // Callbacks for notes
   const handleUpdateNote = React.useCallback(
     (note, date) => {
@@ -103,6 +93,7 @@ const App = () => {
           onRemoveLabel={handleRemoveLabel}
           onUpdateLabel={handleUpdateLabel}
           onUpdateNote={handleUpdateNote}
+          onUpdateFilters={handleUpdateFilters}
         />
       </ThemeProvider>
 

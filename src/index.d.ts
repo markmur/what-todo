@@ -26,7 +26,11 @@ export type Note = string
 export type Notes = Record<string, Note>
 export type Tasks = Record<string, Task[]>
 
+// Array of label id strings
+export type Filters = string[]
+
 export interface Data {
+  filters: Filters
   tasks: Tasks
   notes: Notes
   labels: Label[]
@@ -40,5 +44,12 @@ export type IntermediateLabel = Partial<Label> & {
 type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK" | "MOVE_TASK"
 type LabelAction = "ADD_LABEL" | "REMOVE_LABEL" | "UPDATE_LABEL"
 type NoteAction = "UPDATE_NOTE"
+type FilterAction = "UPDATE_FILTERS"
+type StorageAction = "CLEAR_DATA"
 
-export type Action = TaskAction | LabelAction | NoteAction | "CLEAR_DATA"
+export type Action =
+  | TaskAction
+  | LabelAction
+  | NoteAction
+  | FilterAction
+  | StorageAction

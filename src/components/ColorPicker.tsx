@@ -1,4 +1,4 @@
-import React, { CSSProperties, StyleHTMLAttributes } from "react"
+import React, { StyleHTMLAttributes } from "react"
 import { Flex, Box } from "rebass"
 
 import colors, { Color } from "../color-palette"
@@ -20,7 +20,7 @@ const ColorPicker: React.FC<Props> = ({
 }) => {
   const childRef = React.useRef()
   const internalRef = React.useRef()
-  const style = {} as CSSProperties
+  const style = {} as any
   const width = 120
 
   if (childRef && childRef.current) {

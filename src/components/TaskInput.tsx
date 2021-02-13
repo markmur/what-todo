@@ -34,7 +34,7 @@ const TaskInput: React.FC<Props> = ({
 
   React.useEffect(() => {
     setTask({ ...task, labels: [...filters] })
-  }, [filters])
+  }, [filters, setTask])
 
   const clearTask = () => {
     setTask({

@@ -1,6 +1,7 @@
 import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
 import * as _ from "lodash-es"
+import colors from "./color-palette"
 
 // Types
 import { Action, Data, Label, Task } from "./index.d"
@@ -8,12 +9,18 @@ import { Action, Data, Label, Task } from "./index.d"
 type Item = Label
 type ItemKey = "labels"
 
+const defaultLabels: Label[] = [
+  { id: uuid(), title: "Work", color: colors[0].backgroundColor },
+  { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
+]
+
 // Class
 class StorageManager {
-  defaultData: Data
-
-  constructor(defaultData?: Data) {
-    this.defaultData = defaultData
+  defaultData: Data = {
+    filters: [],
+    tasks: {},
+    notes: {},
+    labels: defaultLabels
   }
 
   private async sync(newData: Data, action: Action): Promise<Data> {
@@ -251,6 +258,17 @@ class StorageManager {
     newData.notes[date] = note
 
     this.sync(newData, "UPDATE_NOTE")
+
+    return newData
+  }
+
+  // Filters
+  updateFilters = (data: Data, filters: string[]): Data => {
+    const newData = this.cloneData(data)
+
+    newData.filters = filters
+
+    this.sync(newData, "UPDATE_FILTERS")
 
     return newData
   }
