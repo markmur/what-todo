@@ -2,6 +2,9 @@
 
 "What Todo" is a Chrome Extension to replace your "New Tab" page with a todo list experience.
 
+
+[Install via Chrome WebStore](https://chrome.google.com/webstore/detail/what-todo/plicihhfbemkmlkclkifeeepocjiogcg)
+
 ### Features
 
 - **Privacy**: your data is stored in Chrome local storage _only_. It's never sent over the network.
