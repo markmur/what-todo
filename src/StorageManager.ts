@@ -128,9 +128,6 @@ class StorageManager {
     try {
       const data = await browser.storage.local.get()
 
-      console.log("Clearing all sync storage data")
-      await browser.storage.sync.clear()
-
       const valid = this.validateData(data)
       const parsedData = (valid ? data : this.defaultData) as Data
 

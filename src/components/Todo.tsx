@@ -221,7 +221,7 @@ const Todo: React.FC<Props> = ({
                 </Flex>
               </Box>
 
-              <Box ref={heightRef} flex={1} mb={4}>
+              <Box ref={heightRef} flex={1} mb={4} maxHeight="45vh">
                 <Notes
                   heightRef={heightRef}
                   note={data.notes[activeDay] || ""}
