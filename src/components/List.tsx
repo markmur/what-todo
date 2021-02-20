@@ -1,6 +1,10 @@
 import React from "react"
-import { Box } from "rebass"
+import { Flex, Box } from "rebass"
 import Tooltip from "react-tooltip"
+import {
+  FiChevronDown as ChevronDown,
+  FiChevronUp as ChevronUp
+} from "react-icons/fi"
 
 import Label from "./Label"
 
@@ -70,6 +74,17 @@ const List: React.FC<Props> = ({
 }) => {
   const selectedRef = React.useRef<any>()
   const [selected, setSelectedTask] = React.useState<TaskType>()
+  const [displayCompleted, setDisplayCompleted] = React.useState(true)
+  const filteredTasks = getFilteredTasks(tasks, filters)
+
+  const [uncompleted, completed] = filteredTasks.reduce(
+    (state, task) => {
+      state[task.completed ? 1 : 0].push(task)
+      return state
+    },
+    [[], []]
+  )
+  const hasCompletedTasks = completed.length > 0
 
   useOnClickOutside(selectedRef, () => {
     setTimeout(() => {
@@ -96,10 +111,6 @@ const List: React.FC<Props> = ({
       [field]: event.target.value
     })
   }
-
-  const filteredTasks = getFilteredTasks(tasks, filters)
-
-  const sortedTasks = filteredTasks.sort((a, b) => +a.completed - +b.completed)
 
   const handleFocus = (originalTask: TaskType) => () => {
     if (!isSelected(selected, originalTask)) {
@@ -134,7 +145,7 @@ const List: React.FC<Props> = ({
         </Box>
       ) : null}
       <ul>
-        {sortedTasks.map(task => {
+        {uncompleted.map(task => {
           const active = isSelected(selected, task)
 
           return (
@@ -160,6 +171,54 @@ const List: React.FC<Props> = ({
             </li>
           )
         })}
+
+        {hasCompletedTasks && (
+          <Flex
+            mt={uncompleted.length > 0 ? 5 : 4}
+            mb={2}
+            alignItems="center"
+            style={{ cursor: "pointer" }}
+            onClick={() => setDisplayCompleted(!displayCompleted)}
+          >
+            <h4>Completed ({completed.length})</h4>
+            <Box mt={"-1px"} ml={1} alignSelf="center">
+              {displayCompleted ? (
+                <ChevronUp style={{ verticalAlign: "middle" }} />
+              ) : (
+                <ChevronDown style={{ verticalAlign: "middle" }} />
+              )}
+            </Box>
+          </Flex>
+        )}
+
+        {displayCompleted
+          ? completed.map(task => {
+              const active = isSelected(selected, task)
+
+              return (
+                <li
+                  key={task.id}
+                  className="task"
+                  ref={active ? selectedRef : undefined}
+                >
+                  <Task
+                    active={active}
+                    task={active ? selected : task}
+                    labels={labels}
+                    filters={filters}
+                    onFilter={onFilter}
+                    onSelect={handleFocus(task)}
+                    onDeselect={handleBlur(task)}
+                    onChange={handleChange}
+                    onChangeLabels={handleLabelsChange}
+                    onRemoveTask={onRemoveTask}
+                    onMarkAsComplete={onMarkAsComplete}
+                    onMoveToToday={onMoveToToday}
+                  />
+                </li>
+              )
+            })
+          : null}
       </ul>
     </div>
   )
