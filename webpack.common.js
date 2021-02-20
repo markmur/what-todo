@@ -16,8 +16,7 @@ module.exports = {
         use: "ts-loader"
       },
       {
-        exclude: /node_modules/,
-        test: /\.scss$/,
+        test: /\.(css|scss)$/,
         use: [
           {
             loader: "style-loader"
@@ -37,7 +36,10 @@ module.exports = {
     alias: {
       "@src": path.resolve(__dirname, "src/")
     },
-    mainFields: ["module", "main"]
+    mainFields: ["module", "main"],
+    fallback: {
+      path: false
+    }
   },
   stats: {
     // Display bailout reasons

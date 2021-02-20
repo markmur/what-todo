@@ -1,4 +1,28 @@
 import React from "react"
+import { markdownToDraft, draftToMarkdown } from "markdown-draft-js"
+import { convertFromRaw, convertToRaw, EditorState } from "draft-js"
+import { Editor } from "react-draft-wysiwyg"
+
+// Styles
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css"
+
+const options = {
+  inline: true,
+  fontSize: false,
+  list: true
+}
+
+const toolbar = {
+  options: Object.entries(options)
+    .map(([key, enabled]) => (enabled ? key : undefined))
+    .filter(Boolean),
+  inline: {
+    options: ["bold", "italic", "underline", "strikethrough"]
+  },
+  list: {
+    options: ["ordered", "unordered"]
+  }
+}
 
 interface Props {
   note: string
@@ -6,34 +30,48 @@ interface Props {
   onChange: (note: string) => void
 }
 
+const getState = (note: string): EditorState => {
+  return EditorState.createWithContent(convertFromRaw(markdownToDraft(note)))
+}
+
 const Notes: React.FC<Props> = ({ note = "", onChange }) => {
-  const [state, setState] = React.useState("")
-  const [rows] = React.useState(2)
+  const initialEditorState = getState(note)
+  const [editorState, setEditorState] = React.useState<EditorState>(
+    initialEditorState
+  )
 
   React.useEffect(() => {
-    setState(note)
+    setEditorState(getState(note))
   }, [note])
 
   const handleBlur = React.useCallback(() => {
-    onChange(state)
-  }, [state, onChange])
+    const markdown = getMarkdown(editorState)
+
+    onChange(markdown)
+  }, [editorState, onChange])
 
   const handleChange = React.useCallback(
-    event => {
-      setState(event.target.value)
+    state => {
+      setEditorState(state)
     },
-    [state]
+    [editorState]
   )
 
+  const getMarkdown = (state: EditorState) => {
+    const content = state.getCurrentContent()
+    return draftToMarkdown(convertToRaw(content))
+  }
+
   return (
-    <textarea
-      rows={rows}
-      value={state}
-      placeholder="Notes"
-      className="notes-input"
-      style={{ height: "100%" }}
+    <Editor
+      toolbar={toolbar}
+      editorState={editorState}
+      editorClassName="notes-input"
+      toolbarClassName="notes-input-toolbar"
+      wrapperClassName="notes-input-wrapper"
       onBlur={handleBlur}
-      onChange={handleChange}
+      onEditorStateChange={handleChange}
+      placeholder="Notes"
     />
   )
 }

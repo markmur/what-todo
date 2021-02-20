@@ -27,7 +27,7 @@ input {
   font-size: 1em;
 }
 
-ul {
+ul, ol {
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -236,6 +236,20 @@ button {
   border-radius: 4px;
   outline: none;
   line-height: 1.5;
+}
+
+.notes-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .public-DraftStyleDefault-ol, .public-DraftStyleDefault-ul {
+    margin-top: 6px;
+  }
+
+  .public-DraftStyleDefault-block {
+    margin: 0;
+  }
 }
 
 .hidden-input {
