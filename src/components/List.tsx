@@ -16,6 +16,7 @@ interface Props {
   tasks?: TaskType[]
   filters?: string[]
   labels: Record<string, LabelType>
+  collapseCompleted?: boolean
   onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
@@ -66,6 +67,7 @@ const List: React.FC<Props> = ({
   filters = [],
   tasks = [],
   labels,
+  collapseCompleted = false,
   onFilter,
   onUpdateTask,
   onRemoveTask,
@@ -74,7 +76,9 @@ const List: React.FC<Props> = ({
 }) => {
   const selectedRef = React.useRef<any>()
   const [selected, setSelectedTask] = React.useState<TaskType>()
-  const [displayCompleted, setDisplayCompleted] = React.useState(true)
+  const [displayCompleted, setDisplayCompleted] = React.useState(
+    !collapseCompleted
+  )
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   const [uncompleted, completed] = filteredTasks.reduce(

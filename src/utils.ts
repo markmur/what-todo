@@ -29,13 +29,15 @@ export const getPastSevenDays = (): Day[] => {
   }).sort((a, b) => a.number - b.number)
 }
 
-export const formatDateHeading = (date: string): string => {
-  const options = {
+export const formatDateHeading = (
+  date: string,
+  options: Intl.DateTimeFormatOptions = {
     weekday: "long",
     year: undefined,
     month: "long",
     day: "numeric"
   }
+): string => {
   return new Date(date).toLocaleDateString(window.navigator.language, options)
 }
 
