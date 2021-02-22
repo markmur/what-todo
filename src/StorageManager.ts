@@ -273,7 +273,10 @@ class StorageManager {
 
   // Notes
   updateNote = (data: Data, note: string, date: string): Data => {
-    if (note.trim().length === 0) {
+    const previousState = data.notes[date]
+
+    // No note content
+    if (note.trim().length === 0 && previousState?.length === 0) {
       return data
     }
 
@@ -281,6 +284,7 @@ class StorageManager {
       return data
     }
 
+    // Note is the same
     if (data.notes[date] && data.notes[date] === note) {
       return data
     }
