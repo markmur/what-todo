@@ -24,6 +24,19 @@ const getTasksFor = (date: string) => (data: Data): Task[] => {
   return data.tasks[date] ?? []
 }
 
+const getOlderTasks = (data: Data): Task[] => {
+  const todayDateStr = today().toDateString()
+  let list = []
+
+  for (const [date, tasks] of Object.entries(data.tasks)) {
+    if (date !== todayDateStr) {
+      list = list.concat(tasks)
+    }
+  }
+
+  return list
+}
+
 const mobilePadding = 3
 const padding = 4
 
@@ -70,7 +83,7 @@ const Todo: React.FC<Props> = ({
   const [activeDay, setActiveDay] = React.useState(todayDateStr)
 
   const todaysTasks = getTasksFor(todayDateStr)(data)
-  const yesterdaysTasks = getTasksFor(yesterdayDateStr)(data)
+  const yesterdaysTasks = getOlderTasks(data)
 
   function createCallback<T>(fn: (item: T) => void) {
     return React.useCallback(
@@ -120,8 +133,16 @@ const Todo: React.FC<Props> = ({
             flexDirection="column"
           >
             <Box pb={1}>
-              <h1>Yesterday</h1>
-              <h5>{formatDateHeading(yesterdayDateStr)}</h5>
+              <h1>Older</h1>
+              <h5>
+                Older -{" "}
+                {formatDateHeading(yesterdayDateStr, {
+                  weekday: undefined,
+                  year: undefined,
+                  month: "long",
+                  day: "numeric"
+                })}
+              </h5>
             </Box>
             <Box width={1} overflowY="auto" flex={2}>
               <Box>
@@ -129,6 +150,7 @@ const Todo: React.FC<Props> = ({
                   tasks={yesterdaysTasks}
                   labels={labelsById}
                   filters={data.filters}
+                  collapseCompleted
                   onFilter={onUpdateFilters}
                   onUpdateTask={handleUpdateTask}
                   onRemoveTask={handleRemoveTask}

@@ -12,6 +12,7 @@ import Label from "./Label"
 
 // Types
 import { Task as TaskType, Label as LabelType } from "../index.d"
+import ReactTooltip from "react-tooltip"
 
 const MAX_DESCRIPTION_LENGTH = 140
 
@@ -119,7 +120,10 @@ const Task: React.FC<Props> = ({
         <div
           data-tip="Move to today"
           className="remove-icon"
-          onClick={() => onMoveToToday(task)}
+          onClick={() => {
+            onMoveToToday(task)
+            ReactTooltip.hide()
+          }}
         >
           <RightArrowIcon />
         </div>
