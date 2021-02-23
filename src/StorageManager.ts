@@ -1,3 +1,4 @@
+import { sync } from "./decorators/sync"
 import { bytesToSize } from "./utils"
 import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
@@ -18,14 +19,22 @@ const defaultLabels: Label[] = [
 
 // Class
 class StorageManager {
-  defaultData: Data = {
+  public defaultData: Data = {
     filters: [],
     tasks: {},
     notes: {},
     labels: defaultLabels
   }
 
+  public interactingWithDB: boolean = true
+
+  public syncQueue: Array<(data: Data, ...args: any[]) => Data> = []
+
   private async sync(newData: Data, action: Action): Promise<Data> {
+    if (this.interactingWithDB) {
+      console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
+    }
+
     console.groupCollapsed(`Sync (${action})`)
 
     await browser.storage.local.set(newData)
@@ -114,6 +123,18 @@ class StorageManager {
     return { ...data }
   }
 
+  private setBusyState = () => {
+    this.interactingWithDB = true
+  }
+
+  private unsetBusyState = (data: Data) => {
+    this.interactingWithDB = false
+    this.syncQueue.forEach(cb => {
+      cb(data)
+    })
+    console.log(">>> SYNC_QUEUE_CLEARED")
+  }
+
   // TODO
   // private validateData = (data: Record<string, unknown>): boolean => {
   //   return (
@@ -124,6 +145,8 @@ class StorageManager {
 
   // PUBLIC API
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
+    this.setBusyState()
+
     console.groupCollapsed("GET_STORAGE_DATA")
     try {
       const data = await browser.storage.local.get()
@@ -140,8 +163,7 @@ class StorageManager {
       const usage = await this.getStorageUsagePercent(parsedData)
       const usagePct = Number(usage * 100).toFixed(1) + "%"
 
-      console.log("USAGE", usagePct)
-
+      this.unsetBusyState(parsedData)
       return {
         data: parsedData,
         usage: usagePct,
@@ -194,7 +216,22 @@ class StorageManager {
     return this.remove(data, "labels", label, "REMOVE_LABEL")
   }
 
+  performOperation = (cb: (data: Data, ...args: any[]) => Data) => (
+    data: Data,
+    ...args: any[]
+  ) => {
+    if (this.interactingWithDB) {
+      this.syncQueue.push(newData => cb(newData, ...args))
+      console.log("BUSY!", this.syncQueue, newData => cb(newData, ...args))
+      return data
+    } else {
+      console.log("calling function", cb)
+      return cb.call(this, data, ...args)
+    }
+  }
+
   // Tasks
+  @sync()
   addTask = (data: Data, task: Task): Data => {
     const newTask: Task = {
       ...task,
