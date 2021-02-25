@@ -6,28 +6,23 @@ export function sync() {
   return function (
     target: StorageManager,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor?: PropertyDescriptor
   ) {
-    console.log({ descriptor })
+    console.log("target", target)
+    let orig = descriptor.value
 
-    let method = descriptor.value;
-    descriptor.value = function () {
-      console.log("Do something")
-    }
-    return method.apply(this, arguments);
-  };
-
-    return function (data: Data, ...methodArgs: any[]) {
+    descriptor.value = function (...args: any[]) {
+      console.log(target, target.interactingWithDB)
       if (target.interactingWithDB) {
         this.syncQueue.push((newData: Data) =>
-          descriptor.value(newData, ...methodArgs)
+          orig.apply(target, newData, args)
         )
         console.log("BUSY!", target.syncQueue)
-        return data
+        return null
       } else {
         console.log("calling function", { target })
-        return descriptor.value(data, ...methodArgs)
+        return orig.apply(target, args)
       }
-    }.bind(target)
+    }
   }
 }

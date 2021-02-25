@@ -19,16 +19,24 @@ const defaultLabels: Label[] = [
 
 // Class
 class StorageManager {
-  public defaultData: Data = {
-    filters: [],
-    tasks: {},
-    notes: {},
-    labels: defaultLabels
+  public defaultData: Data
+
+  public interactingWithDB: boolean
+
+  public syncQueue: Array<(data: Data, ...args: any[]) => Data>
+
+  constructor() {
+    this.defaultData = {
+      filters: [],
+      tasks: {},
+      notes: {},
+      labels: defaultLabels
+    }
+
+    this.interactingWithDB = true
+
+    this.syncQueue = []
   }
-
-  public interactingWithDB: boolean = true
-
-  public syncQueue: Array<(data: Data, ...args: any[]) => Data> = []
 
   private async sync(newData: Data, action: Action): Promise<Data> {
     if (this.interactingWithDB) {
@@ -111,7 +119,7 @@ class StorageManager {
     return newData
   }
 
-  private getTaskKey = (task: Task) => {
+  private getTaskKey(task: Task) {
     return new Date(task.created_at).toDateString()
   }
 
@@ -119,15 +127,15 @@ class StorageManager {
     return new Date().toDateString()
   }
 
-  private cloneData = (data: Data): Data => {
+  private cloneData(data: Data): Data {
     return { ...data }
   }
 
-  private setBusyState = () => {
+  private setBusyState() {
     this.interactingWithDB = true
   }
 
-  private unsetBusyState = (data: Data) => {
+  private unsetBusyState(data: Data) {
     this.interactingWithDB = false
     this.syncQueue.forEach(cb => {
       cb(data)
@@ -163,7 +171,7 @@ class StorageManager {
       const usage = await this.getStorageUsagePercent(parsedData)
       const usagePct = Number(usage * 100).toFixed(1) + "%"
 
-      this.unsetBusyState(parsedData)
+      // this.unsetBusyState(parsedData)
       return {
         data: parsedData,
         usage: usagePct,
@@ -232,7 +240,7 @@ class StorageManager {
 
   // Tasks
   @sync()
-  addTask = (data: Data, task: Task): Data => {
+  addTask(data: Data, task: Task): Data {
     const newTask: Task = {
       ...task,
       completed: false,
