@@ -1,11 +1,10 @@
 import React from "react"
 import { Flex, Box } from "rebass"
 import Tooltip from "react-tooltip"
-import {
-  FiChevronDown as ChevronDown,
-  FiChevronUp as ChevronUp,
-  FiMapPin as Pin
-} from "react-icons/fi"
+
+// Icons
+import ChevronDown from "@meronex/icons/fi/FiChevronDown"
+import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 
 import Label from "./Label"
 

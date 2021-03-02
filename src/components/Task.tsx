@@ -1,14 +1,13 @@
 import React from "react"
 import cx from "classnames"
 import { Flex, Box } from "rebass"
-import {
-  FiArrowRight as RightArrowIcon,
-  FiX as CrossIcon
-} from "react-icons/fi"
-import {
-  AiOutlinePushpin as Pin,
-  AiFillPushpin as PinFilled
-} from "react-icons/ai"
+
+// Icons
+import CrossIcon from "@meronex/icons/fi/FiX"
+import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
+import Pin from "@meronex/icons/ai/AiOutlinePushpin"
+import PinFilled from "@meronex/icons/ai/AiFillPushpin"
+
 import Textarea from "react-textarea-autosize"
 
 // Components

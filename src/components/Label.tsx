@@ -1,7 +1,8 @@
 import React from "react"
 import cx from "classnames"
 import { Flex, Box } from "rebass"
-import { FiX as CrossIcon } from "react-icons/fi"
+
+import CrossIcon from "@meronex/icons/fi/FiX"
 
 import { Label } from "../index.d"
 

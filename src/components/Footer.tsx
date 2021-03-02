@@ -1,14 +1,13 @@
 import React from "react"
 import { Flex, Box } from "rebass"
-import {
-  FiFrown as ReportIcon,
-  FiSmile as RequestIcon,
-  FiLock as PrivacyIcon,
-  FiSave as SaveIcon
-} from "react-icons/fi"
+
+// Icons
+import ReportIcon from "@meronex/icons/fi/FiFrown"
+import RequestIcon from "@meronex/icons/fi/FiSmile"
+import PrivacyIcon from "@meronex/icons/fi/FiLock"
+import SaveIcon from "@meronex/icons/fi/FiSave"
 
 import { DataContext } from "../index"
-import { Data } from "../index.d"
 import { parseDataStr } from "@src/utils"
 
 const iconProps = {

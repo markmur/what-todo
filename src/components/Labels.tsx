@@ -1,12 +1,12 @@
 import React from "react"
 import cx from "classnames"
-import {
-  FiX as CrossIcon,
-  FiPlus as PlusIcon,
-  FiFilter as FilterIcon
-} from "react-icons/fi"
 import Tooltip from "react-tooltip"
 import { Flex, Box } from "rebass"
+
+// Icons
+import CrossIcon from "@meronex/icons/fi/FiX"
+import PlusIcon from "@meronex/icons/fi/FiPlus"
+import FilterIcon from "@meronex/icons/fi/FiFilter"
 
 import { Label, IntermediateLabel } from "../index.d"
 import { Color } from "../color-palette"
