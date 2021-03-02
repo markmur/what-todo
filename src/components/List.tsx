@@ -3,7 +3,8 @@ import { Flex, Box } from "rebass"
 import Tooltip from "react-tooltip"
 import {
   FiChevronDown as ChevronDown,
-  FiChevronUp as ChevronUp
+  FiChevronUp as ChevronUp,
+  FiMapPin as Pin
 } from "react-icons/fi"
 
 import Label from "./Label"
@@ -17,11 +18,13 @@ interface Props {
   filters?: string[]
   labels: Record<string, LabelType>
   collapseCompleted?: boolean
+  canPinTasks?: boolean
   onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onMoveToToday?: (task: TaskType) => void
+  onPinTask?: (task: TaskType) => void
 }
 
 const taskHasChanged = (
@@ -68,6 +71,7 @@ const List: React.FC<Props> = ({
   tasks = [],
   labels,
   collapseCompleted = false,
+  canPinTasks = true,
   onFilter,
   onUpdateTask,
   onRemoveTask,
@@ -168,6 +172,7 @@ const List: React.FC<Props> = ({
                 onDeselect={handleBlur(task)}
                 onChange={handleChange}
                 onChangeLabels={handleLabelsChange}
+                onPinTask={canPinTasks ? onUpdateTask : undefined}
                 onRemoveTask={onRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
                 onMoveToToday={onMoveToToday}
