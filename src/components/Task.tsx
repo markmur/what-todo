@@ -95,7 +95,7 @@ const Task: React.FC<Props> = ({
         {active && (
           <React.Fragment>
             <hr />
-            <Flex mt={2}>
+            <Flex mt={2} flexWrap="wrap">
               {Object.entries(labels).map(([id, label]) => (
                 <Box key={id} mr={1} mb={1}>
                   <Label
