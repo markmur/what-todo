@@ -1,6 +1,10 @@
 module.exports = {
   presets: [
-    ["@babel/preset-env", { targets: { node: "current" } }, "lodash"],
+    [
+      "@babel/preset-env",
+      { targets: { node: "current" }, modules: false },
+      "lodash"
+    ],
     "@babel/preset-typescript"
   ]
 }
