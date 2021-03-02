@@ -114,14 +114,6 @@ class StorageManager {
     return { ...data }
   }
 
-  // TODO
-  // private validateData = (data: Record<string, unknown>): boolean => {
-  //   return (
-  //     typeof data === "object" &&
-  //     "tasks"
-  //   )
-  // }
-
   // PUBLIC API
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
     console.groupCollapsed("GET_STORAGE_DATA")
