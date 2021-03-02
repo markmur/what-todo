@@ -11,17 +11,15 @@ export function sync() {
     const orig = descriptor.value
 
     descriptor.value = function (currentData: Data, ...args: any[]) {
-      console.log(target, target.interactingWithDB)
-      if (target.interactingWithDB) {
+      if (target.busy) {
         this.syncQueue.push((newData: Data) =>
           orig.apply(target, newData, args)
         )
         console.log("BUSY!", target.syncQueue)
         return currentData
-      } else {
-        console.log("calling function", { target })
-        return orig.call(target, currentData, ...args)
       }
+
+      return orig.call(target, currentData, ...args)
     }
   }
 }
