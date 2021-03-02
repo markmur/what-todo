@@ -131,30 +131,34 @@ class StorageManager {
     return { ...data }
   }
 
+  private clearAllData(): Data {
+    this.sync(this.defaultData, "CLEAR_DATA")
+
+    return this.defaultData
+  }
+
   private setBusyState() {
     this.interactingWithDB = true
   }
 
   private unsetBusyState(data: Data) {
     this.interactingWithDB = false
-    this.syncQueue.forEach(cb => {
+    const unsynced = this.syncQueue.length
+    while (this.syncQueue.length) {
+      const cb = this.syncQueue.shift()
+      console.log(cb)
       cb(data)
-    })
-    console.log(">>> SYNC_QUEUE_CLEARED")
+    }
+    if (unsynced) {
+      console.log(`>>> SYNC_QUEUE_CLEARED (${unsynced})`)
+    }
   }
-
-  // TODO
-  // private validateData = (data: Record<string, unknown>): boolean => {
-  //   return (
-  //     typeof data === "object" &&
-  //     "tasks"
-  //   )
-  // }
 
   // PUBLIC API
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
-    this.setBusyState()
+    let parsedData: Data
 
+    this.setBusyState()
     console.groupCollapsed("GET_STORAGE_DATA")
     try {
       const data = await browser.storage.local.get()
@@ -163,7 +167,7 @@ class StorageManager {
       await browser.storage.sync.clear()
 
       const valid = this.validateData(data)
-      const parsedData = (valid ? data : this.defaultData) as Data
+      parsedData = (valid ? data : this.defaultData) as Data
 
       console.log(parsedData)
 
@@ -171,7 +175,7 @@ class StorageManager {
       const usage = await this.getStorageUsagePercent(parsedData)
       const usagePct = Number(usage * 100).toFixed(1) + "%"
 
-      // this.unsetBusyState(parsedData)
+      this.unsetBusyState(parsedData)
       return {
         data: parsedData,
         usage: usagePct,
@@ -186,13 +190,9 @@ class StorageManager {
       }
 
       console.groupEnd()
+
+      this.unsetBusyState(parsedData)
     }
-  }
-
-  clearAllData = (): Data => {
-    this.sync(this.defaultData, "CLEAR_DATA")
-
-    return this.defaultData
   }
 
   getStorageUsagePercent = async (data: Data): Promise<number> => {
@@ -224,20 +224,6 @@ class StorageManager {
     return this.remove(data, "labels", label, "REMOVE_LABEL")
   }
 
-  performOperation = (cb: (data: Data, ...args: any[]) => Data) => (
-    data: Data,
-    ...args: any[]
-  ) => {
-    if (this.interactingWithDB) {
-      this.syncQueue.push(newData => cb(newData, ...args))
-      console.log("BUSY!", this.syncQueue, newData => cb(newData, ...args))
-      return data
-    } else {
-      console.log("calling function", cb)
-      return cb.call(this, data, ...args)
-    }
-  }
-
   // Tasks
   @sync()
   addTask(data: Data, task: Task): Data {
@@ -256,7 +242,8 @@ class StorageManager {
     return newData
   }
 
-  updateTask = (data: Data, task: Task): Data => {
+  @sync()
+  updateTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
 
@@ -271,7 +258,8 @@ class StorageManager {
     return newData
   }
 
-  removeTask = (data: Data, task: Task): Data => {
+  @sync()
+  removeTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
 
@@ -286,7 +274,8 @@ class StorageManager {
     return newData
   }
 
-  moveTaskToToday = (data: Data, task: Task): Data => {
+  @sync()
+  moveTaskToToday(data: Data, task: Task): Data {
     const oldKey = this.getTaskKey(task)
     const todayKey = this.getTodayKey()
     const newData = this.cloneData(data)
