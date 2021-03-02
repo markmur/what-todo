@@ -8,6 +8,7 @@ import sizeOf from "object-sizeof"
 
 // Types
 import { Action, Data, Label, Task } from "./index.d"
+import { debug } from "console"
 
 type Item = Label
 type ItemKey = "labels"
@@ -33,7 +34,7 @@ class StorageManager {
       labels: defaultLabels
     }
 
-    this.busy = false
+    this.busy = true
 
     this.syncQueue = []
   }
@@ -161,9 +162,6 @@ class StorageManager {
     try {
       const data = await browser.storage.local.get()
 
-      console.log("Clearing all sync storage data")
-      await browser.storage.sync.clear()
-
       const valid = this.validateData(data)
       parsedData = (valid ? data : this.defaultData) as Data
 
@@ -173,7 +171,6 @@ class StorageManager {
       const usage = await this.getStorageUsagePercent(parsedData)
       const usagePct = Number(usage * 100).toFixed(1) + "%"
 
-      this.unsetBusyState(parsedData)
       return {
         data: parsedData,
         usage: usagePct,
