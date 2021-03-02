@@ -21,7 +21,7 @@ const defaultLabels: Label[] = [
 class StorageManager {
   public defaultData: Data
 
-  public interactingWithDB: boolean
+  public busy: boolean
 
   public syncQueue: Array<(data: Data, ...args: any[]) => Data>
 
@@ -33,13 +33,13 @@ class StorageManager {
       labels: defaultLabels
     }
 
-    this.interactingWithDB = true
+    this.busy = false
 
     this.syncQueue = []
   }
 
   private async sync(newData: Data, action: Action): Promise<Data> {
-    if (this.interactingWithDB) {
+    if (this.busy) {
       console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
     }
 
@@ -138,16 +138,14 @@ class StorageManager {
   }
 
   private setBusyState() {
-    this.interactingWithDB = true
+    this.busy = true
   }
 
   private unsetBusyState(data: Data) {
-    this.interactingWithDB = false
+    this.busy = false
     const unsynced = this.syncQueue.length
     while (this.syncQueue.length) {
-      const cb = this.syncQueue.shift()
-      console.log(cb)
-      cb(data)
+      this.syncQueue.shift()(data)
     }
     if (unsynced) {
       console.log(`>>> SYNC_QUEUE_CLEARED (${unsynced})`)
