@@ -8,7 +8,6 @@ import sizeOf from "object-sizeof"
 
 // Types
 import { Action, Data, Label, Task } from "./index.d"
-import { debug } from "console"
 
 type Item = Label
 type ItemKey = "labels"
@@ -34,7 +33,7 @@ class StorageManager {
       labels: defaultLabels
     }
 
-    this.busy = true
+    this.busy = false
 
     this.syncQueue = []
   }
