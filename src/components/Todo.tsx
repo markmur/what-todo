@@ -236,6 +236,7 @@ const Todo: React.FC<Props> = ({
                       <Box
                         className={cx("calendar-day", {
                           active: day.date.toDateString() === activeDay,
+                          hasNote: !!data.notes[day.date.toDateString()],
                           today: day.isToday
                         })}
                         p={1}
