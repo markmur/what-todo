@@ -127,6 +127,10 @@ class StorageManager {
     return new Date().toDateString()
   }
 
+  private getDateString(): string {
+    return new Date().toISOString()
+  }
+
   private cloneData(data: Data): Data {
     return { ...data }
   }
@@ -249,6 +253,13 @@ class StorageManager {
     const index = newData.tasks[key]?.findIndex(t => t.id === task.id)
 
     if (index > -1) {
+      const completedStateChanged =
+        newData.tasks[key]?.[index].completed !== task.completed
+
+      if (completedStateChanged) {
+        task.completed_at = task.completed ? this.getDateString() : undefined
+      }
+
       set(newData, `tasks.${key}.${index}`, task)
     }
 
@@ -288,7 +299,7 @@ class StorageManager {
 
     const newTask = {
       ...task,
-      created_at: new Date().toISOString()
+      created_at: this.getDateString()
     }
 
     const todayTasks =
