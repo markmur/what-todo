@@ -13,7 +13,7 @@ export function sync() {
     descriptor.value = function (currentData: Data, ...args: any[]) {
       if (target.busy) {
         this.syncQueue.push((newData: Data) =>
-          orig.apply(target, newData, args)
+          orig.call(target, newData, ...args)
         )
         console.log("BUSY!", target.syncQueue)
         return currentData
