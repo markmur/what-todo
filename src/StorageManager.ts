@@ -12,6 +12,10 @@ import { Action, Data, Label, Task } from "./index.d"
 type Item = Label
 type ItemKey = "labels"
 
+const isObj = (val: any) => {
+  return typeof val === "object" && val !== null && !Array.isArray(val)
+}
+
 const defaultLabels: Label[] = [
   { id: uuid(), title: "Work", color: colors[0].backgroundColor },
   { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
@@ -39,22 +43,25 @@ class StorageManager {
   }
 
   private async sync(newData: Data, action: Action): Promise<Data> {
-    if (this.busy) {
+    if (this.busy && this.syncQueue.length) {
       console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
     }
 
     console.groupCollapsed(`Sync (${action})`)
 
+    console.time("sync")
     await browser.storage.local.set(newData)
+    console.timeEnd("sync")
 
-    console.debug("Sync successful")
     console.debug(action, newData)
     console.groupEnd()
     return newData
   }
 
   private validateData(data: Record<string, any>): boolean {
-    return Object.keys(data).length > 0
+    const hasData = Object.keys(data).length > 0
+
+    return hasData
   }
 
   private add(
@@ -161,19 +168,132 @@ class StorageManager {
     }
   }
 
+  private validateSyncData(data: any): Data {
+    if (typeof data !== "object" || Array.isArray(data) || !data) {
+      return this.defaultData
+    }
+
+    if (Object.keys(data).length === 0) {
+      return this.defaultData
+    }
+
+    const returnValue: Data = data
+
+    // Validate filters
+    if (!Array.isArray(data.filters)) {
+      returnValue.filters = this.defaultData.filters
+    }
+
+    // Validate labels
+    if (!Array.isArray(data.labels)) {
+      returnValue.labels = this.defaultData.labels
+    }
+
+    // Validate notes
+    if (!isObj(data.notes)) {
+      returnValue.notes = this.defaultData.notes
+    }
+
+    // Validate tasks
+    if (!isObj(data.tasks)) {
+      returnValue.tasks = this.defaultData.tasks
+    }
+
+    return returnValue
+  }
+
+  private async transformSyncDataToLocalStorage(): Promise<Data | undefined> {
+    console.time("transformSyncDataToLocalStorage()")
+
+    try {
+      const oldData = await browser.storage.sync.get()
+
+      console.log({ oldData })
+
+      if (Object.keys(oldData).length < 1) {
+        await browser.storage.local.set({ migrated: false })
+
+        return undefined
+      }
+
+      const validatedData = this.validateSyncData(oldData)
+
+      // Update local storage
+      const newData = {
+        ...validatedData,
+        migrated: true
+      }
+
+      await this.sync(newData, "MIGRATE_DATA_FROM_SYNC")
+
+      // Clear old data
+      this.clearLegacyData()
+
+      return newData
+    } catch (error) {
+      console.error(error)
+      return undefined
+    } finally {
+      console.timeEnd("transformSyncDataToLocalStorage()")
+    }
+  }
+
+  private cleanData(data: Data) {
+    console.time("cleanData()")
+    const labelIds = data.labels.map(x => x.id)
+    const newData = this.cloneData(data)
+
+    for (const [, tasks] of Object.entries(newData.tasks)) {
+      for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i]
+        for (const label of task.labels) {
+          if (!labelIds.includes(label)) {
+            const newTask = {
+              ...task,
+              labels: task.labels.filter(x => x !== label)
+            }
+            set(newData, `tasks.${this.getTaskKey(task)}.${i}`, newTask)
+          }
+        }
+      }
+    }
+
+    console.timeEnd("cleanData()")
+    return this.sync(newData, "CLEAN_DATA")
+  }
+
   // PUBLIC API
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
     let parsedData: Data
 
     this.setBusyState()
     console.groupCollapsed("GET_STORAGE_DATA")
+    console.time("getData()")
     try {
       const data = await browser.storage.local.get()
 
       const valid = this.validateData(data)
       parsedData = (valid ? data : this.defaultData) as Data
+      parsedData = await this.cleanData(parsedData)
 
       console.log(parsedData)
+
+      if (!Boolean(parsedData.migrated)) {
+        // Migrate data from Release #1 from sync storage to local storage
+        const migratedData = await this.transformSyncDataToLocalStorage()
+
+        if (migratedData) parsedData = migratedData
+      }
+
+      const filteringByMissingLabels = data.filters?.some(filterId => {
+        return (
+          (parsedData.labels || []).findIndex(({ id }) => filterId === id) < 0
+        )
+      })
+
+      if (filteringByMissingLabels) {
+        parsedData = this.updateFilters(parsedData, [])
+      }
 
       // Usage
       const usage = await this.getStorageUsagePercent(parsedData)
@@ -192,6 +312,7 @@ class StorageManager {
         throw chrome.runtime.lastError
       }
 
+      console.timeEnd("getData()")
       console.groupEnd()
 
       this.unsetBusyState(parsedData)
@@ -345,8 +466,10 @@ class StorageManager {
   // Filters
   updateFilters = (data: Data, filters: string[]): Data => {
     const newData = this.cloneData(data)
+    const labelIds = data.labels.map(x => x.id)
 
-    newData.filters = filters
+    // Only set filters as existing labels
+    newData.filters = filters.filter(id => labelIds.includes(id))
 
     this.sync(newData, "UPDATE_FILTERS")
 
