@@ -110,6 +110,16 @@ textarea.unstyled {
 }
 
 .task {
+  .task-title-input {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.25;
+
+    &.strike {
+      text-decoration: line-through;
+    }
+  }
+
   .task-description-input {
     padding-top: 5px;
     font-size: 13px;

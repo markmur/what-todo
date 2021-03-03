@@ -75,17 +75,15 @@ const Task: React.FC<Props> = ({
       </Box>
 
       <Box width={1}>
-        {task.completed ? (
-          <div>
-            <s>{task.title}</s>
-          </div>
-        ) : (
-          <input
-            value={task.title}
-            onChange={onChange("title")}
-            onFocus={() => onSelect(task)}
-          />
-        )}
+        <Textarea
+          maxRows={3}
+          value={task.title}
+          className={cx("unstyled task-title-input", {
+            strike: task.completed
+          })}
+          onChange={onChange("title")}
+          onFocus={() => onSelect(task)}
+        />
 
         {(active || task.description) && (
           <Textarea
