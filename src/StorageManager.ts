@@ -137,6 +137,11 @@ class StorageManager {
     return this.defaultData
   }
 
+  private async clearLegacyData() {
+    console.log("Clearing all legacy sync storage data")
+    await browser.storage.sync.clear()
+  }
+
   private setBusyState() {
     this.busy = true
   }
