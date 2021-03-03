@@ -33,12 +33,21 @@ export type Tasks = Record<string, Task[]>
 // Array of label id strings
 export type Filters = string[]
 
-export interface Data {
+export type SchemaOne = {
   filters: Filters
   tasks: Tasks
   notes: Notes
   labels: Label[]
 }
+
+type SchemaTwo = {
+  /**
+   * This field indicates whether the data from sync storage was migrated to local storage
+   */
+  migrated?: boolean
+}
+
+export type Data = SchemaOne & SchemaTwo
 
 export type IntermediateLabel = Partial<Label> & {
   title: string
@@ -49,7 +58,11 @@ type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK" | "MOVE_TASK"
 type LabelAction = "ADD_LABEL" | "REMOVE_LABEL" | "UPDATE_LABEL"
 type NoteAction = "UPDATE_NOTE"
 type FilterAction = "UPDATE_FILTERS"
-type StorageAction = "CLEAR_DATA" | "UPLOAD_DATA"
+type StorageAction =
+  | "CLEAR_DATA"
+  | "UPLOAD_DATA"
+  | "MIGRATE_DATA_FROM_SYNC"
+  | "CLEAN_DATA"
 
 export type Action =
   | TaskAction

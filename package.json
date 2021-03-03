@@ -62,6 +62,7 @@
     "eslint-plugin-react": "^7.22.0",
     "jest": "^26.5.3",
     "jest-css-modules": "^2.1.0",
+    "lodash": "^4.17.21",
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
     "sass-loader": "^11.0.1",
