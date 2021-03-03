@@ -1,4 +1,4 @@
-import { Data, SchemaOne } from "./index.d"
+import { Data } from "./index.d"
 jest.mock("webextension-polyfill-ts")
 
 import { browser } from "webextension-polyfill-ts"
