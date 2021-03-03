@@ -119,11 +119,11 @@ class StorageManager {
     return newData
   }
 
-  private getTaskKey(task: Task) {
+  private getTaskKey(task: Task): string {
     return new Date(task.created_at).toDateString()
   }
 
-  private getTodayKey = () => {
+  private getTodayKey(): string {
     return new Date().toDateString()
   }
 
