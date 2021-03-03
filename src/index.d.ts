@@ -22,6 +22,7 @@ export interface Task {
 
   // Fields after release #1
   pinned?: boolean
+  completed_at?: string | undefined
 }
 
 export type Note = string
