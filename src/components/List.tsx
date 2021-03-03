@@ -219,6 +219,7 @@ const List: React.FC<Props> = ({
                     onDeselect={handleBlur(task)}
                     onChange={handleChange}
                     onChangeLabels={handleLabelsChange}
+                    onPinTask={canPinTasks ? onUpdateTask : undefined}
                     onRemoveTask={onRemoveTask}
                     onMarkAsComplete={onMarkAsComplete}
                     onMoveToToday={onMoveToToday}
