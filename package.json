@@ -3,6 +3,7 @@
   "version": "1.1.0",
   "description": "A Chrome Extension for managing your todos",
   "main": "index.js",
+  "sideEffects": false,
   "scripts": {
     "analyze": " npx webpack --config webpack.prod.js --profile --json > stats.json && npx webpack-bundle-analyzer stats.json",
     "build": "webpack --config webpack.prod.js",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.1.5",
+    "@meronex/icons": "^4.0.0",
     "@rebass/preset": "^4.0.5",
     "classnames": "^2.2.6",
     "emotion-theming": "^11.0.0",
@@ -24,7 +26,6 @@
     "object-sizeof": "^1.6.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-icons": "^4.2.0",
     "react-test-renderer": "^17.0.1",
     "react-textarea-autosize": "^8.3.1",
     "react-tooltip": "^4.2.13",
@@ -42,7 +43,6 @@
     "@types/node": "^14.11.8",
     "@types/react": "^16.9.52",
     "@types/react-dom": "^16.9.8",
-    "@types/react-icons": "^3.0.0",
     "@types/react-test-renderer": "^16.9.3",
     "@types/react-textarea-autosize": "^4.3.5",
     "@types/react-tooltip": "^4.2.4",

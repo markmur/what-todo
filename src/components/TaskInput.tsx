@@ -1,6 +1,7 @@
 import React from "react"
 import { Flex, Box } from "rebass"
-import { FiPlusCircle as PlusIcon } from "react-icons/fi"
+
+import PlusIcon from "@meronex/icons/fi/FiPlusCircle"
 
 import { Label as LabelType, Task } from "../index.d"
 import useOnClickOutside from "../hooks/onclickoutside"

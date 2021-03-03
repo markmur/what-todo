@@ -1,6 +1,9 @@
 import React from "react"
 import cx from "classnames"
-import { FiCheckSquare as Checked, FiSquare as Unchecked } from "react-icons/fi"
+
+// Icons
+import Checked from "@meronex/icons/fi/FiCheckSquare"
+import Unchecked from "@meronex/icons/fi/FiSquare"
 
 interface Props {
   id: string

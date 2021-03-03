@@ -19,6 +19,9 @@ export interface Task {
   created_at: string
   completed: boolean
   labels?: string[]
+
+  // Fields after release #1
+  pinned?: boolean
 }
 
 export type Note = string

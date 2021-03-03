@@ -85,6 +85,13 @@ const Todo: React.FC<Props> = ({
   const todaysTasks = getTasksFor(todayDateStr)(data)
   const yesterdaysTasks = getOlderTasks(data)
 
+  // Move any pinned tasks to today
+  yesterdaysTasks.map(task => {
+    if (task.pinned) {
+      onMoveToToday(task)
+    }
+  })
+
   function createCallback<T>(fn: (item: T) => void) {
     return React.useCallback(
       (item: T) => {
@@ -151,6 +158,7 @@ const Todo: React.FC<Props> = ({
                   labels={labelsById}
                   filters={data.filters}
                   collapseCompleted
+                  canPinTasks={false}
                   onFilter={onUpdateFilters}
                   onUpdateTask={handleUpdateTask}
                   onRemoveTask={handleRemoveTask}
@@ -189,6 +197,7 @@ const Todo: React.FC<Props> = ({
                 labels={labelsById}
                 filters={data.filters}
                 onFilter={onUpdateFilters}
+                onPinTask={handleUpdateTask}
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={onMarkAsComplete}
@@ -227,6 +236,7 @@ const Todo: React.FC<Props> = ({
                       <Box
                         className={cx("calendar-day", {
                           active: day.date.toDateString() === activeDay,
+                          hasNote: !!data.notes[day.date.toDateString()],
                           today: day.isToday
                         })}
                         p={1}

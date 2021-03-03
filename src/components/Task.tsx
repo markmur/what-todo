@@ -1,9 +1,13 @@
 import React from "react"
+import cx from "classnames"
 import { Flex, Box } from "rebass"
-import {
-  FiArrowRight as RightArrowIcon,
-  FiX as CrossIcon
-} from "react-icons/fi"
+
+// Icons
+import CrossIcon from "@meronex/icons/fi/FiX"
+import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
+import Pin from "@meronex/icons/ai/AiOutlinePushpin"
+import PinFilled from "@meronex/icons/ai/AiFillPushpin"
+
 import Textarea from "react-textarea-autosize"
 
 // Components
@@ -25,6 +29,7 @@ interface Props {
   onSelect: (task: TaskType) => void
   onDeselect: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
+  onPinTask?: (task: TaskType) => void
   onChange: (key: keyof TaskType) => (event: React.ChangeEvent) => void
   onMoveToToday: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
@@ -51,6 +56,7 @@ const Task: React.FC<Props> = ({
   onChange,
   onMoveToToday,
   onRemoveTask,
+  onPinTask,
   onChangeLabels
 }) => {
   return (
@@ -126,6 +132,21 @@ const Task: React.FC<Props> = ({
           }}
         >
           <RightArrowIcon />
+        </div>
+      )}
+
+      {onPinTask && (
+        <div
+          data-tip={task.pinned ? "Unpin task" : "Pin task"}
+          className={cx("remove-icon", { active: task.pinned })}
+          onClick={() => {
+            onPinTask({
+              ...task,
+              pinned: !Boolean(task.pinned)
+            })
+          }}
+        >
+          {task.pinned ? <PinFilled /> : <Pin />}
         </div>
       )}
 
