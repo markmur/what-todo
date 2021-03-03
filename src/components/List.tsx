@@ -91,6 +91,7 @@ const List: React.FC<Props> = ({
     },
     [[], []]
   )
+  completed.sort((a, b) => b.completed_at?.localeCompare(a.completed_at))
   const hasCompletedTasks = completed.length > 0
 
   useOnClickOutside(selectedRef, () => {
