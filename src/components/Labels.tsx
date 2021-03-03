@@ -54,9 +54,6 @@ const Labels: React.FC<Props> = ({
     setControlledLabels(labelsById)
   }, [labels])
 
-  // diff between labels.map(l => l.colors) && color pallette
-  // const availableColors = []
-
   const handleCreate = React.useCallback(() => {
     setNewLabel({
       title: "",
@@ -83,7 +80,6 @@ const Labels: React.FC<Props> = ({
       }
 
       setControlledLabels(newLabels)
-      onUpdateLabel(newLabel)
     },
     [controlledLabels]
   )
@@ -116,6 +112,13 @@ const Labels: React.FC<Props> = ({
     [controlledLabels, onUpdateLabel]
   )
 
+  const handleBlur = React.useCallback(
+    id => {
+      onUpdateLabel(controlledLabels[id])
+    },
+    [controlledLabels, onUpdateLabel]
+  )
+
   return (
     <React.Fragment>
       <ul className="labels">
@@ -141,6 +144,7 @@ const Labels: React.FC<Props> = ({
                 <input
                   value={label.title}
                   onChange={event => handleChangeTitle(label.id, event)}
+                  onBlur={() => handleBlur(label.id)}
                 />
               </Box>
 
