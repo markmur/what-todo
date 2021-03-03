@@ -1,3 +1,4 @@
+import { sync } from "./decorators/sync"
 import { bytesToSize } from "./utils"
 import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
@@ -18,14 +19,30 @@ const defaultLabels: Label[] = [
 
 // Class
 class StorageManager {
-  defaultData: Data = {
-    filters: [],
-    tasks: {},
-    notes: {},
-    labels: defaultLabels
+  public defaultData: Data
+
+  public busy: boolean
+
+  public syncQueue: Array<(data: Data, ...args: any[]) => Data>
+
+  constructor() {
+    this.defaultData = {
+      filters: [],
+      tasks: {},
+      notes: {},
+      labels: defaultLabels
+    }
+
+    this.busy = false
+
+    this.syncQueue = []
   }
 
   private async sync(newData: Data, action: Action): Promise<Data> {
+    if (this.busy) {
+      console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
+    }
+
     console.groupCollapsed(`Sync (${action})`)
 
     await browser.storage.local.set(newData)
@@ -102,7 +119,7 @@ class StorageManager {
     return newData
   }
 
-  private getTaskKey = (task: Task) => {
+  private getTaskKey(task: Task) {
     return new Date(task.created_at).toDateString()
   }
 
@@ -110,29 +127,53 @@ class StorageManager {
     return new Date().toDateString()
   }
 
-  private cloneData = (data: Data): Data => {
+  private cloneData(data: Data): Data {
     return { ...data }
+  }
+
+  private clearAllData(): Data {
+    this.sync(this.defaultData, "CLEAR_DATA")
+
+    return this.defaultData
+  }
+
+  private async clearLegacyData() {
+    console.log("Clearing all legacy sync storage data")
+    await browser.storage.sync.clear()
+  }
+
+  private setBusyState() {
+    this.busy = true
+  }
+
+  private unsetBusyState(data: Data) {
+    this.busy = false
+    const unsynced = this.syncQueue.length
+    while (this.syncQueue.length) {
+      this.syncQueue.shift()(data)
+    }
+    if (unsynced) {
+      console.log(`>>> SYNC_QUEUE_CLEARED (${unsynced})`)
+    }
   }
 
   // PUBLIC API
   async getData(): Promise<{ data: Data; usage: string; quota: string }> {
+    let parsedData: Data
+
+    this.setBusyState()
     console.groupCollapsed("GET_STORAGE_DATA")
     try {
       const data = await browser.storage.local.get()
 
-      console.log("Clearing all sync storage data")
-      await browser.storage.sync.clear()
-
       const valid = this.validateData(data)
-      const parsedData = (valid ? data : this.defaultData) as Data
+      parsedData = (valid ? data : this.defaultData) as Data
 
       console.log(parsedData)
 
       // Usage
       const usage = await this.getStorageUsagePercent(parsedData)
       const usagePct = Number(usage * 100).toFixed(1) + "%"
-
-      console.log("USAGE", usagePct)
 
       return {
         data: parsedData,
@@ -148,13 +189,9 @@ class StorageManager {
       }
 
       console.groupEnd()
+
+      this.unsetBusyState(parsedData)
     }
-  }
-
-  clearAllData = (): Data => {
-    this.sync(this.defaultData, "CLEAR_DATA")
-
-    return this.defaultData
   }
 
   getStorageUsagePercent = async (data: Data): Promise<number> => {
@@ -187,7 +224,8 @@ class StorageManager {
   }
 
   // Tasks
-  addTask = (data: Data, task: Task): Data => {
+  @sync()
+  addTask(data: Data, task: Task): Data {
     const newTask: Task = {
       ...task,
       completed: false,
@@ -203,7 +241,8 @@ class StorageManager {
     return newData
   }
 
-  updateTask = (data: Data, task: Task): Data => {
+  @sync()
+  updateTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
 
@@ -218,7 +257,8 @@ class StorageManager {
     return newData
   }
 
-  removeTask = (data: Data, task: Task): Data => {
+  @sync()
+  removeTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
 
@@ -233,7 +273,8 @@ class StorageManager {
     return newData
   }
 
-  moveTaskToToday = (data: Data, task: Task): Data => {
+  @sync()
+  moveTaskToToday(data: Data, task: Task): Data {
     const oldKey = this.getTaskKey(task)
     const todayKey = this.getTodayKey()
     const newData = this.cloneData(data)
