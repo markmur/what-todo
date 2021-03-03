@@ -24,7 +24,7 @@ describe("StorageManager", () => {
   })
 
   it("should migrate data if sync data available", async () => {
-    const oldData: SchemaOne = {
+    const oldData: Data = {
       filters: ["label-1"],
       labels: [{ id: "label-1", title: "Work", color: "black" }],
       tasks: {

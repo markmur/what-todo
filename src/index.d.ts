@@ -33,21 +33,16 @@ export type Tasks = Record<string, Task[]>
 // Array of label id strings
 export type Filters = string[]
 
-export type SchemaOne = {
+export type Data = {
   filters: Filters
   tasks: Tasks
   notes: Notes
   labels: Label[]
-}
-
-type SchemaTwo = {
   /**
    * This field indicates whether the data from sync storage was migrated to local storage
    */
   migrated?: boolean
 }
-
-export type Data = SchemaOne & SchemaTwo
 
 export type IntermediateLabel = Partial<Label> & {
   title: string
