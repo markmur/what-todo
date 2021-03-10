@@ -36,7 +36,35 @@ interface Props {
   onChangeLabels: (labels: string[]) => void
 }
 
-const getDescription = (active: boolean, task: TaskType): string => {
+const URL_RE = /(https?:\/\/[^\s]+)/g
+
+function shortenURL(url: string) {
+  try {
+    return new URL(url).hostname
+  } catch {
+    return url
+  }
+}
+
+function urlify(text: string): string | (string | JSX.Element)[] {
+  const matches = text.match(URL_RE)
+
+  if (!matches?.length) {
+    return text
+  }
+
+  return text.split(URL_RE).map((str, i) =>
+    URL_RE.test(str) ? (
+      <a key={`${str}-${i}`} rel="noopener noreferer" href={str}>
+        {shortenURL(str)}
+      </a>
+    ) : (
+      str
+    )
+  )
+}
+
+const getDescription = (active: boolean, task: TaskType) => {
   return active
     ? task.description
     : task.description.length >= MAX_DESCRIPTION_LENGTH
@@ -86,14 +114,22 @@ const Task: React.FC<Props> = ({
         />
 
         {(active || task.description) && (
-          <Textarea
-            maxRows={5}
-            value={getDescription(active, task)}
-            placeholder="Add description..."
-            className="unstyled task-description-input"
-            onChange={onChange("description")}
-            onFocus={() => onSelect(task)}
-          />
+          <>
+            {active ? (
+              <Textarea
+                maxRows={5}
+                value={getDescription(active, task)}
+                placeholder="Add description..."
+                className="unstyled task-description-input"
+                onChange={onChange("description")}
+                onFocus={() => onSelect(task)}
+              />
+            ) : (
+              <p className="unstyled task-description-input">
+                {urlify(getDescription(active, task))}
+              </p>
+            )}
+          </>
         )}
 
         {active && (

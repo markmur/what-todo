@@ -20,6 +20,14 @@ hr {
   width: 100%;
 }
 
+a,
+a:visited {
+  color: rgb(56, 173, 169);
+  font-weight: bold;
+  font-style: inherit;
+  word-break: break-all;
+}
+
 p,
 s,
 em,
@@ -125,6 +133,7 @@ textarea.unstyled {
     font-size: 13px;
     color: rgb(123, 130, 150);
     font-weight: 400;
+    margin: 0;
   }
 }
 
