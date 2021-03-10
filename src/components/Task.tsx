@@ -106,6 +106,7 @@ const Task: React.FC<Props> = ({
         <Textarea
           maxRows={3}
           value={task.title}
+          spellCheck={active}
           className={cx("unstyled task-title-input", {
             strike: task.completed
           })}
