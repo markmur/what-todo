@@ -20,14 +20,6 @@ hr {
   width: 100%;
 }
 
-a,
-a:visited {
-  color: rgb(56, 173, 169);
-  font-weight: bold;
-  font-style: inherit;
-  word-break: break-all;
-}
-
 p,
 s,
 em,
@@ -118,6 +110,14 @@ textarea.unstyled {
 }
 
 .task {
+  a,
+  a:visited {
+    color: rgb(56, 173, 169);
+    font-weight: bold;
+    font-style: inherit;
+    word-break: break-all;
+  }
+
   .task-title-input {
     font-size: 16px;
     font-weight: 400;
