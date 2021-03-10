@@ -91,6 +91,17 @@ const List: React.FC<Props> = ({
     },
     [[], []]
   )
+
+  // Sort uncompleted by pinned state
+  uncompleted.sort((a, b) => {
+    const ap = typeof a.pinned === "boolean" && +a.pinned
+    const bp = typeof b.pinned === "boolean" && +b.pinned
+    const createdAt = a.created_at.localeCompare(b.created_at)
+
+    return bp - ap || createdAt
+  })
+
+  // Sort completed tasks by when they were completed
   completed.sort((a, b) => b.completed_at?.localeCompare(a.completed_at))
   const hasCompletedTasks = completed.length > 0
 
