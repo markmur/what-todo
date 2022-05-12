@@ -11,7 +11,7 @@
     "dev": "webpack -w --config webpack.dev.js",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
     "release": "yarn build && zip -r releases/what-todo.$(cat package.json | jq -r .version).zip dist",
-    "start": "parcel index.html",
+    "start": "parcel index.html --out-dir=dist-web",
     "test": "jest --config=jest.config.js"
   },
   "author": "Mark Murray <mark.murray.ie@gmail.com> (https://markmurray.co)",

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { FormEvent } from "react"
 import cx from "classnames"
 import { Flex, Box } from "rebass"
 
@@ -26,7 +26,7 @@ interface Props {
   labels: Record<string, LabelType>
   filters: string[]
   onFilter: (filters: string[]) => void
-  onSelect: (task: TaskType) => void
+  onSelect: (task: TaskType, event: FormEvent) => void
   onDeselect: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onPinTask?: (task: TaskType) => void
@@ -117,7 +117,7 @@ const Task: React.FC<Props> = ({
             strike: task.completed
           })}
           onChange={onChange("title")}
-          onFocus={() => onSelect(task)}
+          onFocus={event => onSelect(task, event)}
         />
 
         {(active || task.description) && (
@@ -129,7 +129,7 @@ const Task: React.FC<Props> = ({
                 placeholder="Add description..."
                 className="unstyled task-description-input"
                 onChange={onChange("description")}
-                onFocus={() => onSelect(task)}
+                onFocus={event => onSelect(task, event)}
               />
             ) : (
               <p className="unstyled task-description-input">

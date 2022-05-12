@@ -65,6 +65,14 @@ const getFilteredTasks = (tasks: TaskType[], filters: string[]) => {
   })
 }
 
+const promiseTimeout = (fn: any) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(fn())
+    })
+  })
+}
+
 const List: React.FC<Props> = ({
   filters = [],
   tasks = [],
@@ -105,10 +113,14 @@ const List: React.FC<Props> = ({
   completed.sort((a, b) => b.completed_at?.localeCompare(a.completed_at))
   const hasCompletedTasks = completed.length > 0
 
-  useOnClickOutside(selectedRef, () => {
+  const clickOutsideHandler = () => {
     setTimeout(() => {
       setSelectedTask(undefined)
     })
+  }
+
+  useOnClickOutside(selectedRef, clickOutsideHandler, {
+    ignore: "task-title-input"
   })
 
   React.useEffect(() => {
@@ -131,7 +143,8 @@ const List: React.FC<Props> = ({
     })
   }
 
-  const handleFocus = (originalTask: TaskType) => () => {
+  const handleFocus = (originalTask: TaskType) => (task, event) => {
+    console.log(event.target)
     if (!isSelected(selected, originalTask)) {
       setSelectedTask(originalTask)
     }

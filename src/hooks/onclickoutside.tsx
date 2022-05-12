@@ -3,12 +3,18 @@ import * as React from "react"
 // Hook
 export default function useOnClickOutside(
   ref: React.Ref<HTMLElement>,
-  handler: (event: Event) => void
+  handler: (event: Event) => void,
+  options?: { ignore: string }
 ): void {
   React.useEffect(() => {
     const listener = event => {
-      // @ts-ignore
-      if (!ref.current || ref.current.contains(event.target)) {
+      if (
+        // @ts-ignore
+        !ref.current ||
+        // @ts-ignore
+        ref.current.contains(event.target) ||
+        event.target?.classList.contains(options?.ignore)
+      ) {
         return
       }
 
