@@ -9,7 +9,7 @@ import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import Label from "./Label"
 
 import { Task as TaskType, Label as LabelType } from "../index.d"
-import useOnClickOutside from "@src/hooks/onclickoutside"
+import useOnClickOutside from "../hooks/onclickoutside"
 import Task from "./Task"
 
 interface Props {

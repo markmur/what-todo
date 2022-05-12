@@ -5,7 +5,7 @@ import colors from "../color-palette"
 
 // Hooks
 import { today, yesterday, formatDateHeading } from "../utils"
-import useMedia, { Breakpoints } from "@src/hooks/media"
+import useMedia, { Breakpoints } from "../hooks/media"
 
 // Styles
 import "../styles.scss"
@@ -14,9 +14,9 @@ import "../styles.scss"
 import { Label, Task, Data, IntermediateLabel, Note, Day } from "../index.d"
 
 // Components
-import TaskInput from "@src/components/TaskInput"
-import List from "@src/components/List"
-import Labels from "@src/components/Labels"
+import TaskInput from "./TaskInput"
+import List from "./List"
+import Labels from "./Labels"
 import Notes from "./Notes"
 import Footer from "./Footer"
 

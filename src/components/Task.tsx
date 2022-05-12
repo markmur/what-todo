@@ -40,7 +40,8 @@ const URL_RE = /(https?:\/\/[^\s]+)/g
 
 function shortenURL(url: string) {
   try {
-    return new URL(url).hostname
+    const parsed = new URL(url)
+    return parsed.hostname + parsed.pathname
   } catch {
     return url
   }
@@ -55,7 +56,12 @@ function urlify(text: string): string | (string | JSX.Element)[] {
 
   return text.split(URL_RE).map((str, i) =>
     URL_RE.test(str) ? (
-      <a key={`${str}-${i}`} rel="noopener noreferer" href={str}>
+      <a
+        key={`${str}-${i}`}
+        rel="noopener noreferrer"
+        href={str}
+        target="_blank"
+      >
         {shortenURL(str)}
       </a>
     ) : (
@@ -192,7 +198,7 @@ const Task: React.FC<Props> = ({
               className="circle"
               data-tip={labels[id]?.title}
               data-background-color={labels[id]?.color}
-              style={{ backgroundColor: labels[id]?.color }}
+              style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
               onClick={event => {
                 if (filters.includes(id)) {
                   onFilter(filters.filter(f => f !== id))

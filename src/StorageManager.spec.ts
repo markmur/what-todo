@@ -2,7 +2,7 @@ import { Data } from "./index.d"
 jest.mock("webextension-polyfill-ts")
 
 import { browser } from "webextension-polyfill-ts"
-import StorageManager from "@src/StorageManager"
+import StorageManager from "./StorageManager"
 
 describe("StorageManager", () => {
   let inst = new StorageManager()

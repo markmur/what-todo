@@ -7,10 +7,12 @@
   "scripts": {
     "analyze": " npx webpack --config webpack.prod.js --profile --json > stats.json && npx webpack-bundle-analyzer stats.json",
     "build": "webpack --config webpack.prod.js",
+    "build:web": "parcel build index.html --out-dir=dist-web",
     "dev": "webpack -w --config webpack.dev.js",
-    "test": "jest --config=jest.config.js",
     "lint": "eslint --fix -c ./.eslintrc.js \"src/**/*.ts*\"",
-    "release": "yarn build && zip -r releases/what-todo.$(cat package.json | jq -r .version).zip dist"
+    "release": "yarn build && zip -r releases/what-todo.$(cat package.json | jq -r .version).zip dist",
+    "start": "parcel index.html",
+    "test": "jest --config=jest.config.js"
   },
   "author": "Mark Murray <mark.murray.ie@gmail.com> (https://markmurray.co)",
   "bugs": {
@@ -63,7 +65,8 @@
     "jest": "^26.5.3",
     "jest-css-modules": "^2.1.0",
     "lodash": "^4.17.21",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.1",
+    "parcel-bundler": "^1.12.5",
     "prettier": "^2.1.2",
     "sass-loader": "^11.0.1",
     "style-loader": "^2.0.0",

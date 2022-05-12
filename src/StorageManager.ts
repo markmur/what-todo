@@ -1,6 +1,6 @@
 import { sync } from "./decorators/sync"
 import { bytesToSize } from "./utils"
-import { browser } from "webextension-polyfill-ts"
+// import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
 import set from "lodash-es/set"
 import colors from "./color-palette"
@@ -20,6 +20,32 @@ const defaultLabels: Label[] = [
   { id: uuid(), title: "Work", color: colors[0].backgroundColor },
   { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
 ]
+
+const initialData: Data = {
+  filters: [],
+  tasks: {},
+  notes: {},
+  labels: [],
+  migrated: true
+}
+
+const browser = (() => {
+  const storage = {
+    sync: {
+      get: () => ({}),
+      clear: () => undefined
+    },
+    local: {
+      set: data => localStorage.setItem("what-todo", JSON.stringify(data)),
+      get: () =>
+        JSON.parse(
+          localStorage.getItem("what-todo") || JSON.stringify(initialData)
+        )
+    }
+  }
+
+  return { storage }
+})()
 
 // Class
 class StorageManager {
@@ -242,10 +268,10 @@ class StorageManager {
 
   private cleanData(data: Data) {
     console.time("cleanData()")
-    const labelIds = data.labels.map(x => x.id)
+    const labelIds = data.labels?.map(x => x.id)
     const newData = this.cloneData(data)
 
-    for (const [, tasks] of Object.entries(newData.tasks)) {
+    for (const [, tasks] of Object.entries(newData.tasks || {})) {
       for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i]
         for (const label of task.labels) {
@@ -273,6 +299,7 @@ class StorageManager {
     console.time("getData()")
     try {
       const data = await browser.storage.local.get()
+      console.log({ data })
 
       const valid = this.validateData(data)
       parsedData = (valid ? data : this.defaultData) as Data
@@ -309,7 +336,7 @@ class StorageManager {
     } catch (error) {
       console.error(error)
     } finally {
-      if (chrome.runtime.lastError) {
+      if (chrome?.runtime?.lastError) {
         console.error(chrome.runtime.lastError)
         throw chrome.runtime.lastError
       }

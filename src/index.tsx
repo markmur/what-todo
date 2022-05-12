@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import { browser } from "webextension-polyfill-ts"
+// import { browser } from "webextension-polyfill-ts"
 import { ThemeProvider } from "@emotion/react"
 import Tooltip from "react-tooltip"
 
@@ -130,6 +130,6 @@ const App = () => {
   )
 }
 
-browser.tabs.query({ active: true, currentWindow: true }).then(() => {
-  ReactDOM.render(<App />, document.getElementById("todo"))
-})
+// browser.tabs.query({ active: true, currentWindow: true }).then(() => {
+ReactDOM.render(<App />, document.getElementById("todo"))
+// })

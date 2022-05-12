@@ -8,7 +8,7 @@ import PrivacyIcon from "@meronex/icons/fi/FiLock"
 import SaveIcon from "@meronex/icons/fi/FiSave"
 
 import { DataContext } from "../index"
-import { parseDataStr } from "@src/utils"
+import { parseDataStr } from "../utils"
 
 const iconProps = {
   fontSize: 22,
@@ -33,31 +33,32 @@ const Footer: React.FC = () => {
     }
   }, [data])
 
+  const handleSecretUpload = React.useCallback(() => {
+    const value = window.prompt("Insert todo data object")
+    const parsed = parseDataStr(value) as any
+
+    if (Object.keys(parsed).length > 0) {
+      uploadData(parsed)
+    }
+  }, [parseDataStr, uploadData])
+
   return (
     <footer>
       <Flex justifyContent="space-between">
         <em data-tip="🤷‍♂️">
-          <a {...linkProps} href="https://github.com/markmur/what-todo">
+          <a {...linkProps} onDoubleClick={handleSecretUpload}>
             What Todo
           </a>
         </em>
 
         <Flex alignItems="center">
-          <Box
-            mt={-1}
-            onDoubleClick={() => {
-              const value = window.prompt("Insert todo data object")
-              const parsed = parseDataStr(value) as any
-
-              if (Object.keys(parsed).length > 0) {
-                uploadData(parsed)
-              }
-            }}
-          >
-            <div data-tip={`Storage usage (MAX: ${quota})`} {...iconProps}>
-              ({usage})
-            </div>
-          </Box>
+          {!isNaN(+quota) && (
+            <Box mt={-1}>
+              <div data-tip={`Storage usage (MAX: ${quota})`} {...iconProps}>
+                ({usage})
+              </div>
+            </Box>
+          )}
 
           <Box ml={2}>
             <a
