@@ -3,17 +3,20 @@ import * as ReactDOM from "react-dom"
 // import { browser } from "webextension-polyfill-ts"
 import { ThemeProvider } from "@emotion/react"
 import Tooltip from "react-tooltip"
+import firebase from "./utils/firebase"
 
 // Helpers
 import { breakpoints } from "./hooks/media"
 
 // Components
 import Todo from "./components/Todo"
+import Header from "./components/Header"
 
 // Types
 import { Label, Task, Data, Filters } from "./index.d"
 import StorageManager from "./StorageManager"
 import { getPastSevenDays } from "./utils"
+import AuthProvider from "./context/AuthContext"
 
 const storage = new StorageManager()
 
@@ -102,21 +105,24 @@ const App = () => {
           breakpoints
         }}
       >
-        <Todo
-          data={data}
-          pastWeek={pastWeek}
-          labelsById={labelsById}
-          onAddTask={handleAddTask}
-          onUpdateTask={handleUpdateTask}
-          onRemoveTask={handleRemoveTask}
-          onMarkAsComplete={handleUpdateTask}
-          onMoveToToday={handleMoveToToday}
-          onAddLabel={handleAddLabel}
-          onRemoveLabel={handleRemoveLabel}
-          onUpdateLabel={handleUpdateLabel}
-          onUpdateNote={handleUpdateNote}
-          onUpdateFilters={handleUpdateFilters}
-        />
+        <AuthProvider firebase={firebase}>
+          <Header />
+          <Todo
+            data={data}
+            pastWeek={pastWeek}
+            labelsById={labelsById}
+            onAddTask={handleAddTask}
+            onUpdateTask={handleUpdateTask}
+            onRemoveTask={handleRemoveTask}
+            onMarkAsComplete={handleUpdateTask}
+            onMoveToToday={handleMoveToToday}
+            onAddLabel={handleAddLabel}
+            onRemoveLabel={handleRemoveLabel}
+            onUpdateLabel={handleUpdateLabel}
+            onUpdateNote={handleUpdateNote}
+            onUpdateFilters={handleUpdateFilters}
+          />
+        </AuthProvider>
       </ThemeProvider>
 
       <Tooltip

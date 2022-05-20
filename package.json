@@ -24,6 +24,7 @@
     "@rebass/preset": "^4.0.5",
     "classnames": "^2.2.6",
     "emotion-theming": "^11.0.0",
+    "firebase": "^9.8.1",
     "lodash-es": "^4.17.20",
     "object-sizeof": "^1.6.1",
     "react": "^17.0.1",
