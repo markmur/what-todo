@@ -49,13 +49,11 @@ function FirebaseProvider({ children }: PropsWithChildren<unknown>): any {
     }
 
     if (signedIn && user) {
-      console.log("FETCHING DATA", { signedIn, user })
       fetchTasks()
     }
   }, [signedIn, user])
 
   async function fetchPersistedData() {
-    console.log({ user, signedIn })
     if (user) {
       const db = getDatabase()
       const results = await get(ref(db, "tasks/" + user.uid))

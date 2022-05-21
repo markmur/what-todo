@@ -19,8 +19,6 @@ export function sync() {
         return currentData
       }
 
-      console.log(orig, "call", target, currentData)
-
       return orig.call(target, currentData, ...args)
     }
   }

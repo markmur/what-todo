@@ -11,9 +11,7 @@ import { getDatabase, ref, get } from "firebase/database"
 
 export function getTasks(userId: string): any {
   const db = getDatabase()
-  const results = get(ref(db, "tasks/" + userId))
-  console.log({ results })
-  return results
+  return get(ref(db, "tasks/" + userId))
 }
 
 const firebaseConfig = {
@@ -55,8 +53,6 @@ function init(): {
       // const credential = GoogleAuthProvider.credentialFromResult(result)
       // const token = credential.accessToken
       // The signed-in user info.
-      const user = result.user
-      console.log(user)
       return result
     } catch (error) {
       // Handle Errors here.
