@@ -42,6 +42,7 @@ export type Data = {
    * This field indicates whether the data from sync storage was migrated to local storage
    */
   migrated?: boolean
+  lastMerged?: number
 }
 
 export type IntermediateLabel = Partial<Label> & {
@@ -58,6 +59,7 @@ type StorageAction =
   | "UPLOAD_DATA"
   | "MIGRATE_DATA_FROM_SYNC"
   | "CLEAN_DATA"
+type MergeAction = "MERGE_PERSISTED_DATA"
 
 export type Action =
   | TaskAction
@@ -65,3 +67,4 @@ export type Action =
   | NoteAction
   | FilterAction
   | StorageAction
+  | MergeAction

@@ -7,8 +7,8 @@ import RequestIcon from "@meronex/icons/fi/FiSmile"
 import PrivacyIcon from "@meronex/icons/fi/FiLock"
 import SaveIcon from "@meronex/icons/fi/FiSave"
 
-import { DataContext } from "../index"
 import { parseDataStr } from "../utils"
+import { useStorage } from "../context/StorageContext"
 
 const iconProps = {
   fontSize: 22,
@@ -21,7 +21,7 @@ const linkProps = {
 }
 
 const Footer: React.FC = () => {
-  const { data, usage, quota, uploadData } = React.useContext(DataContext)
+  const { data, uploadData } = useStorage()
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
   const downloadLinkRef = React.useRef()
@@ -52,14 +52,6 @@ const Footer: React.FC = () => {
         </em>
 
         <Flex alignItems="center">
-          {!isNaN(+quota) && (
-            <Box mt={-1}>
-              <div data-tip={`Storage usage (MAX: ${quota})`} {...iconProps}>
-                ({usage})
-              </div>
-            </Box>
-          )}
-
           <Box ml={2}>
             <a
               ref={downloadLinkRef}
@@ -72,12 +64,6 @@ const Footer: React.FC = () => {
               {...iconProps}
               onClick={downloadJSON}
             />
-          </Box>
-
-          <Box ml={2}>
-            <span data-tip="Privacy: your data is stored in browser storage and nowhere else. This extension does not send your data over the network.">
-              <PrivacyIcon {...iconProps} />
-            </span>
           </Box>
 
           <Box ml={2}>

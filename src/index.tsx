@@ -1,53 +1,17 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-// import { browser } from "webextension-polyfill-ts"
-import { ThemeProvider } from "@emotion/react"
 import Tooltip from "react-tooltip"
-import firebase from "./utils/firebase"
-
-// Helpers
-import { breakpoints } from "./hooks/media"
 
 // Components
 import Todo from "./components/Todo"
 import Header from "./components/Header"
 
-// Types
-import { Label, Task, Data, Filters } from "./index.d"
-import StorageManager from "./StorageManager"
-import { getPastSevenDays } from "./utils"
-import AuthProvider from "./context/AuthContext"
-
-const storage = new StorageManager()
-
-export const DataContext = React.createContext<{
-  data: Data
-  usage: string
-  quota: string
-  uploadData: typeof storage.uploadData
-}>({
-  data: storage.defaultData,
-  usage: "0%",
-  quota: "0",
-  uploadData: storage.uploadData
-})
+// Context
+import ContextWrapper from "./App"
+import { useStorage } from "./context/StorageContext"
 
 const App = () => {
-  const [data, setData] = React.useState<Data>(storage.defaultData)
-  const [dataUsage, setDataUsage] = React.useState<{
-    usage: string
-    quota: string
-  }>({
-    usage: "0%",
-    quota: "0"
-  })
-
-  const fetchData = () => {
-    storage.getData().then(({ data, usage, quota }) => {
-      setData(data)
-      setDataUsage({ usage, quota })
-    })
-  }
+  const { fetchData } = useStorage()
 
   React.useEffect(() => {
     fetchData()
@@ -59,71 +23,11 @@ const App = () => {
     }
   }, [])
 
-  function createAction<T>(fn: (data: Data, dataType: T) => Data) {
-    return React.useCallback(
-      (item: T) => {
-        const newData = fn(data, item)
-
-        setData(newData)
-      },
-      [data]
-    )
-  }
-
-  // Callbacks for tasks
-  const handleAddTask = createAction<Task>(storage.addTask)
-  const handleUpdateTask = createAction<Task>(storage.updateTask)
-  const handleRemoveTask = createAction<Task>(storage.removeTask)
-  const handleMoveToToday = createAction<Task>(storage.moveTaskToToday)
-
-  // Callbacks for labels
-  const handleAddLabel = createAction<Label>(storage.addLabel)
-  const handleRemoveLabel = createAction<Label>(storage.removeLabel)
-  const handleUpdateLabel = createAction<Label>(storage.updateLabel)
-
-  // Callbacks for filters
-  const handleUpdateFilters = createAction<Filters>(storage.updateFilters)
-
-  // Callbacks for notes
-  const handleUpdateNote = React.useCallback(
-    (note, date) => {
-      const newData = storage.updateNote(data, note, date)
-      setData(newData)
-    },
-    [data]
-  )
-
-  const labelsById = storage.getLabelsById(data)
-  const pastWeek = getPastSevenDays()
-
   return (
-    <DataContext.Provider
-      value={{ data, ...dataUsage, uploadData: storage.uploadData }}
-    >
-      <ThemeProvider
-        theme={{
-          breakpoints
-        }}
-      >
-        <AuthProvider firebase={firebase}>
-          <Header />
-          <Todo
-            data={data}
-            pastWeek={pastWeek}
-            labelsById={labelsById}
-            onAddTask={handleAddTask}
-            onUpdateTask={handleUpdateTask}
-            onRemoveTask={handleRemoveTask}
-            onMarkAsComplete={handleUpdateTask}
-            onMoveToToday={handleMoveToToday}
-            onAddLabel={handleAddLabel}
-            onRemoveLabel={handleRemoveLabel}
-            onUpdateLabel={handleUpdateLabel}
-            onUpdateNote={handleUpdateNote}
-            onUpdateFilters={handleUpdateFilters}
-          />
-        </AuthProvider>
-      </ThemeProvider>
+    <main>
+      <Header />
+
+      <Todo />
 
       <Tooltip
         multiline={false}
@@ -132,10 +36,13 @@ const App = () => {
         type="dark"
         backgroundColor="black"
       />
-    </DataContext.Provider>
+    </main>
   )
 }
 
-// browser.tabs.query({ active: true, currentWindow: true }).then(() => {
-ReactDOM.render(<App />, document.getElementById("todo"))
-// })
+ReactDOM.render(
+  <ContextWrapper>
+    <App />
+  </ContextWrapper>,
+  document.getElementById("todo")
+)

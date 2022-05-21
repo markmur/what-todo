@@ -4,11 +4,17 @@ import {
   AuthProvider,
   getAuth,
   GoogleAuthProvider,
-  onAuthStateChanged,
   signInWithPopup,
-  User,
   UserCredential
 } from "firebase/auth"
+import { getDatabase, ref, get } from "firebase/database"
+
+export function getTasks(userId: string): any {
+  const db = getDatabase()
+  const results = get(ref(db, "tasks/" + userId))
+  console.log({ results })
+  return results
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0P0A5Or0x4iyVVMgVtkMEFcV7qoo--U8",
@@ -16,6 +22,8 @@ const firebaseConfig = {
   projectId: "what-todo-59b4f",
   storageBucket: "what-todo-59b4f.appspot.com",
   messagingSenderId: "521454161606",
+  databaseURL:
+    "https://what-todo-59b4f-default-rtdb.europe-west1.firebasedatabase.app/",
   appId: "1:521454161606:web:4f7cc4b5f00902efdd11c7"
 }
 
