@@ -3,15 +3,18 @@ import cx from "classnames"
 import { Box, Flex } from "rebass"
 import colors from "../color-palette"
 
+// utils
+import { today, yesterday, formatDateHeading, getPastSevenDays } from "../utils"
+
 // Hooks
-import { today, yesterday, formatDateHeading } from "../utils"
+import { useStorage } from "../context/StorageContext"
 import useMedia, { Breakpoints } from "../hooks/media"
 
 // Styles
 import "../styles.scss"
 
 // Types
-import { Label, Task, Data, IntermediateLabel, Note, Day } from "../index.d"
+import { Label, Task, Data } from "../index.d"
 
 // Components
 import TaskInput from "./TaskInput"
@@ -39,40 +42,24 @@ const getOlderTasks = (data: Data): Task[] => {
 
 const mobilePadding = 3
 const padding = 4
+const paddingTop = 2
 
-interface Props {
-  data: Data
-  pastWeek: Day[]
-  labelsById: Record<string, Label>
-  onAddTask: (task: Task) => void
-  onUpdateTask: (task: Task) => void
-  onRemoveTask: (task: Task) => void
-  onMarkAsComplete: (task: Task) => void
-  onMoveToToday: (task: Task) => void
-  onAddLabel: (label: IntermediateLabel) => void
-  onUpdateLabel: (label: Label) => void
-  onRemoveLabel: (label: Label) => void
-  onUpdateNote: (note: Note, date: string) => void
-  onUpdateFilters: (filters: string[]) => void
-}
-
-const Todo: React.FC<Props> = ({
-  data,
-  pastWeek,
-  labelsById,
-  onAddTask,
-  onUpdateTask,
-  onRemoveTask,
-  onMarkAsComplete,
-  onMoveToToday,
-  onAddLabel,
-  onUpdateLabel,
-  onRemoveLabel,
-  onUpdateNote,
-  onUpdateFilters
-}: Props) => {
-  // Hooks
+const Todo: React.FC = ({}) => {
   const breakpoint = useMedia()
+  const {
+    data,
+    labelsById,
+    addTask,
+    updateTask,
+    removeTask,
+    markAsComplete,
+    moveToToday,
+    addLabel,
+    updateLabel,
+    removeLabel,
+    updateNote,
+    updateFilters
+  } = useStorage()
 
   // Refs
   const heightRef = React.createRef<HTMLDivElement>()
@@ -81,6 +68,7 @@ const Todo: React.FC<Props> = ({
   const yesterdayDateStr = yesterday().toDateString()
 
   const [activeDay, setActiveDay] = React.useState(todayDateStr)
+  const pastWeek = getPastSevenDays()
 
   const todaysTasks = getTasksFor(todayDateStr)(data)
   const yesterdaysTasks = getOlderTasks(data)
@@ -88,7 +76,7 @@ const Todo: React.FC<Props> = ({
   // Move any pinned tasks to today
   yesterdaysTasks.map(task => {
     if (task.pinned) {
-      onMoveToToday(task)
+      moveToToday(task)
     }
   })
 
@@ -104,29 +92,29 @@ const Todo: React.FC<Props> = ({
   // Task callbacks
   const handleAddTask = React.useCallback(
     (task, created_at) => {
-      onAddTask({
+      addTask({
         ...task,
         created_at: new Date(created_at).toISOString()
       })
     },
-    [onAddTask]
+    [addTask]
   )
 
-  const handleUpdateTask = createCallback<Task>(onUpdateTask)
-  const handleRemoveTask = createCallback<Task>(onRemoveTask)
-  const handleMoveToToday = createCallback<Task>(onMoveToToday)
+  const handleUpdateTask = createCallback<Task>(updateTask)
+  const handleRemoveTask = createCallback<Task>(removeTask)
+  const handleMoveToToday = createCallback<Task>(moveToToday)
 
   // Label callbacks
-  const handleAddLabel = createCallback<Label>(onAddLabel)
-  const handleRemoveLabel = createCallback<Label>(onRemoveLabel)
-  const handleUpdateLabel = createCallback<Label>(onUpdateLabel)
+  const handleAddLabel = createCallback<Label>(addLabel)
+  const handleRemoveLabel = createCallback<Label>(removeLabel)
+  const handleUpdateLabel = createCallback<Label>(updateLabel)
 
   // Notes callbacks
   const handleUpdateNote = React.useCallback(
     (note, date) => {
-      onUpdateNote(note, date)
+      updateNote(note, date)
     },
-    [onUpdateNote]
+    [updateNote]
   )
 
   return (
@@ -135,8 +123,9 @@ const Todo: React.FC<Props> = ({
         {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET && (
           <Flex
             width={[0, 1 / 3]}
-            height="100vh"
+            height="calc(100vh - 66px)"
             p={padding}
+            pt={paddingTop}
             flexDirection="column"
           >
             <Box pb={1}>
@@ -159,10 +148,10 @@ const Todo: React.FC<Props> = ({
                   filters={data.filters}
                   collapseCompleted
                   canPinTasks={false}
-                  onFilter={onUpdateFilters}
+                  onFilter={updateFilters}
                   onUpdateTask={handleUpdateTask}
                   onRemoveTask={handleRemoveTask}
-                  onMarkAsComplete={onMarkAsComplete}
+                  onMarkAsComplete={markAsComplete}
                   onMoveToToday={handleMoveToToday}
                 />
               </Box>
@@ -181,9 +170,11 @@ const Todo: React.FC<Props> = ({
 
         <Flex
           width={[1, 3 / 5, 1 / 3, 1 / 2]}
-          p={[mobilePadding, padding]}
+          px={[mobilePadding, padding]}
           pl={[mobilePadding, mobilePadding, 0]}
-          height="100vh"
+          pt={[paddingTop]}
+          pb={[mobilePadding, padding]}
+          height="calc(100vh - 66px)"
           flexDirection="column"
         >
           <Box pb={1}>
@@ -196,11 +187,11 @@ const Todo: React.FC<Props> = ({
                 tasks={todaysTasks}
                 labels={labelsById}
                 filters={data.filters}
-                onFilter={onUpdateFilters}
+                onFilter={updateFilters}
                 onPinTask={handleUpdateTask}
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
-                onMarkAsComplete={onMarkAsComplete}
+                onMarkAsComplete={markAsComplete}
               />
             </Box>
           </Box>
@@ -216,7 +207,13 @@ const Todo: React.FC<Props> = ({
         </Flex>
 
         {breakpoint != Breakpoints.MOBILE && (
-          <Flex width={[0, 2 / 5, 1 / 3]} p={padding} pl={0} height="100vh">
+          <Flex
+            width={[0, 2 / 5, 1 / 3]}
+            p={padding}
+            pl={0}
+            pt={paddingTop}
+            height="calc(100vh - 66px)"
+          >
             <Flex
               flexDirection="column"
               flexGrow={1}
@@ -270,7 +267,7 @@ const Todo: React.FC<Props> = ({
                     limit={10}
                     colors={colors}
                     filters={data.filters}
-                    onFilter={onUpdateFilters}
+                    onFilter={updateFilters}
                     onAddLabel={handleAddLabel}
                     onUpdateLabel={handleUpdateLabel}
                     onRemoveLabel={handleRemoveLabel}

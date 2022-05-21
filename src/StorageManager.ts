@@ -21,16 +21,29 @@ const defaultLabels: Label[] = [
   { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
 ]
 
-const initialData: Data = {
+interface Browser {
+  storage: {
+    sync: {
+      get: () => any
+      clear: () => void
+    }
+    local: {
+      set: (data: any) => void
+      get: () => any
+    }
+  }
+}
+
+const defaultData = {
+  migrated: true,
   filters: [],
   tasks: {},
   notes: {},
-  labels: [],
-  migrated: true
+  labels: defaultLabels
 }
 
-const browser = (() => {
-  const storage = {
+const browser: Browser = {
+  storage: {
     sync: {
       get: () => ({}),
       clear: () => undefined
@@ -39,34 +52,21 @@ const browser = (() => {
       set: data => localStorage.setItem("what-todo", JSON.stringify(data)),
       get: () =>
         JSON.parse(
-          localStorage.getItem("what-todo") || JSON.stringify(initialData)
+          localStorage.getItem("what-todo") || JSON.stringify(defaultData)
         )
     }
   }
-
-  return { storage }
-})()
+}
 
 // Class
 class StorageManager {
-  public defaultData: Data
+  public defaultData: Data = defaultData
 
-  public busy: boolean
+  public busy = false
 
-  public syncQueue: Array<(data: Data, ...args: any[]) => Data>
+  public syncQueue: Array<(data: Data, ...args: any[]) => Data> = []
 
-  constructor() {
-    this.defaultData = {
-      filters: [],
-      tasks: {},
-      notes: {},
-      labels: defaultLabels
-    }
-
-    this.busy = false
-
-    this.syncQueue = []
-  }
+  private subscriptions: Array<(data: Data) => void> = []
 
   private async sync(newData: Data, action: Action): Promise<Data> {
     if (this.busy && this.syncQueue.length) {
@@ -78,6 +78,14 @@ class StorageManager {
     console.time("sync")
     await browser.storage.local.set(newData)
     console.timeEnd("sync")
+
+    console.time("emit subscriptions")
+    this.subscriptions.forEach(fn => {
+      if (typeof fn === "function") {
+        fn(newData)
+      }
+    })
+    console.timeEnd("emit subscriptions")
 
     console.debug(action, newData)
     console.groupEnd()
@@ -290,8 +298,21 @@ class StorageManager {
     return this.sync(newData, "CLEAN_DATA")
   }
 
-  // PUBLIC API
-  async getData(): Promise<{ data: Data; usage: string; quota: string }> {
+  // ======================= PUBLIC API ============================== //
+
+  subscribe = (fn: (data: Data) => void): void => {
+    this.subscriptions.push(fn)
+  }
+
+  unsubscribe = (fn: (data: Data) => void): void => {
+    this.subscriptions = this.subscriptions.filter(x => x !== fn)
+  }
+
+  async getData(): Promise<{
+    data: Data
+    usage: string
+    quota: string
+  }> {
     let parsedData: Data
 
     this.setBusyState()
@@ -353,6 +374,10 @@ class StorageManager {
     return inUse / browser.storage.local.QUOTA_BYTES
   }
 
+  mergePersistedFirebaseData(data: Data): void {
+    this.sync({ ...data, lastMerged: Date.now() }, "MERGE_PERSISTED_DATA")
+  }
+
   uploadData = (data: Data): void => {
     this.sync(data, "UPLOAD_DATA")
   }
@@ -378,7 +403,7 @@ class StorageManager {
   }
 
   // Tasks
-  @sync()
+  // @sync()
   addTask(data: Data, task: Task): Data {
     const newTask: Task = {
       ...task,
@@ -395,7 +420,7 @@ class StorageManager {
     return newData
   }
 
-  @sync()
+  // @sync()
   updateTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
@@ -418,7 +443,7 @@ class StorageManager {
     return newData
   }
 
-  @sync()
+  // @sync()
   removeTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
@@ -434,7 +459,7 @@ class StorageManager {
     return newData
   }
 
-  @sync()
+  // @sync()
   moveTaskToToday(data: Data, task: Task): Data {
     const oldKey = this.getTaskKey(task)
     const todayKey = this.getTodayKey()

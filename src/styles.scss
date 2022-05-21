@@ -320,8 +320,55 @@ footer {
   }
 }
 
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-height: 40px;
+  padding: 2em 0;
+  border-bottom: 2px solid #eee;
+  margin: 0 2em;
+
+  p {
+    margin: 0;
+  }
+
+  small {
+    color: #333;
+  }
+}
+
 button.no-style {
   background: transparent;
   border: none;
   color: inherit;
+}
+
+button.auth {
+  background: transparent;
+  color: inherit;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  display: flex;
+  align-items: center;
+  transition: all 0.15s ease;
+
+  svg {
+    margin-right: 10px;
+  }
+
+  sup {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #999;
+    margin-left: 5px;
+    margin-top: -3px;
+  }
+
+  &:hover {
+    background: #f6f6f6;
+    border-color: #333;
+  }
 }
