@@ -73,7 +73,7 @@ class StorageManager {
       console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
     }
 
-    console.group(`Sync (${action})`)
+    console.groupCollapsed(`Sync (${action})`)
 
     console.time("sync")
     await browser.storage.local.set(newData)
