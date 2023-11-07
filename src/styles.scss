@@ -52,12 +52,6 @@ h1 {
   margin-bottom: 6px;
 }
 
-h5 {
-  font-size: 13px;
-  color: #696c74;
-  font-style: italic;
-}
-
 input {
   display: block;
   position: relative;
@@ -80,25 +74,7 @@ label {
   font-weight: bold;
 }
 
-.task-title {
-  font-size: 15px;
-  font-weight: bold;
-}
-
 // textarea
-.task-description {
-  border: none;
-  font-size: 12px;
-  border-top: 1px solid #d4d4dc;
-  width: 100%;
-  font-family: inherit;
-  background-color: transparent;
-  padding: 10px 0;
-  margin-bottom: 10px;
-  outline: none;
-  resize: none;
-}
-
 textarea.unstyled {
   resize: none;
   outline: none;
@@ -138,16 +114,6 @@ textarea.unstyled {
 }
 
 button {
-  cursor: pointer;
-}
-
-.circle {
-  width: 16px;
-  height: 16px;
-  border-radius: 16px;
-  padding: 0;
-  margin: 0;
-  flex: 1 0 16px;
   cursor: pointer;
 }
 
@@ -244,19 +210,6 @@ button {
   transform: translateY(-20px);
 }
 
-.notes-input {
-  width: 100%;
-  background: #eee;
-  padding: 1em;
-  font-size: 14px;
-  resize: none;
-  border: none;
-  font-family: inherit;
-  border-radius: 4px;
-  outline: none;
-  line-height: 1.5;
-}
-
 .hidden-input {
   position: absolute;
   top: -99999px;
@@ -327,7 +280,6 @@ header {
   max-height: 40px;
   padding: 2em 0;
   border-bottom: 2px solid #eee;
-  margin: 0 2em;
 
   p {
     margin: 0;

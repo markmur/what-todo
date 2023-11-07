@@ -1,13 +1,15 @@
+import "./tailwind.css"
+
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import Tooltip from "react-tooltip"
-
-// Components
-import Todo from "./components/Todo"
-import Header from "./components/Header"
 
 // Context
 import ContextWrapper from "./App"
+import Header from "./components/Header"
+// Components
+import Todo from "./components/Todo"
+import Tooltip from "react-tooltip"
+import { createRoot } from "react-dom/client"
 import { useStorage } from "./context/StorageContext"
 
 const App = () => {
@@ -26,9 +28,7 @@ const App = () => {
   return (
     <main>
       <Header />
-
       <Todo />
-
       <Tooltip
         multiline={false}
         place="top"
@@ -40,9 +40,11 @@ const App = () => {
   )
 }
 
-ReactDOM.render(
+const container = document.getElementById("app")
+const root = createRoot(container)
+
+root.render(
   <ContextWrapper>
     <App />
-  </ContextWrapper>,
-  document.getElementById("todo")
+  </ContextWrapper>
 )

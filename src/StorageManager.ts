@@ -1,13 +1,12 @@
-import { sync } from "./decorators/sync"
-import { bytesToSize } from "./utils"
-// import { browser } from "webextension-polyfill-ts"
-import { v4 as uuid } from "uuid"
-import set from "lodash-es/set"
-import colors from "./color-palette"
-import sizeOf from "object-sizeof"
-
 // Types
 import { Action, Data, Label, Task } from "./index.d"
+
+import { bytesToSize } from "./utils"
+import colors from "./color-palette"
+import set from "lodash-es/set"
+import sizeOf from "object-sizeof"
+// import { browser } from "webextension-polyfill-ts"
+import { v4 as uuid } from "uuid"
 
 type Item = Label
 type ItemKey = "labels"
@@ -282,11 +281,12 @@ class StorageManager {
     for (const [, tasks] of Object.entries(newData.tasks || {})) {
       for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i]
-        for (const label of task.labels) {
+        const { labels = [] } = task
+        for (const label of labels) {
           if (!labelIds.includes(label)) {
             const newTask = {
               ...task,
-              labels: task.labels.filter(x => x !== label)
+              labels: labels.filter(x => x !== label)
             }
             set(newData, `tasks.${this.getTaskKey(task)}.${i}`, newTask)
           }
@@ -372,10 +372,6 @@ class StorageManager {
   getStorageUsagePercent = async (data: Data): Promise<number> => {
     const inUse = sizeOf(data)
     return inUse / browser.storage.local.QUOTA_BYTES
-  }
-
-  mergePersistedFirebaseData(data: Data): void {
-    this.sync({ ...data, lastMerged: Date.now() }, "MERGE_PERSISTED_DATA")
   }
 
   uploadData = (data: Data): void => {

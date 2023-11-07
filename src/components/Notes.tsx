@@ -30,7 +30,8 @@ const Notes: React.FC<Props> = ({ note = "", onChange }) => {
       rows={rows}
       value={state}
       placeholder="Notes"
-      className="notes-input"
+      className="notes-input
+      w-full bg-slate-50 p-4 rounded-lg text-sm border-none outline-none"
       style={{ height: "100%" }}
       onBlur={handleBlur}
       onChange={handleChange}

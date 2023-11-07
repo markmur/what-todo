@@ -15,7 +15,6 @@ export function sync() {
         this.syncQueue.push((newData: Data) =>
           orig.call(target, newData, ...args)
         )
-        console.log("BUSY!", target.syncQueue)
         return currentData
       }
 

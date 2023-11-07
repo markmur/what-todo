@@ -1,22 +1,18 @@
+// Types
+import { Label as LabelType, Task as TaskType } from "../index.d"
 import React, { FormEvent } from "react"
-import cx from "classnames"
-import { Flex, Box } from "rebass"
-
-// Icons
-import CrossIcon from "@meronex/icons/fi/FiX"
-import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
-import Pin from "@meronex/icons/ai/AiOutlinePushpin"
-import PinFilled from "@meronex/icons/ai/AiFillPushpin"
-
-import Textarea from "react-textarea-autosize"
 
 // Components
 import Checkbox from "./Checkbox"
+// Icons
+import CrossIcon from "@meronex/icons/fi/FiX"
 import Label from "./Label"
-
-// Types
-import { Task as TaskType, Label as LabelType } from "../index.d"
+import Pin from "@meronex/icons/ai/AiOutlinePushpin"
+import PinFilled from "@meronex/icons/ai/AiFillPushpin"
 import ReactTooltip from "react-tooltip"
+import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
+import Textarea from "react-textarea-autosize"
+import cx from "classnames"
 
 const MAX_DESCRIPTION_LENGTH = 140
 
@@ -94,8 +90,8 @@ const Task: React.FC<Props> = ({
   onChangeLabels
 }) => {
   return (
-    <Flex alignItems="flex-start" py={3} onBlur={() => onDeselect(task)}>
-      <Box width={20} mr={2}>
+    <div className="flex items-start py-3" onBlur={() => onDeselect(task)}>
+      <div className="mr-3">
         <Checkbox
           id={task.id}
           checked={task.completed}
@@ -106,15 +102,15 @@ const Task: React.FC<Props> = ({
             })
           }
         />
-      </Box>
+      </div>
 
-      <Box width={1}>
+      <div className="w-full">
         <Textarea
           maxRows={3}
           value={task.title}
           spellCheck={active}
           className={cx("unstyled task-title-input", {
-            strike: task.completed
+            ["strike text-slate-400"]: task.completed
           })}
           onChange={onChange("title")}
           onFocus={event => onSelect(task, event)}
@@ -140,28 +136,25 @@ const Task: React.FC<Props> = ({
         )}
 
         {active && (
-          <React.Fragment>
-            <hr />
-            <Flex mt={2} flexWrap="wrap">
-              {Object.entries(labels).map(([id, label]) => (
-                <Box key={id} mr={1} mb={1}>
-                  <Label
-                    small
-                    active={task.labels.includes(id)}
-                    label={label}
-                    onClick={() => {
-                      const nextLabels = task.labels.includes(id)
-                        ? task.labels.filter(l => l !== id)
-                        : [...task.labels, id]
-                      onChangeLabels(nextLabels)
-                    }}
-                  />
-                </Box>
-              ))}
-            </Flex>
-          </React.Fragment>
+          <div className="flex mt-2 flex-wrap">
+            {Object.entries(labels).map(([id, label]) => (
+              <div className="mr-1 mb-1" key={id}>
+                <Label
+                  small
+                  active={task.labels.includes(id)}
+                  label={label}
+                  onClick={() => {
+                    const nextLabels = task.labels.includes(id)
+                      ? task.labels.filter(l => l !== id)
+                      : [...task.labels, id]
+                    onChangeLabels(nextLabels)
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         )}
-      </Box>
+      </div>
 
       {onMoveToToday && (
         <div
@@ -195,7 +188,7 @@ const Task: React.FC<Props> = ({
         ? task.labels.map(id => (
             <span
               key={id}
-              className="circle"
+              className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
               data-tip={labels[id]?.title}
               data-background-color={labels[id]?.color}
               style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
@@ -217,7 +210,7 @@ const Task: React.FC<Props> = ({
       <span className="remove-icon" onClick={() => onRemoveTask(task)}>
         <CrossIcon />
       </span>
-    </Flex>
+    </div>
   )
 }
 
