@@ -1,7 +1,6 @@
 import React from "react"
-import { Flex, Box } from "rebass"
 
-import PlusIcon from "@meronex/icons/fi/FiPlusCircle"
+import Icon from "@meronex/icons/fi/FiArrowUpCircle"
 
 import { Label as LabelType, Task } from "../index.d"
 import useOnClickOutside from "../hooks/onclickoutside"
@@ -45,14 +44,14 @@ const TaskInput: React.FC<Props> = ({
     })
   }
 
-  const handleChange = (field: keyof Task) => (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setTask({
-      ...task,
-      [field]: event.target.value
-    })
-  }
+  const handleChange =
+    (field: keyof Task) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setTask({
+        ...task,
+        [field]: event.target.value
+      })
+    }
 
   const handleAdd = React.useCallback(() => {
     if (validTask(task)) {
@@ -94,11 +93,11 @@ const TaskInput: React.FC<Props> = ({
   })
 
   return (
-    <Box className="task-input" backgroundColor="#eee" p={1} px={3} ref={ref}>
-      <Flex justifyContent="space-between" alignItems="center">
+    <div className="bg-slate-100 p-4 rounded-lg" ref={ref}>
+      <div className="flex justify-between items-center">
         <input
           type="text"
-          className="task-title"
+          className="text-md font-bold"
           value={task.title}
           placeholder={placeholder}
           onFocus={() => setOpen(true)}
@@ -106,41 +105,44 @@ const TaskInput: React.FC<Props> = ({
           onKeyPress={handleKeyPress}
         />
         {open && (
-          <PlusIcon onClick={handleAdd} cursor="pointer" fontSize={24} />
+          <Icon
+            onClick={handleAdd}
+            className="mb-3 text-slate-600 hover:text-slate-800"
+            cursor="pointer"
+            fontSize={24}
+          />
         )}
-      </Flex>
+      </div>
 
       {open && (
         <React.Fragment>
-          <Box>
-            <textarea
-              rows={2}
-              value={task.description}
-              className="task-description"
-              placeholder="Brief description"
-              onChange={handleChange("description")}
-            />
-          </Box>
+          <textarea
+            rows={2}
+            value={task.description}
+            className="text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
+            placeholder="Brief description"
+            onChange={handleChange("description")}
+          />
 
-          <Box>
-            <Box mb={2}>
+          <div>
+            <div className="mb-2">
               <label htmlFor="">Labels</label>
-            </Box>
-            <Box>
+            </div>
+            <div>
               {labels.map(label => (
-                <Box display="inline-flex" key={label.id} mr={1} mb={1}>
+                <div className="inline-flex mr-1 mb-1" key={label.id}>
                   <Label
                     label={label}
                     active={task.labels.includes(label.id)}
                     onClick={() => handleLabelClick(label.id)}
                   />
-                </Box>
+                </div>
               ))}
-            </Box>
-          </Box>
+            </div>
+          </div>
         </React.Fragment>
       )}
-    </Box>
+    </div>
   )
 }
 

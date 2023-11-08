@@ -1,31 +1,40 @@
-import React from "react"
-import cx from "classnames"
-import { Box, Flex } from "rebass"
-import colors from "../color-palette"
-
-// utils
-import { today, yesterday, formatDateHeading, getPastSevenDays } from "../utils"
-
-// Hooks
-import { useStorage } from "../context/StorageContext"
-import useMedia, { Breakpoints } from "../hooks/media"
-
 // Styles
 import "../styles.scss"
 
+import { Flex } from "rebass"
 // Types
-import { Label, Task, Data } from "../index.d"
+import { Data, Label, Task } from "../index.d"
+// utils
+import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
+import useMedia, { Breakpoints } from "../hooks/media"
 
+import Footer from "./Footer"
+import Labels from "./Labels"
+import List from "./List"
+import Notes from "./Notes"
+import React from "react"
 // Components
 import TaskInput from "./TaskInput"
-import List from "./List"
-import Labels from "./Labels"
-import Notes from "./Notes"
-import Footer from "./Footer"
+import colors from "../color-palette"
+import cx from "classnames"
+// Hooks
+import { useStorage } from "../context/StorageContext"
 
-const getTasksFor = (date: string) => (data: Data): Task[] => {
-  return data.tasks[date] ?? []
+function Title({ children }) {
+  return (
+    <h1 className="text-5xl mt-6 font-bold mb-3 text-slate-700">{children}</h1>
+  )
 }
+
+function Subtitle({ children }) {
+  return <h2 className="text-sm mb-6 text-slate-500">{children}</h2>
+}
+
+const getTasksFor =
+  (date: string) =>
+  (data: Data): Task[] => {
+    return data.tasks[date] ?? []
+  }
 
 const getOlderTasks = (data: Data): Task[] => {
   const todayDateStr = today().toDateString()
@@ -119,54 +128,55 @@ const Todo: React.FC = ({}) => {
 
   return (
     <main>
-      <Flex>
-        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET && (
-          <Flex
-            width={[0, 1 / 3]}
-            height="calc(100vh - 66px)"
-            p={padding}
-            pt={paddingTop}
-            flexDirection="column"
-          >
-            <Box pb={1}>
-              <h1>Older</h1>
-              <h5>
-                Older -{" "}
-                {formatDateHeading(yesterdayDateStr, {
-                  weekday: undefined,
-                  year: undefined,
-                  month: "long",
-                  day: "numeric"
-                })}
-              </h5>
-            </Box>
-            <Box width={1} overflowY="auto" flex={2}>
-              <Box>
-                <List
-                  tasks={yesterdaysTasks}
-                  labels={labelsById}
-                  filters={data.filters}
-                  collapseCompleted
-                  canPinTasks={false}
-                  onFilter={updateFilters}
-                  onUpdateTask={handleUpdateTask}
-                  onRemoveTask={handleRemoveTask}
-                  onMarkAsComplete={markAsComplete}
-                  onMoveToToday={handleMoveToToday}
-                />
-              </Box>
-            </Box>
+      <div className="flex">
+        {breakpoint != Breakpoints.MOBILE &&
+          breakpoint != Breakpoints.TABLET && (
+            <Flex
+              width={[0, 1 / 3]}
+              height="calc(100vh - 66px)"
+              p={padding}
+              pt={paddingTop}
+              flexDirection="column"
+            >
+              <div className="pb-1">
+                <Title>Older</Title>
+                <Subtitle>
+                  {formatDateHeading(yesterdayDateStr, {
+                    weekday: undefined,
+                    year: undefined,
+                    month: "long",
+                    day: "numeric"
+                  })}
+                </Subtitle>
+              </div>
 
-            <Box pt={3}>
-              <TaskInput
-                placeholder="Forget something?"
-                labels={data.labels}
-                filters={data.filters}
-                onAdd={task => handleAddTask(task, yesterday())}
-              />
-            </Box>
-          </Flex>
-        )}
+              <div className="w-full overflow-y-auto flex-[2]">
+                <div>
+                  <List
+                    tasks={yesterdaysTasks}
+                    labels={labelsById}
+                    filters={data.filters}
+                    collapseCompleted
+                    canPinTasks={false}
+                    onFilter={updateFilters}
+                    onUpdateTask={handleUpdateTask}
+                    onRemoveTask={handleRemoveTask}
+                    onMarkAsComplete={markAsComplete}
+                    onMoveToToday={handleMoveToToday}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3">
+                <TaskInput
+                  placeholder="Forget something?"
+                  labels={data.labels}
+                  filters={data.filters}
+                  onAdd={task => handleAddTask(task, yesterday())}
+                />
+              </div>
+            </Flex>
+          )}
 
         <Flex
           width={[1, 3 / 5, 1 / 3, 1 / 2]}
@@ -177,33 +187,32 @@ const Todo: React.FC = ({}) => {
           height="calc(100vh - 66px)"
           flexDirection="column"
         >
-          <Box pb={1}>
-            <h1>Today</h1>
-            <h5>{formatDateHeading(todayDateStr)}</h5>
-          </Box>
-          <Box width={1} overflowY="auto" flex={2}>
-            <Box>
-              <List
-                tasks={todaysTasks}
-                labels={labelsById}
-                filters={data.filters}
-                onFilter={updateFilters}
-                onPinTask={handleUpdateTask}
-                onUpdateTask={handleUpdateTask}
-                onRemoveTask={handleRemoveTask}
-                onMarkAsComplete={markAsComplete}
-              />
-            </Box>
-          </Box>
+          <div className="pb-1">
+            <Title>Today</Title>
+            <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
+          </div>
 
-          <Box pt={3}>
+          <div className="w-full flex-[2] overflow-y-auto">
+            <List
+              tasks={todaysTasks}
+              labels={labelsById}
+              filters={data.filters}
+              onFilter={updateFilters}
+              onPinTask={handleUpdateTask}
+              onUpdateTask={handleUpdateTask}
+              onRemoveTask={handleRemoveTask}
+              onMarkAsComplete={markAsComplete}
+            />
+          </div>
+
+          <div className="pt-3">
             <TaskInput
               placeholder="Write a todo for today..."
               labels={data.labels}
               filters={data.filters}
               onAdd={task => handleAddTask(task, today())}
             />
-          </Box>
+          </div>
         </Flex>
 
         {breakpoint != Breakpoints.MOBILE && (
@@ -214,29 +223,23 @@ const Todo: React.FC = ({}) => {
             pt={paddingTop}
             height="calc(100vh - 66px)"
           >
-            <Flex
-              flexDirection="column"
-              flexGrow={1}
-              justifyContent="flex-start"
-            >
-              <Box mb={1}>
-                <h1>Notes</h1>
+            <div className="flex flex-col flex-grow justify-start">
+              <div className="mb-1">
+                <Title>Notes</Title>
 
-                <Flex width="100%">
+                <div className="flex w-full">
                   {pastWeek.map(day => (
-                    <Box
-                      pb={1}
+                    <div
+                      className="flex-1 pb-1"
                       key={day.number}
-                      flex={1}
                       onClick={() => setActiveDay(day.date.toDateString())}
                     >
-                      <Box
-                        className={cx("calendar-day", {
+                      <div
+                        className={cx("calendar-day p-1", {
                           active: day.date.toDateString() === activeDay,
                           hasNote: !!data.notes[day.date.toDateString()],
                           today: day.isToday
                         })}
-                        p={1}
                       >
                         <div>
                           <small>{day.name}</small>
@@ -244,24 +247,24 @@ const Todo: React.FC = ({}) => {
                         <div>
                           <em>{day.number}</em>
                         </div>
-                      </Box>
-                    </Box>
+                      </div>
+                    </div>
                   ))}
-                </Flex>
-              </Box>
+                </div>
+              </div>
 
-              <Box ref={heightRef} flex={1} mb={4}>
+              <div className="flex-1 mb-4" ref={heightRef}>
                 <Notes
                   heightRef={heightRef}
                   note={data.notes[activeDay] || ""}
                   onChange={note => handleUpdateNote(note, activeDay)}
                 />
-              </Box>
+              </div>
 
-              <Flex flexDirection="column" height="34%">
+              <div className="flex flex-col h-[34%]">
                 <h1>Labels</h1>
 
-                <Box flex={1} overflowY="scroll" pb={2}>
+                <div className="flex-1 overflow-y-scroll pb-2">
                   <Labels
                     labels={data.labels}
                     limit={10}
@@ -272,16 +275,16 @@ const Todo: React.FC = ({}) => {
                     onUpdateLabel={handleUpdateLabel}
                     onRemoveLabel={handleRemoveLabel}
                   />
-                </Box>
-              </Flex>
+                </div>
+              </div>
 
-              <Box height="55px">
+              <div className="h-[55px]">
                 <Footer />
-              </Box>
-            </Flex>
+              </div>
+            </div>
           </Flex>
         )}
-      </Flex>
+      </div>
     </main>
   )
 }

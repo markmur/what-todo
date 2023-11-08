@@ -1,12 +1,8 @@
 import React from "react"
-import { Flex, Box } from "rebass"
-
 // Icons
 import ReportIcon from "@meronex/icons/fi/FiFrown"
 import RequestIcon from "@meronex/icons/fi/FiSmile"
-import PrivacyIcon from "@meronex/icons/fi/FiLock"
 import SaveIcon from "@meronex/icons/fi/FiSave"
-
 import { parseDataStr } from "../utils"
 import { useStorage } from "../context/StorageContext"
 
@@ -44,15 +40,15 @@ const Footer: React.FC = () => {
 
   return (
     <footer>
-      <Flex justifyContent="space-between">
+      <div className="flex justify-between">
         <em data-tip="🤷‍♂️">
           <a {...linkProps} onDoubleClick={handleSecretUpload}>
             What Todo
           </a>
         </em>
 
-        <Flex alignItems="center">
-          <Box ml={2}>
+        <div className="flex items-center">
+          <div className="ml-2">
             <a
               ref={downloadLinkRef}
               hidden
@@ -64,9 +60,9 @@ const Footer: React.FC = () => {
               {...iconProps}
               onClick={downloadJSON}
             />
-          </Box>
+          </div>
 
-          <Box ml={2}>
+          <div className="ml-2">
             <a
               {...linkProps}
               data-tip="Request a feature"
@@ -74,9 +70,9 @@ const Footer: React.FC = () => {
             >
               <RequestIcon {...iconProps} />
             </a>
-          </Box>
+          </div>
 
-          <Box ml={2}>
+          <div className="ml-2">
             <a
               {...linkProps}
               data-tip="Report a bug"
@@ -84,9 +80,9 @@ const Footer: React.FC = () => {
             >
               <ReportIcon {...iconProps} />
             </a>
-          </Box>
-        </Flex>
-      </Flex>
+          </div>
+        </div>
+      </div>
     </footer>
   )
 }

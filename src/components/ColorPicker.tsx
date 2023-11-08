@@ -1,8 +1,7 @@
-import React, { StyleHTMLAttributes } from "react"
-import { Flex, Box } from "rebass"
-
 import colors, { Color } from "../color-palette"
+
 import Portal from "./Portal"
+import React from "react"
 import useOnClickOutside from "../hooks/onclickoutside"
 
 interface Props {
@@ -42,20 +41,18 @@ const ColorPicker: React.FC<Props> = ({
       {visible && (
         <Portal>
           <div className="color-picker" style={style} ref={internalRef}>
-            <Flex flexWrap="wrap" width={width}>
+            <div className={"flex flex-wrap"} style={{ width }}>
               {colors.map(color => (
-                <Box
+                <div
+                  className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
                   key={color.name}
-                  m={1}
-                  flex="0 0 16px"
-                  className="circle"
                   data-tip={color.name}
                   data-background-color={color.backgroundColor}
                   style={{ backgroundColor: color.backgroundColor }}
                   onClick={() => onChange(color)}
                 />
               ))}
-            </Flex>
+            </div>
           </div>
         </Portal>
       )}

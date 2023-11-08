@@ -89,9 +89,7 @@ web_modules/
 .env.production.local
 .env.local
 
-# parcel-bundler cache (https://parceljs.org/)
 .cache
-.parcel-cache
 
 # Next.js build output
 .next
@@ -138,3 +136,4 @@ dist-web
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+dist

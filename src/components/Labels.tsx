@@ -1,16 +1,14 @@
-import React from "react"
-import cx from "classnames"
-import Tooltip from "react-tooltip"
-import { Flex, Box } from "rebass"
+import { IntermediateLabel, Label } from "../index.d"
 
-// Icons
-import CrossIcon from "@meronex/icons/fi/FiX"
-import PlusIcon from "@meronex/icons/fi/FiPlus"
-import FilterIcon from "@meronex/icons/fi/FiFilter"
-
-import { Label, IntermediateLabel } from "../index.d"
 import { Color } from "../color-palette"
 import ColorPicker from "./ColorPicker"
+// Icons
+import CrossIcon from "@meronex/icons/fi/FiX"
+import FilterIcon from "@meronex/icons/fi/FiFilter"
+import PlusIcon from "@meronex/icons/fi/FiPlus"
+import React from "react"
+import Tooltip from "react-tooltip"
+import cx from "classnames"
 
 interface Props {
   labels: Label[]
@@ -120,33 +118,34 @@ const Labels: React.FC<Props> = ({
   )
 
   return (
-    <React.Fragment>
+    <>
       <ul className="labels">
         {Object.entries(controlledLabels).map(([, label]) => (
           <li className="label-input" key={label.id}>
-            <Flex alignItems="center" py={2}>
-              <Box mr={2}>
+            <div className="flex items-center py-2">
+              <div className="mr-2">
                 <ColorPicker
                   visible={label.id === selectedLabel}
                   onHide={() => setSelectedLabel(undefined)}
                   onChange={color => handleColorChange(color, label)}
                 >
                   <div
-                    className="circle"
+                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
                     style={{
                       backgroundColor: label.color
                     }}
                     onClick={() => setSelectedLabel(label.id)}
                   />
                 </ColorPicker>
-              </Box>
-              <Box flex={1}>
+              </div>
+
+              <div className="flex-1">
                 <input
                   value={label.title}
                   onChange={event => handleChangeTitle(label.id, event)}
                   onBlur={() => handleBlur(label.id)}
                 />
-              </Box>
+              </div>
 
               <span
                 data-tip={`Filter by: ${label.title}`}
@@ -174,21 +173,21 @@ const Labels: React.FC<Props> = ({
               >
                 <CrossIcon />
               </span>
-            </Flex>
+            </div>
           </li>
         ))}
 
         {newLabel && (
           <li key="new">
-            <Flex alignItems="center" py={2}>
-              <Box mr={2}>
+            <div className="flex items-center py-2">
+              <div className="mr-2">
                 <div
-                  className="circle"
+                  className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
                   style={{
                     backgroundColor: newLabel.color
                   }}
                 />
-              </Box>
+              </div>
               <input
                 autoFocus
                 placeholder="Label..."
@@ -202,20 +201,23 @@ const Labels: React.FC<Props> = ({
                 }
                 onBlur={handleSave}
               />
-            </Flex>
+            </div>
           </li>
         )}
       </ul>
 
       {!newLabel && labels.length < limit && (
-        <Box alignSelf="center" pt={3} pb={1}>
-          <span className="button-link" onClick={handleCreate}>
-            <PlusIcon />
-            {"  "}Create new label
-          </span>
-        </Box>
+        <div className="pt-2 pb-1">
+          <a
+            className="inline-flex text-slate-500 hover:text-slate-700 whitespace-nowrap items-center text-sm cursor-pointer"
+            onClick={handleCreate}
+          >
+            <PlusIcon className="mr-2" />
+            Create new label
+          </a>
+        </div>
       )}
-    </React.Fragment>
+    </>
   )
 }
 

@@ -1,13 +1,10 @@
+import CrossIcon from "@meronex/icons/fi/FiX"
+import { Label as LabelType } from "../index.d"
 import React from "react"
 import cx from "classnames"
-import { Flex, Box } from "rebass"
-
-import CrossIcon from "@meronex/icons/fi/FiX"
-
-import { Label } from "../index.d"
 
 interface Props {
-  label: Label
+  label: LabelType
   small?: boolean
   active: boolean
   onClick?: () => void
@@ -22,30 +19,28 @@ const Label: React.FC<Props> = ({
   onRemove
 }) => {
   return (
-    <Box
-      display="inline-flex"
-      className={cx("label", { active, small })}
+    <div
+      className={cx("inline-flex label", { active, small })}
       style={
         active ? { backgroundColor: label.color, borderColor: label.color } : {}
       }
       onClick={onClick}
     >
-      <Flex alignItems="center">
+      <div className="flex items-center">
         <button className="no-style">{label.title}</button>
         {onRemove && (
-          <Box
-            className="label-x"
-            height="14px"
+          <div
+            className="label-x block m-3"
             onClick={event => {
               event.stopPropagation()
               onRemove()
             }}
           >
             <CrossIcon />
-          </Box>
+          </div>
         )}
-      </Flex>
-    </Box>
+      </div>
+    </div>
   )
 }
 

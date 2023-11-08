@@ -1,9 +1,8 @@
-import React from "react"
-import cx from "classnames"
-
 // Icons
 import Checked from "@meronex/icons/fi/FiCheckSquare"
+import React from "react"
 import Unchecked from "@meronex/icons/fi/FiSquare"
+import cx from "classnames"
 
 interface Props {
   id: string
@@ -14,7 +13,13 @@ interface Props {
 const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
   return (
     <span className={cx("checkbox", { checked })}>
-      <label htmlFor={id}>{checked ? <Checked /> : <Unchecked />}</label>
+      <label htmlFor={id}>
+        {checked ? (
+          <Checked className="text-slate-500 hover:text-slate-800" />
+        ) : (
+          <Unchecked className="text-slate-600 hover:text-black" />
+        )}
+      </label>
       <input
         id={id}
         className="hidden-input"

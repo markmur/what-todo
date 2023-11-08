@@ -1,16 +1,14 @@
-import React from "react"
-import { Flex, Box } from "rebass"
-import Tooltip from "react-tooltip"
+import { Label as LabelType, Task as TaskType } from "../index.d"
 
 // Icons
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
-
 import Label from "./Label"
-
-import { Task as TaskType, Label as LabelType } from "../index.d"
-import useOnClickOutside from "../hooks/onclickoutside"
+import React from "react"
 import Task from "./Task"
+import Tooltip from "react-tooltip"
+import cx from "classnames"
+import useOnClickOutside from "../hooks/onclickoutside"
 
 interface Props {
   tasks?: TaskType[]
@@ -62,14 +60,6 @@ const getFilteredTasks = (tasks: TaskType[], filters: string[]) => {
     }
 
     return false
-  })
-}
-
-const promiseTimeout = (fn: any) => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(fn())
-    })
   })
 }
 
@@ -134,14 +124,14 @@ const List: React.FC<Props> = ({
     })
   }
 
-  const handleChange = (field: keyof TaskType) => (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    setSelectedTask({
-      ...selected,
-      [field]: event.target.value
-    })
-  }
+  const handleChange =
+    (field: keyof TaskType) =>
+    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      setSelectedTask({
+        ...selected,
+        [field]: event.target.value
+      })
+    }
 
   const handleFocus = (originalTask: TaskType) => (task, event) => {
     console.log(event.target)
@@ -161,10 +151,10 @@ const List: React.FC<Props> = ({
   return (
     <div>
       {filters.length ? (
-        <Box my={2}>
+        <div className="my-2">
           <small>Showing: </small>
           {filters.map(id => (
-            <Box display="inline" key={id} mr={1} mb={1}>
+            <div className="inline mb-1" key={id}>
               <Label
                 active
                 label={labels[id]}
@@ -172,9 +162,9 @@ const List: React.FC<Props> = ({
                   onFilter(filters.filter(x => x !== id))
                 }}
               />
-            </Box>
+            </div>
           ))}
-        </Box>
+        </div>
       ) : null}
       <ul>
         {uncompleted.map(task => {
@@ -206,22 +196,24 @@ const List: React.FC<Props> = ({
         })}
 
         {hasCompletedTasks && (
-          <Flex
-            mt={uncompleted.length > 0 ? 5 : 4}
-            mb={2}
-            alignItems="center"
-            style={{ cursor: "pointer" }}
+          <div
+            className={cx("flex mb-2 items-center cursor-pointer", {
+              "mt-10": uncompleted.length > 0,
+              "mt-4": uncompleted.length === 0
+            })}
             onClick={() => setDisplayCompleted(!displayCompleted)}
           >
-            <h4>Completed ({completed.length})</h4>
-            <Box mt={"-1px"} ml={1} alignSelf="center">
+            <h4 className="text-slate-600 hover:text-black font-bold">
+              {completed.length} Completed
+            </h4>
+            <div className="align-center">
               {displayCompleted ? (
                 <ChevronUp style={{ verticalAlign: "middle" }} />
               ) : (
                 <ChevronDown style={{ verticalAlign: "middle" }} />
               )}
-            </Box>
-          </Flex>
+            </div>
+          </div>
         )}
 
         {displayCompleted
