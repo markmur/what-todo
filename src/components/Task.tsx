@@ -23,7 +23,8 @@ interface Props {
   filters: string[]
   onFilter: (filters: string[]) => void
   onSelect: (task: TaskType, event: FormEvent) => void
-  onDeselect: (task: TaskType) => void
+  onDeselect: () => void
+  onUpdate: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onPinTask?: (task: TaskType) => void
   onChange: (key: keyof TaskType) => (event: React.ChangeEvent) => void
@@ -84,6 +85,7 @@ const Task: React.FC<Props> = ({
   onFilter,
   onSelect,
   onDeselect,
+  onUpdate,
   onMarkAsComplete,
   onChange,
   onMoveToToday,
@@ -94,7 +96,7 @@ const Task: React.FC<Props> = ({
   const ref = useRef<HTMLDivElement>(null)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && event.metaKey) {
-      onDeselect(task)
+      onDeselect()
     }
   }
 
@@ -130,6 +132,7 @@ const Task: React.FC<Props> = ({
           onKeyDown={handleKeyDown}
           onChange={onChange("title")}
           onFocus={event => onSelect(task, event)}
+          onBlur={() => onUpdate(task)}
         />
 
         {(active || task.description) && (
@@ -144,6 +147,7 @@ const Task: React.FC<Props> = ({
                   onChange={onChange("description")}
                   onKeyDown={handleKeyDown}
                   onFocus={event => onSelect(task, event)}
+                  onBlur={() => onUpdate(task)}
                 />
               </div>
             ) : (

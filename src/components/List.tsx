@@ -118,10 +118,12 @@ const List: React.FC<Props> = ({
   })
 
   const handleLabelsChange = (newLabels: string[]) => {
-    setSelectedTask({
+    const newTask = {
       ...selected,
       labels: newLabels
-    })
+    }
+    setSelectedTask(newTask)
+    onUpdateTask(newTask)
   }
 
   const handleChange =
@@ -139,13 +141,17 @@ const List: React.FC<Props> = ({
     }
   }
 
-  const handleBlur = (originalTask: TaskType) => () => {
+  const handleUpdate = (originalTask: TaskType) => () => {
     setTimeout(() => {
       if (taskHasChanged(selected, originalTask)) {
         onUpdateTask(selected)
       }
-      setSelectedTask(undefined)
     })
+  }
+
+  const handleDeselect = () => {
+    setSelectedTask(undefined)
+    document.activeElement?.blur()
   }
 
   return (
@@ -183,7 +189,8 @@ const List: React.FC<Props> = ({
                 filters={filters}
                 onFilter={onFilter}
                 onSelect={handleFocus(task)}
-                onDeselect={handleBlur(task)}
+                onUpdate={handleUpdate(task)}
+                onDeselect={handleDeselect}
                 onChange={handleChange}
                 onChangeLabels={handleLabelsChange}
                 onPinTask={canPinTasks ? onUpdateTask : undefined}
@@ -233,7 +240,8 @@ const List: React.FC<Props> = ({
                     filters={filters}
                     onFilter={onFilter}
                     onSelect={handleFocus(task)}
-                    onDeselect={handleBlur(task)}
+                    onUpdate={handleUpdate(task)}
+                    onDeselect={handleDeselect}
                     onChange={handleChange}
                     onChangeLabels={handleLabelsChange}
                     onPinTask={canPinTasks ? onUpdateTask : undefined}
