@@ -1,11 +1,11 @@
+import { Label as LabelType, Task } from "../index.d"
+
+import Animate from "./Animate"
+import Icon from "@meronex/icons/fi/FiArrowUpCircle"
+import Label from "./Label"
 import React from "react"
 import cx from "classnames"
-
-import Icon from "@meronex/icons/fi/FiArrowUpCircle"
-
-import { Label as LabelType, Task } from "../index.d"
 import useOnClickOutside from "../hooks/onclickoutside"
-import Label from "./Label"
 
 const validTask = (task: Partial<Task>): boolean => {
   return (task.title || "").trim().length > 0
@@ -103,11 +103,7 @@ const TaskInput: React.FC<Props> = ({
     <div
       ref={ref}
       className={cx(
-        "bg-slate-100 p-4 rounded-lg transition-all border-solid border-slate-200 border-2",
-        {
-          // ["shadow-lg"]: open,
-          // ["hover:shadow-md"]: !open
-        }
+        "bg-slate-100 p-4 rounded-lg transition-all border-solid border-slate-200 border-2"
       )}
     >
       <div className="flex justify-between items-center">
@@ -130,35 +126,37 @@ const TaskInput: React.FC<Props> = ({
         )}
       </div>
 
-      {open && (
-        <>
-          <textarea
-            rows={2}
-            value={task.description}
-            className="text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
-            placeholder="Add a brief description or URL..."
-            onChange={handleChange("description")}
-            onKeyDown={handleKeyDown("description")}
-          />
+      <Animate active={open}>
+        {open && (
+          <>
+            <textarea
+              rows={2}
+              value={task.description}
+              className="text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
+              placeholder="Add a brief description or URL..."
+              onChange={handleChange("description")}
+              onKeyDown={handleKeyDown("description")}
+            />
 
-          <div>
-            <div className="mb-2">
-              <label htmlFor="">Labels</label>
-            </div>
             <div>
-              {labels.map(label => (
-                <div className="inline-flex mr-1 mb-1" key={label.id}>
-                  <Label
-                    label={label}
-                    active={task.labels?.includes(label.id) ?? false}
-                    onClick={() => handleLabelClick(label.id)}
-                  />
-                </div>
-              ))}
+              <div className="mb-2">
+                <label htmlFor="">Labels</label>
+              </div>
+              <div>
+                {labels.map(label => (
+                  <div className="inline-flex mr-1 mb-1" key={label.id}>
+                    <Label
+                      label={label}
+                      active={task.labels?.includes(label.id) ?? false}
+                      onClick={() => handleLabelClick(label.id)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </Animate>
     </div>
   )
 }

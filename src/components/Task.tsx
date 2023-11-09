@@ -1,7 +1,9 @@
-// Types
+import { AnimatePresence, motion } from "framer-motion"
 import type { Label as LabelType, Task as TaskType } from "../index.d"
-import React, { FormEvent, useRef } from "react"
+// Types
+import React, { FormEvent, useEffect, useRef } from "react"
 
+import Animate from "./Animate"
 // Components
 import Checkbox from "./Checkbox"
 // Icons
@@ -103,7 +105,20 @@ const Task: React.FC<Props> = ({
   return (
     <div
       ref={ref}
-      className="flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3"
+      className={cx(
+        "flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
+        {
+          ["cursor-pointer"]: !active
+        }
+      )}
+      onClick={event => {
+        if (!active) {
+          onSelect(task, event)
+          const title = ref.current?.querySelector("textarea")
+          title?.focus()
+          title?.setSelectionRange(title?.value.length, title?.value.length)
+        }
+      }}
     >
       <div className="mt-[2px] mr-3">
         <Checkbox
@@ -135,51 +150,53 @@ const Task: React.FC<Props> = ({
           onBlur={() => onUpdate(task)}
         />
 
-        {(active || task.description) && (
-          <>
-            {active ? (
-              <div className="mt-1">
-                <Textarea
-                  maxRows={5}
-                  value={getDescription(active, task)}
-                  placeholder="Add description..."
-                  className="unstyled text-slate-500 text-sm bg-transparent"
-                  onChange={onChange("description")}
-                  onKeyDown={handleKeyDown}
-                  onFocus={event => onSelect(task, event)}
-                  onBlur={() => onUpdate(task)}
-                />
-              </div>
-            ) : (
-              <p
-                className="unstyled text-slate-500 text-sm cursor-text"
-                onClick={event => onSelect(task, event)}
-              >
-                {urlify(getDescription(active, task))}
-              </p>
-            )}
-          </>
-        )}
+        <Animate active={active}>
+          {(active || task.description) && (
+            <>
+              {active ? (
+                <div className="mt-1">
+                  <Textarea
+                    maxRows={5}
+                    value={getDescription(active, task)}
+                    placeholder="Add description..."
+                    className="unstyled text-slate-500 text-sm bg-transparent"
+                    onChange={onChange("description")}
+                    onKeyDown={handleKeyDown}
+                    onFocus={event => onSelect(task, event)}
+                    onBlur={() => onUpdate(task)}
+                  />
+                </div>
+              ) : (
+                <p
+                  className="unstyled text-slate-500 text-sm cursor-text"
+                  onClick={event => onSelect(task, event)}
+                >
+                  {urlify(getDescription(active, task))}
+                </p>
+              )}
+            </>
+          )}
 
-        {active && (
-          <div className="flex mt-2 flex-wrap">
-            {Object.entries(labels).map(([id, label]) => (
-              <div className="mr-1 mb-1" key={id}>
-                <Label
-                  small
-                  active={task.labels?.includes(id) ?? false}
-                  label={label}
-                  onClick={() => {
-                    const nextLabels = task.labels?.includes(id)
-                      ? task.labels.filter(l => l !== id)
-                      : [...(task.labels ?? []), id]
-                    onChangeLabels(nextLabels)
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+          {active && (
+            <div className="flex mt-2 flex-wrap">
+              {Object.entries(labels).map(([id, label]) => (
+                <div className="mr-1 mb-1" key={id}>
+                  <Label
+                    small
+                    active={task.labels?.includes(id) ?? false}
+                    label={label}
+                    onClick={() => {
+                      const nextLabels = task.labels?.includes(id)
+                        ? task.labels.filter(l => l !== id)
+                        : [...(task.labels ?? []), id]
+                      onChangeLabels(nextLabels)
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </Animate>
       </div>
 
       <div id="actions" className="flex mt-1">

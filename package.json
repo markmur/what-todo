@@ -18,6 +18,7 @@
     "@meronex/icons": "^4.0.0",
     "@rebass/preset": "^4.0.5",
     "classnames": "^2.2.6",
+    "framer-motion": "^10.16.4",
     "lodash-es": "^4.17.20",
     "object-sizeof": "^1.6.1",
     "postcss": "^8.4.31",
