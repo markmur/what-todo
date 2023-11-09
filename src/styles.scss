@@ -31,10 +31,6 @@ ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
-
-  li {
-    border-bottom: 1px solid #e0e0e0;
-  }
 }
 
 h1,
@@ -103,14 +99,6 @@ textarea.unstyled {
       text-decoration: line-through;
     }
   }
-
-  .task-description-input {
-    padding-top: 5px;
-    font-size: 13px;
-    color: rgb(123, 130, 150);
-    font-weight: 400;
-    margin: 0;
-  }
 }
 
 button {
@@ -121,17 +109,10 @@ button {
   border-radius: 3px;
   margin-right: 5px;
   margin-bottom: 5px;
-  font-weight: bold;
   cursor: pointer;
   font-size: 12px;
   padding: 4px 6px;
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid transparent;
   outline: none;
-
-  &:hover:not(.active) {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
 
   &.active {
     color: white;

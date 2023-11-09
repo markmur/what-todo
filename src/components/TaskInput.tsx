@@ -1,4 +1,5 @@
 import React from "react"
+import cx from "classnames"
 
 import Icon from "@meronex/icons/fi/FiArrowUpCircle"
 
@@ -7,7 +8,7 @@ import useOnClickOutside from "../hooks/onclickoutside"
 import Label from "./Label"
 
 const validTask = (task: Partial<Task>): boolean => {
-  return task.title.trim().length > 0
+  return (task.title || "").trim().length > 0
 }
 
 interface Props {
@@ -23,7 +24,7 @@ const TaskInput: React.FC<Props> = ({
   labels,
   onAdd
 }) => {
-  const ref = React.useRef()
+  const ref = React.useRef<HTMLDivElement>(null)
 
   const [task, setTask] = React.useState<Partial<Task>>({
     title: "",
@@ -65,20 +66,26 @@ const TaskInput: React.FC<Props> = ({
   const handleLabelClick = (id: string) => {
     const newTask = { ...task }
 
-    if (task.labels.includes(id)) {
+    if (task.labels?.includes(id)) {
       newTask.labels = task.labels.filter(l => l !== id)
     } else {
-      newTask.labels.push(id)
+      newTask.labels?.push(id)
     }
 
     setTask(newTask)
   }
 
-  const handleKeyPress = event => {
-    if (event.key === "Enter") {
-      handleAdd()
+  const handleKeyDown =
+    (field: keyof Task) =>
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (field === "title" && event.key === "Enter") {
+        handleAdd()
+      }
+
+      if (field === "description" && event.key === "Enter" && event.metaKey) {
+        handleAdd()
+      }
     }
-  }
 
   useOnClickOutside(ref, () => {
     setOpen(false)
@@ -93,7 +100,16 @@ const TaskInput: React.FC<Props> = ({
   })
 
   return (
-    <div className="bg-slate-100 p-4 rounded-lg" ref={ref}>
+    <div
+      ref={ref}
+      className={cx(
+        "bg-slate-100 p-4 rounded-lg transition-all border-solid border-slate-200 border-2",
+        {
+          // ["shadow-lg"]: open,
+          // ["hover:shadow-md"]: !open
+        }
+      )}
+    >
       <div className="flex justify-between items-center">
         <input
           type="text"
@@ -102,12 +118,12 @@ const TaskInput: React.FC<Props> = ({
           placeholder={placeholder}
           onFocus={() => setOpen(true)}
           onChange={handleChange("title")}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown("title")}
         />
         {open && (
           <Icon
             onClick={handleAdd}
-            className="mb-3 text-slate-600 hover:text-slate-800"
+            className="mb-2 text-slate-600 hover:text-slate-800"
             cursor="pointer"
             fontSize={24}
           />
@@ -115,13 +131,14 @@ const TaskInput: React.FC<Props> = ({
       </div>
 
       {open && (
-        <React.Fragment>
+        <>
           <textarea
             rows={2}
             value={task.description}
             className="text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
-            placeholder="Brief description"
+            placeholder="Add a brief description or URL..."
             onChange={handleChange("description")}
+            onKeyDown={handleKeyDown("description")}
           />
 
           <div>
@@ -133,14 +150,14 @@ const TaskInput: React.FC<Props> = ({
                 <div className="inline-flex mr-1 mb-1" key={label.id}>
                   <Label
                     label={label}
-                    active={task.labels.includes(label.id)}
+                    active={task.labels?.includes(label.id) ?? false}
                     onClick={() => handleLabelClick(label.id)}
                   />
                 </div>
               ))}
             </div>
           </div>
-        </React.Fragment>
+        </>
       )}
     </div>
   )

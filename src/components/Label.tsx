@@ -20,7 +20,14 @@ const Label: React.FC<Props> = ({
 }) => {
   return (
     <div
-      className={cx("inline-flex label", { active, small })}
+      className={cx(
+        "inline-flex py-1 px-2 rounded-lg text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 hover:text-slate-900 text-md cursor-pointer",
+        {
+          active,
+          small,
+          ["text-white hover:text-white font-bold"]: active
+        }
+      )}
       style={
         active ? { backgroundColor: label.color, borderColor: label.color } : {}
       }

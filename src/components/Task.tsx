@@ -90,8 +90,11 @@ const Task: React.FC<Props> = ({
   onChangeLabels
 }) => {
   return (
-    <div className="flex items-start py-3" onBlur={() => onDeselect(task)}>
-      <div className="mr-3">
+    <div
+      className="flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3"
+      onBlur={() => onDeselect(task)}
+    >
+      <div className="mt-[2px] mr-3">
         <Checkbox
           id={task.id}
           checked={task.completed}
@@ -109,7 +112,7 @@ const Task: React.FC<Props> = ({
           maxRows={3}
           value={task.title}
           spellCheck={active}
-          className={cx("unstyled task-title-input", {
+          className={cx("unstyled leading-normal bg-transparent pt-0", {
             ["strike text-slate-400"]: task.completed
           })}
           onChange={onChange("title")}
@@ -119,16 +122,21 @@ const Task: React.FC<Props> = ({
         {(active || task.description) && (
           <>
             {active ? (
-              <Textarea
-                maxRows={5}
-                value={getDescription(active, task)}
-                placeholder="Add description..."
-                className="unstyled task-description-input"
-                onChange={onChange("description")}
-                onFocus={event => onSelect(task, event)}
-              />
+              <div className="mt-1">
+                <Textarea
+                  maxRows={5}
+                  value={getDescription(active, task)}
+                  placeholder="Add description..."
+                  className="unstyled text-slate-500 text-sm bg-transparent"
+                  onChange={onChange("description")}
+                  onFocus={event => onSelect(task, event)}
+                />
+              </div>
             ) : (
-              <p className="unstyled task-description-input">
+              <p
+                className="unstyled text-slate-500 text-sm cursor-text"
+                onClick={event => onSelect(task, event)}
+              >
                 {urlify(getDescription(active, task))}
               </p>
             )}
@@ -141,12 +149,12 @@ const Task: React.FC<Props> = ({
               <div className="mr-1 mb-1" key={id}>
                 <Label
                   small
-                  active={task.labels.includes(id)}
+                  active={task.labels?.includes(id) ?? false}
                   label={label}
                   onClick={() => {
-                    const nextLabels = task.labels.includes(id)
+                    const nextLabels = task.labels?.includes(id)
                       ? task.labels.filter(l => l !== id)
-                      : [...task.labels, id]
+                      : [...(task.labels ?? []), id]
                     onChangeLabels(nextLabels)
                   }}
                 />
@@ -156,39 +164,40 @@ const Task: React.FC<Props> = ({
         )}
       </div>
 
-      {onMoveToToday && (
-        <div
-          data-tip="Move to today"
-          className="remove-icon"
-          onClick={() => {
-            onMoveToToday(task)
-            ReactTooltip.hide()
-          }}
-        >
-          <RightArrowIcon />
-        </div>
-      )}
+      <div id="actions" className="flex mt-1">
+        {onMoveToToday && (
+          <div
+            data-tip="Move to today"
+            className="remove-icon"
+            onClick={() => {
+              onMoveToToday(task)
+              ReactTooltip.hide()
+            }}
+          >
+            <RightArrowIcon />
+          </div>
+        )}
 
-      {onPinTask && (
-        <div
-          data-tip={task.pinned ? "Unpin task" : "Pin task"}
-          className={cx("remove-icon", { active: task.pinned })}
-          onClick={() => {
-            onPinTask({
-              ...task,
-              pinned: !Boolean(task.pinned)
-            })
-          }}
-        >
-          {task.pinned ? <PinFilled /> : <Pin />}
-        </div>
-      )}
+        {onPinTask && (
+          <div
+            data-tip={task.pinned ? "Unpin task" : "Pin task"}
+            className={cx("remove-icon", { active: task.pinned })}
+            onClick={() => {
+              onPinTask({
+                ...task,
+                pinned: !Boolean(task.pinned)
+              })
+            }}
+          >
+            {task.pinned ? <PinFilled /> : <Pin />}
+          </div>
+        )}
 
-      {!active
-        ? task.labels.map(id => (
+        {!active &&
+          task.labels?.map(id => (
             <span
               key={id}
-              className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+              className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
               data-tip={labels[id]?.title}
               data-background-color={labels[id]?.color}
               style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
@@ -204,12 +213,12 @@ const Task: React.FC<Props> = ({
                 }
               }}
             />
-          ))
-        : null}
+          ))}
 
-      <span className="remove-icon" onClick={() => onRemoveTask(task)}>
-        <CrossIcon />
-      </span>
+        <span className="remove-icon" onClick={() => onRemoveTask(task)}>
+          <CrossIcon />
+        </span>
+      </div>
     </div>
   )
 }
