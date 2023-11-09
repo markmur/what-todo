@@ -211,27 +211,26 @@ const Task: React.FC<Props> = ({
           </div>
         )}
 
-        {!active &&
-          task.labels?.map(id => (
-            <span
-              key={id}
-              className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
-              data-tip={labels[id]?.title}
-              data-background-color={labels[id]?.color}
-              style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
-              onClick={event => {
-                if (filters.includes(id)) {
-                  onFilter(filters.filter(f => f !== id))
+        {task.labels?.map(id => (
+          <span
+            key={id}
+            className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+            data-tip={labels[id]?.title}
+            data-background-color={labels[id]?.color}
+            style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
+            onClick={event => {
+              if (filters.includes(id)) {
+                onFilter(filters.filter(f => f !== id))
+              } else {
+                if (event.metaKey) {
+                  onFilter([...filters, id])
                 } else {
-                  if (event.metaKey) {
-                    onFilter([...filters, id])
-                  } else {
-                    onFilter([id])
-                  }
+                  onFilter([id])
                 }
-              }}
-            />
-          ))}
+              }
+            }}
+          />
+        ))}
 
         <span className="remove-icon" onClick={() => onRemoveTask(task)}>
           <CrossIcon />
