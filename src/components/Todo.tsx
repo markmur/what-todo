@@ -1,25 +1,24 @@
 // Styles
 import "../styles.scss"
 
-import { Flex } from "rebass"
 // Types
-import type { Data, Label as LabelType, Task } from "../index.d"
+import type { Data, Task } from "../index.d"
+import React, { PropsWithChildren } from "react"
 // utils
 import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
 
+import { Flex } from "rebass"
 import Footer from "./Footer"
 import Labels from "./Labels"
 import List from "./List"
 import Notes from "./Notes"
-import React, { PropsWithChildren } from "react"
 // Components
 import TaskInput from "./TaskInput"
 import colors from "../color-palette"
 import cx from "classnames"
 // Hooks
 import { useStorage } from "../context/StorageContext"
-import Label from "./Label"
 
 function Title({ children }: PropsWithChildren<{}>) {
   return (
@@ -28,7 +27,7 @@ function Title({ children }: PropsWithChildren<{}>) {
 }
 
 function Subtitle({ children }: PropsWithChildren<{}>) {
-  return <h2 className="text-sm mb-6 text-slate-500">{children}</h2>
+  return <h2 className="text-sm mb-4 text-slate-500">{children}</h2>
 }
 
 const getTasksFor =

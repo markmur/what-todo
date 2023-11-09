@@ -1,5 +1,6 @@
 import type { IntermediateLabel, Label as LabelType } from "../index.d"
 
+import Animate from "./Animate"
 import { Color } from "../color-palette"
 import ColorPicker from "./ColorPicker"
 // Icons
@@ -177,33 +178,35 @@ const Labels: React.FC<Props> = ({
           </li>
         ))}
 
-        {newLabel && (
-          <li key="new">
-            <div className="flex items-center py-2">
-              <div className="mr-2">
-                <div
-                  className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
-                  style={{
-                    backgroundColor: newLabel.color
-                  }}
+        <Animate active={newLabel}>
+          {newLabel && (
+            <li key="new">
+              <div className="flex items-center py-2">
+                <div className="mr-2">
+                  <div
+                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                    style={{
+                      backgroundColor: newLabel.color
+                    }}
+                  />
+                </div>
+                <input
+                  autoFocus
+                  placeholder="Label..."
+                  value={newLabel.title}
+                  onKeyPress={handleKeyPress}
+                  onChange={event =>
+                    setNewLabel({
+                      ...newLabel,
+                      title: event.target.value
+                    })
+                  }
+                  onBlur={handleSave}
                 />
               </div>
-              <input
-                autoFocus
-                placeholder="Label..."
-                value={newLabel.title}
-                onKeyPress={handleKeyPress}
-                onChange={event =>
-                  setNewLabel({
-                    ...newLabel,
-                    title: event.target.value
-                  })
-                }
-                onBlur={handleSave}
-              />
-            </div>
-          </li>
-        )}
+            </li>
+          )}
+        </Animate>
       </ul>
 
       {!newLabel && labels.length < limit && (

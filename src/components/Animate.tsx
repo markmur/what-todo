@@ -7,7 +7,7 @@ const variants = {
   closed: { height: 0, opacity: 0 }
 }
 
-export default function Animate({ children, active }) {
+export default function Animate({ children, active, duration = 0.2 }) {
   return (
     <AnimatePresence>
       {active && (
@@ -16,7 +16,7 @@ export default function Animate({ children, active }) {
           animate="open"
           exit="closed"
           variants={variants}
-          transition={{ duration: 0.2, ease: [0.645, 0.045, 0.355, 1] }}
+          transition={{ duration, ease: [0.645, 0.045, 0.355, 1] }}
         >
           {children}
         </motion.div>

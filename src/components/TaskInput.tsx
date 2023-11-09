@@ -126,7 +126,7 @@ const TaskInput: React.FC<Props> = ({
         )}
       </div>
 
-      <Animate active={open}>
+      <Animate duration={0.15} active={open}>
         {open && (
           <>
             <textarea

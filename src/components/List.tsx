@@ -38,10 +38,10 @@ const taskHasChanged = (
 }
 
 const isSelected = (selected: TaskType | undefined, task: TaskType) => {
-  return task.id && task.id === selected?.id
+  return Boolean(task.id) && task.id === selected?.id
 }
 
-const getFilteredTasks = (tasks: TaskType[], filters: string[]) => {
+const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
   if (!filters.length) {
     return tasks
   }
@@ -49,14 +49,14 @@ const getFilteredTasks = (tasks: TaskType[], filters: string[]) => {
   // If more than one selected, filter by tasks containing only both
   if (filters.length > 1) {
     return tasks.filter(task => {
-      return task.labels.sort().join(",") === filters.sort().join(",")
+      return task.labels?.sort().join(",") === filters.sort().join(",")
     })
   }
 
   // By default include any task that includes a selected filter
   return tasks.filter(task => {
     for (const id of filters) {
-      if (task.labels.includes(id)) return true
+      if (task.labels?.includes(id)) return true
     }
 
     return false
@@ -130,12 +130,12 @@ const List: React.FC<Props> = ({
     (field: keyof TaskType) =>
     (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
       setSelectedTask({
-        ...selected,
+        ...(selected || {}),
         [field]: event.target.value
       })
     }
 
-  const handleFocus = (originalTask: TaskType) => (task, event) => {
+  const handleFocus = (originalTask: TaskType) => () => {
     if (!isSelected(selected, originalTask)) {
       setSelectedTask(originalTask)
     }
@@ -151,7 +151,12 @@ const List: React.FC<Props> = ({
 
   const handleDeselect = () => {
     setSelectedTask(undefined)
-    document.activeElement?.blur()
+    ;(document.activeElement as HTMLElement)?.blur()
+  }
+
+  const handleMarkAsComplete = (task: TaskType) => {
+    onMarkAsComplete(task)
+    handleDeselect()
   }
 
   return (
@@ -195,7 +200,7 @@ const List: React.FC<Props> = ({
                 onChangeLabels={handleLabelsChange}
                 onPinTask={canPinTasks ? onUpdateTask : undefined}
                 onRemoveTask={onRemoveTask}
-                onMarkAsComplete={onMarkAsComplete}
+                onMarkAsComplete={handleMarkAsComplete}
                 onMoveToToday={onMoveToToday}
               />
             </li>
@@ -246,7 +251,7 @@ const List: React.FC<Props> = ({
                     onChangeLabels={handleLabelsChange}
                     onPinTask={canPinTasks ? onUpdateTask : undefined}
                     onRemoveTask={onRemoveTask}
-                    onMarkAsComplete={onMarkAsComplete}
+                    onMarkAsComplete={handleMarkAsComplete}
                     onMoveToToday={onMoveToToday}
                   />
                 </li>
