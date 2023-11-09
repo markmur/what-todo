@@ -12,14 +12,14 @@ import Tooltip from "react-tooltip"
 import cx from "classnames"
 
 interface Props {
-  labels: Label[]
+  labels: LabelType[]
   colors: Color[]
   limit: number
   filters?: string[]
   onAddLabel: (label: IntermediateLabel) => void
   onFilter: (labelIds: string[]) => void
-  onUpdateLabel: (label: Label) => void
-  onRemoveLabel: (label: Label) => void
+  onUpdateLabel: (label: LabelType) => void
+  onRemoveLabel: (label: LabelType) => void
 }
 
 const Labels: React.FC<Props> = ({

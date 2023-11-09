@@ -1,7 +1,6 @@
-import { AnimatePresence, motion } from "framer-motion"
 import type { Label as LabelType, Task as TaskType } from "../index.d"
 // Types
-import React, { FormEvent, useEffect, useRef } from "react"
+import React, { FormEvent, useRef } from "react"
 
 import Animate from "./Animate"
 // Components
@@ -103,157 +102,159 @@ const Task: React.FC<Props> = ({
   }
 
   return (
-    <div
-      ref={ref}
-      className={cx(
-        "flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
-        {
-          ["cursor-pointer"]: !active
-        }
-      )}
-      onClick={event => {
-        if (!active) {
-          onSelect(task, event)
-          const title = ref.current?.querySelector("textarea")
-          title?.focus()
-          title?.setSelectionRange(title?.value.length, title?.value.length)
-        }
-      }}
-    >
-      <div className="mt-[2px] mr-3">
-        <Checkbox
-          id={task.id}
-          checked={task.completed}
-          onChange={() =>
-            onMarkAsComplete({
-              ...task,
-              completed: !task.completed
-            })
+    <Animate active duration={0.15}>
+      <div
+        ref={ref}
+        className={cx(
+          "flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
+          {
+            ["cursor-pointer"]: !active
           }
-        />
-      </div>
-
-      <div className="w-full">
-        <Textarea
-          maxRows={3}
-          value={task.title}
-          spellCheck={active}
-          className={cx(
-            "unstyled task-title-input leading-normal bg-transparent pt-0",
-            {
-              ["strike text-slate-400"]: task.completed
+        )}
+        onClick={event => {
+          if (!active) {
+            onSelect(task, event)
+            const title = ref.current?.querySelector("textarea")
+            title?.focus()
+            title?.setSelectionRange(title?.value.length, title?.value.length)
+          }
+        }}
+      >
+        <div className="mt-[2px] mr-3">
+          <Checkbox
+            id={task.id}
+            checked={task.completed}
+            onChange={() =>
+              onMarkAsComplete({
+                ...task,
+                completed: !task.completed
+              })
             }
-          )}
-          onKeyDown={handleKeyDown}
-          onChange={onChange("title")}
-          onFocus={event => onSelect(task, event)}
-          onBlur={() => onUpdate(task)}
-        />
+          />
+        </div>
 
-        <Animate active={active}>
-          {(active || task.description) && (
-            <>
-              {active ? (
-                <div className="mt-1">
-                  <Textarea
-                    maxRows={5}
-                    value={getDescription(active, task)}
-                    placeholder="Add description..."
-                    className="unstyled text-slate-500 text-sm bg-transparent"
-                    onChange={onChange("description")}
-                    onKeyDown={handleKeyDown}
-                    onFocus={event => onSelect(task, event)}
-                    onBlur={() => onUpdate(task)}
-                  />
-                </div>
-              ) : (
-                <p
-                  className="unstyled text-slate-500 text-sm cursor-text"
-                  onClick={event => onSelect(task, event)}
-                >
-                  {urlify(getDescription(active, task))}
-                </p>
-              )}
-            </>
-          )}
+        <div className="w-full">
+          <Textarea
+            maxRows={3}
+            value={task.title}
+            spellCheck={active}
+            className={cx(
+              "unstyled task-title-input leading-normal bg-transparent pt-0",
+              {
+                ["strike text-slate-400"]: task.completed
+              }
+            )}
+            onKeyDown={handleKeyDown}
+            onChange={onChange("title")}
+            onFocus={event => onSelect(task, event)}
+            onBlur={() => onUpdate(task)}
+          />
 
-          {active && (
-            <div className="flex mt-2 flex-wrap">
-              {Object.entries(labels).map(([id, label]) => (
-                <div className="mr-1 mb-1" key={id}>
-                  <Label
-                    small
-                    active={task.labels?.includes(id) ?? false}
-                    label={label}
-                    onClick={() => {
-                      const nextLabels = task.labels?.includes(id)
-                        ? task.labels.filter(l => l !== id)
-                        : [...(task.labels ?? []), id]
-                      onChangeLabels(nextLabels)
-                    }}
-                  />
-                </div>
-              ))}
+          <Animate active={active}>
+            {(active || task.description) && (
+              <>
+                {active ? (
+                  <div className="mt-1">
+                    <Textarea
+                      maxRows={5}
+                      value={getDescription(active, task)}
+                      placeholder="Add description..."
+                      className="unstyled text-slate-500 text-sm bg-transparent"
+                      onChange={onChange("description")}
+                      onKeyDown={handleKeyDown}
+                      onFocus={event => onSelect(task, event)}
+                      onBlur={() => onUpdate(task)}
+                    />
+                  </div>
+                ) : (
+                  <p
+                    className="unstyled text-slate-500 text-sm cursor-text"
+                    onClick={event => onSelect(task, event)}
+                  >
+                    {urlify(getDescription(active, task))}
+                  </p>
+                )}
+              </>
+            )}
+
+            {active && (
+              <div className="flex mt-2 flex-wrap">
+                {Object.entries(labels).map(([id, label]) => (
+                  <div className="mr-1 mb-1" key={id}>
+                    <Label
+                      small
+                      active={task.labels?.includes(id) ?? false}
+                      label={label}
+                      onClick={() => {
+                        const nextLabels = task.labels?.includes(id)
+                          ? task.labels.filter(l => l !== id)
+                          : [...(task.labels ?? []), id]
+                        onChangeLabels(nextLabels)
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </Animate>
+        </div>
+
+        <div id="actions" className="flex mt-1">
+          {onMoveToToday && (
+            <div
+              data-tip="Move to today"
+              className="remove-icon"
+              onClick={() => {
+                onMoveToToday(task)
+                ReactTooltip.hide()
+              }}
+            >
+              <RightArrowIcon />
             </div>
           )}
-        </Animate>
-      </div>
 
-      <div id="actions" className="flex mt-1">
-        {onMoveToToday && (
-          <div
-            data-tip="Move to today"
-            className="remove-icon"
-            onClick={() => {
-              onMoveToToday(task)
-              ReactTooltip.hide()
-            }}
-          >
-            <RightArrowIcon />
-          </div>
-        )}
+          {onPinTask && (
+            <div
+              data-tip={task.pinned ? "Unpin task" : "Pin task"}
+              className={cx("remove-icon", { active: task.pinned })}
+              onClick={() => {
+                onPinTask({
+                  ...task,
+                  pinned: !Boolean(task.pinned)
+                })
+              }}
+            >
+              {task.pinned ? <PinFilled /> : <Pin />}
+            </div>
+          )}
 
-        {onPinTask && (
-          <div
-            data-tip={task.pinned ? "Unpin task" : "Pin task"}
-            className={cx("remove-icon", { active: task.pinned })}
-            onClick={() => {
-              onPinTask({
-                ...task,
-                pinned: !Boolean(task.pinned)
-              })
-            }}
-          >
-            {task.pinned ? <PinFilled /> : <Pin />}
-          </div>
-        )}
-
-        {task.labels?.map(id => (
-          <span
-            key={id}
-            className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
-            data-tip={labels[id]?.title}
-            data-background-color={labels[id]?.color}
-            style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
-            onClick={event => {
-              if (filters.includes(id)) {
-                onFilter(filters.filter(f => f !== id))
-              } else {
-                if (event.metaKey) {
-                  onFilter([...filters, id])
+          {task.labels?.map(id => (
+            <span
+              key={id}
+              className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+              data-tip={labels[id]?.title}
+              data-background-color={labels[id]?.color}
+              style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
+              onClick={event => {
+                if (filters.includes(id)) {
+                  onFilter(filters.filter(f => f !== id))
                 } else {
-                  onFilter([id])
+                  if (event.metaKey) {
+                    onFilter([...filters, id])
+                  } else {
+                    onFilter([id])
+                  }
                 }
-              }
-            }}
-          />
-        ))}
+              }}
+            />
+          ))}
 
-        <span className="remove-icon" onClick={() => onRemoveTask(task)}>
-          <CrossIcon />
-        </span>
+          <span className="remove-icon" onClick={() => onRemoveTask(task)}>
+            <CrossIcon />
+          </span>
+        </div>
       </div>
-    </div>
+    </Animate>
   )
 }
 
