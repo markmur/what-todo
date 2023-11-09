@@ -27,6 +27,7 @@ interface Browser {
       clear: () => void
     }
     local: {
+      QUOTA_BYTES?: number | null
       set: (data: any) => void
       get: () => any
     }
@@ -48,6 +49,7 @@ const browser: Browser = {
       clear: () => undefined
     },
     local: {
+      QUOTA_BYTES: null,
       set: data => localStorage.setItem("what-todo", JSON.stringify(data)),
       get: () =>
         JSON.parse(
@@ -195,6 +197,7 @@ class StorageManager {
   private unsetBusyState(data: Data) {
     this.busy = false
     const unsynced = this.syncQueue.length
+
     while (this.syncQueue.length) {
       this.syncQueue.shift()(data)
     }
@@ -326,8 +329,6 @@ class StorageManager {
       parsedData = (valid ? data : this.defaultData) as Data
       parsedData = await this.cleanData(parsedData)
 
-      console.log(parsedData)
-
       if (!Boolean(parsedData.migrated)) {
         // Migrate data from Release #1 from sync storage to local storage
         const migratedData = await this.transformSyncDataToLocalStorage()
@@ -335,15 +336,19 @@ class StorageManager {
         if (migratedData) parsedData = migratedData
       }
 
-      const filteringByMissingLabels = data.filters?.some(filterId => {
-        return (
-          (parsedData.labels || []).findIndex(({ id }) => filterId === id) < 0
-        )
-      })
+      const filteringByMissingLabels = data.filters?.some(
+        (filterId: string) => {
+          return (
+            (parsedData.labels || []).findIndex(({ id }) => filterId === id) < 0
+          )
+        }
+      )
 
       if (filteringByMissingLabels) {
         parsedData = this.updateFilters(parsedData, [])
       }
+
+      this.moveUncompletedTasksToToday(parsedData)
 
       // Usage
       const usage = await this.getStorageUsagePercent(parsedData)
@@ -357,20 +362,26 @@ class StorageManager {
     } catch (error) {
       console.error(error)
     } finally {
-      if (chrome?.runtime?.lastError) {
-        console.error(chrome.runtime.lastError)
-        throw chrome.runtime.lastError
-      }
-
       console.timeEnd("getData()")
       console.groupEnd()
 
       this.unsetBusyState(parsedData)
+      // return {
+      //   data: defaultData,
+      //   usage: null,
+      //   quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
+      // }
     }
   }
 
   getStorageUsagePercent = async (data: Data): Promise<number> => {
     const inUse = sizeOf(data)
+    const total = browser.storage.local.QUOTA_BYTES
+
+    if (!total) {
+      return 0
+    }
+
     return inUse / browser.storage.local.QUOTA_BYTES
   }
 
@@ -453,6 +464,27 @@ class StorageManager {
     this.sync(newData, "REMOVE_TASK")
 
     return newData
+  }
+
+  private moveUncompletedTasksToToday(data: Data) {
+    const todayKey = this.getTodayKey()
+    const uncompletedTasks = Object.entries(data.tasks)
+      .filter(([key]) => key !== todayKey)
+      .map(([, tasks]) => tasks)
+      .flat()
+      .filter(task => !task.completed)
+
+    if (uncompletedTasks?.length > 0) {
+      return uncompletedTasks.reduce(
+        (state, task) => {
+          state = this.moveTaskToToday(data, task)
+          return state
+        },
+        { ...data }
+      )
+    }
+
+    return data
   }
 
   // @sync()

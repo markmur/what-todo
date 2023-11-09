@@ -134,7 +134,6 @@ const List: React.FC<Props> = ({
     }
 
   const handleFocus = (originalTask: TaskType) => (task, event) => {
-    console.log(event.target)
     if (!isSelected(selected, originalTask)) {
       setSelectedTask(originalTask)
     }
@@ -145,6 +144,7 @@ const List: React.FC<Props> = ({
       if (taskHasChanged(selected, originalTask)) {
         onUpdateTask(selected)
       }
+      setSelectedTask(undefined)
     })
   }
 

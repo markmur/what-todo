@@ -41,7 +41,11 @@ export const formatDateHeading = (
   return new Date(date).toLocaleDateString(window.navigator.language, options)
 }
 
-export const bytesToSize = (bytes: number): string => {
+export const bytesToSize = (bytes: number | null | undefined): string => {
+  if (bytes == null) {
+    return ""
+  }
+
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
   if (bytes == 0) return "0 Byte"
 

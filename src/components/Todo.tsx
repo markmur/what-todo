@@ -12,7 +12,7 @@ import Footer from "./Footer"
 import Labels from "./Labels"
 import List from "./List"
 import Notes from "./Notes"
-import React from "react"
+import React, { PropsWithChildren } from "react"
 // Components
 import TaskInput from "./TaskInput"
 import colors from "../color-palette"
@@ -20,13 +20,13 @@ import cx from "classnames"
 // Hooks
 import { useStorage } from "../context/StorageContext"
 
-function Title({ children }) {
+function Title({ children }: PropsWithChildren<{}>) {
   return (
-    <h1 className="text-5xl mt-6 font-bold mb-3 text-slate-700">{children}</h1>
+    <h1 className=" text-4xl mt-4 mb-3 text-slate-300 font-bold">{children}</h1>
   )
 }
 
-function Subtitle({ children }) {
+function Subtitle({ children }: PropsWithChildren<{}>) {
   return <h2 className="text-sm mb-6 text-slate-500">{children}</h2>
 }
 
@@ -38,7 +38,7 @@ const getTasksFor =
 
 const getOlderTasks = (data: Data): Task[] => {
   const todayDateStr = today().toDateString()
-  let list = []
+  let list: Task[] = []
 
   for (const [date, tasks] of Object.entries(data.tasks)) {
     if (date !== todayDateStr) {
@@ -139,7 +139,7 @@ const Todo: React.FC = ({}) => {
               flexDirection="column"
             >
               <div className="pb-1">
-                <Title>Older</Title>
+                <Title>Completed</Title>
                 <Subtitle>
                   {formatDateHeading(yesterdayDateStr, {
                     weekday: undefined,
@@ -188,7 +188,7 @@ const Todo: React.FC = ({}) => {
           flexDirection="column"
         >
           <div className="pb-1">
-            <Title>Today</Title>
+            <Title>Focus</Title>
             <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
           </div>
 

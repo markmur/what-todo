@@ -1,6 +1,6 @@
 // Types
-import { Label as LabelType, Task as TaskType } from "../index.d"
-import React, { FormEvent } from "react"
+import type { Label as LabelType, Task as TaskType } from "../index.d"
+import React, { FormEvent, useRef } from "react"
 
 // Components
 import Checkbox from "./Checkbox"
@@ -43,7 +43,9 @@ function shortenURL(url: string) {
   }
 }
 
-function urlify(text: string): string | (string | JSX.Element)[] {
+function urlify(text: string | undefined): string | (string | JSX.Element)[] {
+  if (!text) return ""
+
   const matches = text.match(URL_RE)
 
   if (!matches?.length) {
@@ -89,10 +91,17 @@ const Task: React.FC<Props> = ({
   onPinTask,
   onChangeLabels
 }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && event.metaKey) {
+      onDeselect(task)
+    }
+  }
+
   return (
     <div
+      ref={ref}
       className="flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3"
-      onBlur={() => onDeselect(task)}
     >
       <div className="mt-[2px] mr-3">
         <Checkbox
@@ -112,9 +121,13 @@ const Task: React.FC<Props> = ({
           maxRows={3}
           value={task.title}
           spellCheck={active}
-          className={cx("unstyled leading-normal bg-transparent pt-0", {
-            ["strike text-slate-400"]: task.completed
-          })}
+          className={cx(
+            "unstyled task-title-input leading-normal bg-transparent pt-0",
+            {
+              ["strike text-slate-400"]: task.completed
+            }
+          )}
+          onKeyDown={handleKeyDown}
           onChange={onChange("title")}
           onFocus={event => onSelect(task, event)}
         />
@@ -129,6 +142,7 @@ const Task: React.FC<Props> = ({
                   placeholder="Add description..."
                   className="unstyled text-slate-500 text-sm bg-transparent"
                   onChange={onChange("description")}
+                  onKeyDown={handleKeyDown}
                   onFocus={event => onSelect(task, event)}
                 />
               </div>
