@@ -4,9 +4,10 @@ import React from "react"
 import cx from "classnames"
 
 interface Props {
+  active: boolean
+  className?: string
   label: LabelType
   small?: boolean
-  active: boolean
   onClick?: () => void
   onRemove?: () => void
 }
@@ -16,12 +17,14 @@ const Label: React.FC<Props> = ({
   label,
   active,
   onClick,
-  onRemove
+  onRemove,
+  className = ""
 }) => {
   return (
     <div
       className={cx(
         "inline-flex py-1 px-2 rounded-lg text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 hover:text-slate-900 text-md cursor-pointer",
+        className,
         {
           active,
           small,

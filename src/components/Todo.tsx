@@ -3,7 +3,7 @@ import "../styles.scss"
 
 import { Flex } from "rebass"
 // Types
-import { Data, Label, Task } from "../index.d"
+import type { Data, Label as LabelType, Task } from "../index.d"
 // utils
 import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
@@ -19,6 +19,7 @@ import colors from "../color-palette"
 import cx from "classnames"
 // Hooks
 import { useStorage } from "../context/StorageContext"
+import Label from "./Label"
 
 function Title({ children }: PropsWithChildren<{}>) {
   return (
@@ -262,7 +263,7 @@ const Todo: React.FC = ({}) => {
               </div>
 
               <div className="flex flex-col h-[34%]">
-                <h1>Labels</h1>
+                <Title>Labels</Title>
 
                 <div className="flex-1 overflow-y-scroll pb-2">
                   <Labels

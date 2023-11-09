@@ -1,4 +1,4 @@
-import { IntermediateLabel, Label } from "../index.d"
+import type { IntermediateLabel, Label as LabelType } from "../index.d"
 
 import { Color } from "../color-palette"
 import ColorPicker from "./ColorPicker"
@@ -33,7 +33,7 @@ const Labels: React.FC<Props> = ({
 }) => {
   const [selectedLabel, setSelectedLabel] = React.useState<string>()
   const [controlledLabels, setControlledLabels] = React.useState<
-    Record<string, Label>
+    Record<string, LabelType>
   >({})
 
   const [newLabel, setNewLabel] = React.useState<IntermediateLabel>()
@@ -119,7 +119,7 @@ const Labels: React.FC<Props> = ({
 
   return (
     <>
-      <ul className="labels">
+      <ul className="labels divide-y">
         {Object.entries(controlledLabels).map(([, label]) => (
           <li className="label-input" key={label.id}>
             <div className="flex items-center py-2">

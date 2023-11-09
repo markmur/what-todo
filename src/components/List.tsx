@@ -160,7 +160,7 @@ const List: React.FC<Props> = ({
         <div className="my-2">
           <small>Showing: </small>
           {filters.map(id => (
-            <div className="inline mb-1" key={id}>
+            <div className="inline mb-1 mr-1" key={id}>
               <Label
                 active
                 label={labels[id]}
