@@ -112,11 +112,13 @@ const Task: React.FC<Props> = ({
           }
         )}
         onClick={event => {
-          if (!active) {
+          if (!active && event.currentTarget.nodeName !== "TEXTAREA") {
             onSelect(task, event)
-            const title = ref.current?.querySelector("textarea")
-            title?.focus()
-            title?.setSelectionRange(title?.value.length, title?.value.length)
+            setTimeout(() => {
+              const title = ref.current?.querySelector("textarea")
+              title?.focus()
+              title?.setSelectionRange(title?.value.length, title?.value.length)
+            })
           }
         }}
       >
@@ -146,7 +148,11 @@ const Task: React.FC<Props> = ({
             )}
             onKeyDown={handleKeyDown}
             onChange={onChange("title")}
-            onFocus={event => onSelect(task, event)}
+            onFocus={event => {
+              if (!active) {
+                onSelect(task, event)
+              }
+            }}
             onBlur={() => onUpdate(task)}
           />
 

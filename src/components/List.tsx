@@ -4,7 +4,7 @@ import { Label as LabelType, Task as TaskType } from "../index.d"
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import Label from "./Label"
-import React from "react"
+import React, { useCallback, useRef } from "react"
 import Task from "./Task"
 import Tooltip from "react-tooltip"
 import cx from "classnames"
@@ -38,7 +38,7 @@ const taskHasChanged = (
 }
 
 const isSelected = (selected: TaskType | undefined, task: TaskType) => {
-  return Boolean(task.id) && task.id === selected?.id
+  return selected && task.id === selected.id
 }
 
 const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
@@ -75,7 +75,7 @@ const List: React.FC<Props> = ({
   onMarkAsComplete,
   onMoveToToday
 }) => {
-  const selectedRef = React.useRef<any>()
+  const selectedRef = useRef<any>()
   const [selected, setSelectedTask] = React.useState<TaskType>()
   const [displayCompleted, setDisplayCompleted] = React.useState(
     !collapseCompleted
@@ -87,7 +87,7 @@ const List: React.FC<Props> = ({
       state[task.completed ? 1 : 0].push(task)
       return state
     },
-    [[], []]
+    [[] as TaskType[], [] as TaskType[]]
   )
 
   // Sort uncompleted by pinned state
@@ -100,17 +100,20 @@ const List: React.FC<Props> = ({
   })
 
   // Sort completed tasks by when they were completed
-  completed.sort((a, b) => b.completed_at?.localeCompare(a.completed_at))
+  completed.sort(
+    (a, b) => Number(b.completed_at?.localeCompare(a.completed_at ?? "")) ?? 0
+  )
   const hasCompletedTasks = completed.length > 0
 
   const clickOutsideHandler = () => {
     setTimeout(() => {
+      console.log("onClickOutside::deselecting")
       setSelectedTask(undefined)
     })
   }
 
   useOnClickOutside(selectedRef, clickOutsideHandler, {
-    ignore: "task-title-input"
+    ignore: "task-list"
   })
 
   React.useEffect(() => {
@@ -118,38 +121,46 @@ const List: React.FC<Props> = ({
   })
 
   const handleLabelsChange = (newLabels: string[]) => {
-    const newTask = {
-      ...selected,
-      labels: newLabels
+    if (selected) {
+      const newTask = {
+        ...selected,
+        labels: newLabels
+      }
+      setSelectedTask(newTask)
+      onUpdateTask(newTask)
     }
-    setSelectedTask(newTask)
-    onUpdateTask(newTask)
   }
 
   const handleChange =
     (field: keyof TaskType) =>
     (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-      setSelectedTask({
-        ...(selected || {}),
-        [field]: event.target.value
-      })
+      if (selected) {
+        setSelectedTask({
+          ...selected,
+          [field]: event.target.value
+        })
+      }
     }
 
-  const handleFocus = (originalTask: TaskType) => () => {
-    if (!isSelected(selected, originalTask)) {
-      setSelectedTask(originalTask)
-    }
-  }
+  const handleFocus = useCallback(
+    (originalTask: TaskType) => {
+      if (!isSelected(selected, originalTask)) {
+        setSelectedTask(originalTask)
+      }
+    },
+    [selected]
+  )
 
   const handleUpdate = (originalTask: TaskType) => () => {
     setTimeout(() => {
-      if (taskHasChanged(selected, originalTask)) {
+      if (selected && taskHasChanged(selected, originalTask)) {
         onUpdateTask(selected)
       }
     })
   }
 
   const handleDeselect = () => {
+    console.log("Focus::deselecting")
     setSelectedTask(undefined)
     ;(document.activeElement as HTMLElement)?.blur()
   }
@@ -177,9 +188,11 @@ const List: React.FC<Props> = ({
           ))}
         </div>
       ) : null}
-      <ul>
+      <ul className="task-list">
         {uncompleted.map(task => {
           const active = isSelected(selected, task)
+
+          if (!task) return null
 
           return (
             <li
@@ -193,7 +206,7 @@ const List: React.FC<Props> = ({
                 labels={labels}
                 filters={filters}
                 onFilter={onFilter}
-                onSelect={handleFocus(task)}
+                onSelect={handleFocus}
                 onUpdate={handleUpdate(task)}
                 onDeselect={handleDeselect}
                 onChange={handleChange}
