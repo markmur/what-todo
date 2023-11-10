@@ -150,33 +150,33 @@ const Task: React.FC<Props> = ({
             onBlur={() => onUpdate(task)}
           />
 
-          <Animate active={active}>
-            {(active || task.description) && (
-              <>
-                {active ? (
-                  <div className="mt-1">
-                    <Textarea
-                      maxRows={5}
-                      value={getDescription(active, task)}
-                      placeholder="Add description..."
-                      className="unstyled text-slate-500 text-sm bg-transparent"
-                      onChange={onChange("description")}
-                      onKeyDown={handleKeyDown}
-                      onFocus={event => onSelect(task, event)}
-                      onBlur={() => onUpdate(task)}
-                    />
-                  </div>
-                ) : (
-                  <p
-                    className="unstyled text-slate-500 text-sm cursor-text"
-                    onClick={event => onSelect(task, event)}
-                  >
-                    {urlify(getDescription(active, task))}
-                  </p>
-                )}
-              </>
-            )}
+          {(active || task.description) && (
+            <>
+              {active ? (
+                <div className="mt-1">
+                  <Textarea
+                    maxRows={5}
+                    value={getDescription(active, task)}
+                    placeholder="Add description..."
+                    className="unstyled text-slate-500 text-sm bg-transparent"
+                    onChange={onChange("description")}
+                    onKeyDown={handleKeyDown}
+                    onFocus={event => onSelect(task, event)}
+                    onBlur={() => onUpdate(task)}
+                  />
+                </div>
+              ) : (
+                <p
+                  className="unstyled text-slate-500 text-sm cursor-text"
+                  onClick={event => onSelect(task, event)}
+                >
+                  {urlify(getDescription(active, task))}
+                </p>
+              )}
+            </>
+          )}
 
+          <Animate active={active}>
             {active && (
               <div className="flex mt-2 flex-wrap">
                 {Object.entries(labels).map(([id, label]) => (
