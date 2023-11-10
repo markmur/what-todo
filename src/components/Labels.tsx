@@ -1,4 +1,5 @@
 import type { IntermediateLabel, Label as LabelType } from "../index.d"
+import React, { MouseEvent } from "react"
 
 import Animate from "./Animate"
 import { Color } from "../color-palette"
@@ -7,7 +8,6 @@ import ColorPicker from "./ColorPicker"
 import CrossIcon from "@meronex/icons/fi/FiX"
 import FilterIcon from "@meronex/icons/fi/FiFilter"
 import PlusIcon from "@meronex/icons/fi/FiPlus"
-import React from "react"
 import Tooltip from "react-tooltip"
 import cx from "classnames"
 

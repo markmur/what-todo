@@ -1,6 +1,6 @@
 import type { Label as LabelType, Task as TaskType } from "../index.d"
 // Types
-import React, { FormEvent, useRef } from "react"
+import React, { FormEvent, MouseEvent, useRef } from "react"
 
 import Animate from "./Animate"
 // Components
@@ -28,8 +28,12 @@ interface Props {
   onUpdate: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onPinTask?: (task: TaskType) => void
-  onChange: (key: keyof TaskType) => (event: React.ChangeEvent) => void
-  onMoveToToday: (task: TaskType) => void
+  onChange: (
+    key: keyof TaskType
+  ) => (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => void
+  onMoveToToday?: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
   onChangeLabels: (labels: string[]) => void
 }
@@ -73,8 +77,8 @@ function urlify(text: string | undefined): string | (string | JSX.Element)[] {
 const getDescription = (active: boolean, task: TaskType) => {
   return active
     ? task.description
-    : task.description.length >= MAX_DESCRIPTION_LENGTH
-    ? task.description.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
+    : (task.description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
+    ? task.description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
     : task.description
 }
 
@@ -101,6 +105,13 @@ const Task: React.FC<Props> = ({
     }
   }
 
+  const preventDefault =
+    (fn: (event: MouseEvent<any>) => any) => (event: MouseEvent<any>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      return fn(event)
+    }
+
   return (
     <Animate active duration={0.15}>
       <div
@@ -112,7 +123,9 @@ const Task: React.FC<Props> = ({
           }
         )}
         onClick={event => {
-          if (!active && event.currentTarget.nodeName !== "TEXTAREA") {
+          if (active) return
+
+          if (event.currentTarget.nodeName !== "TEXTAREA") {
             onSelect(task, event)
             setTimeout(() => {
               const title = ref.current?.querySelector("textarea")
@@ -210,10 +223,10 @@ const Task: React.FC<Props> = ({
             <div
               data-tip="Move to today"
               className="remove-icon"
-              onClick={() => {
+              onClick={preventDefault(() => {
                 onMoveToToday(task)
                 ReactTooltip.hide()
-              }}
+              })}
             >
               <RightArrowIcon />
             </div>
@@ -223,37 +236,39 @@ const Task: React.FC<Props> = ({
             <div
               data-tip={task.pinned ? "Unpin task" : "Pin task"}
               className={cx("remove-icon", { active: task.pinned })}
-              onClick={() => {
+              onClick={preventDefault(() => {
                 onPinTask({
                   ...task,
                   pinned: !Boolean(task.pinned)
                 })
-              }}
+              })}
             >
               {task.pinned ? <PinFilled /> : <Pin />}
             </div>
           )}
 
-          {task.labels?.map(id => (
-            <span
-              key={id}
-              className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
-              data-tip={labels[id]?.title}
-              data-background-color={labels[id]?.color}
-              style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
-              onClick={event => {
-                if (filters.includes(id)) {
-                  onFilter(filters.filter(f => f !== id))
-                } else {
-                  if (event.metaKey) {
-                    onFilter([...filters, id])
+          {task.labels
+            ?.sort((a, b) => a.localeCompare(b))
+            ?.map(id => (
+              <span
+                key={id}
+                className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                data-tip={labels[id]?.title}
+                data-background-color={labels[id]?.color}
+                style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
+                onClick={preventDefault(event => {
+                  if (filters.includes(id)) {
+                    onFilter(filters.filter(f => f !== id))
                   } else {
-                    onFilter([id])
+                    if (event.metaKey) {
+                      onFilter([...filters, id])
+                    } else {
+                      onFilter([id])
+                    }
                   }
-                }
-              }}
-            />
-          ))}
+                })}
+              />
+            ))}
 
           <span className="remove-icon" onClick={() => onRemoveTask(task)}>
             <CrossIcon />

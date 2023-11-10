@@ -1,10 +1,10 @@
 import { Label as LabelType, Task as TaskType } from "../index.d"
+import React, { useCallback, useRef } from "react"
 
 // Icons
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import Label from "./Label"
-import React, { useCallback, useRef } from "react"
 import Task from "./Task"
 import Tooltip from "react-tooltip"
 import cx from "classnames"
@@ -33,12 +33,15 @@ const taskHasChanged = (
   return (
     prevTask.title !== newTask.title ||
     prevTask.description !== newTask.description ||
-    prevTask.labels.join(",") !== newTask.labels.join(",")
+    prevTask.labels?.join(",") !== newTask.labels?.join(",")
   )
 }
 
-const isSelected = (selected: TaskType | undefined, task: TaskType) => {
-  return selected && task.id === selected.id
+const isSelected = (
+  selected: TaskType | undefined,
+  task: TaskType
+): task is TaskType => {
+  return Boolean(selected) && task.id === selected?.id
 }
 
 const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
@@ -76,11 +79,15 @@ const List: React.FC<Props> = ({
   onMoveToToday
 }) => {
   const selectedRef = useRef<any>()
-  const [selected, setSelectedTask] = React.useState<TaskType>()
+  const [selected, setSelected] = React.useState<TaskType>()
   const [displayCompleted, setDisplayCompleted] = React.useState(
     !collapseCompleted
   )
   const filteredTasks = getFilteredTasks(tasks, filters)
+
+  function setSelectedTask(task: TaskType | undefined) {
+    setSelected(task)
+  }
 
   const [uncompleted, completed] = filteredTasks.reduce(
     (state, task) => {
@@ -107,14 +114,11 @@ const List: React.FC<Props> = ({
 
   const clickOutsideHandler = () => {
     setTimeout(() => {
-      console.log("onClickOutside::deselecting")
       setSelectedTask(undefined)
     })
   }
 
-  useOnClickOutside(selectedRef, clickOutsideHandler, {
-    ignore: "task-list"
-  })
+  useOnClickOutside(selectedRef, clickOutsideHandler)
 
   React.useEffect(() => {
     Tooltip.rebuild()
@@ -160,8 +164,8 @@ const List: React.FC<Props> = ({
   }
 
   const handleDeselect = () => {
-    console.log("Focus::deselecting")
     setSelectedTask(undefined)
+    console.log("Focus::deselecting", selected)
     ;(document.activeElement as HTMLElement)?.blur()
   }
 
@@ -188,21 +192,18 @@ const List: React.FC<Props> = ({
           ))}
         </div>
       ) : null}
-      <ul className="task-list">
-        {uncompleted.map(task => {
-          const active = isSelected(selected, task)
+      <ul className="task-list" ref={selectedRef}>
+        {uncompleted.map(item => {
+          const active = isSelected(selected, item)
+          const task = active ? selected : item
 
           if (!task) return null
 
           return (
-            <li
-              key={task.id}
-              className="task"
-              ref={active ? selectedRef : undefined}
-            >
+            <li key={task.id} className="task">
               <Task
                 active={active}
-                task={active ? selected : task}
+                task={task}
                 labels={labels}
                 filters={filters}
                 onFilter={onFilter}
@@ -242,22 +243,21 @@ const List: React.FC<Props> = ({
         )}
 
         {displayCompleted
-          ? completed.map(task => {
-              const active = isSelected(selected, task)
+          ? completed.map(item => {
+              const active = isSelected(selected, item)
+              const task = active ? selected : item
+
+              if (!task) return null
 
               return (
-                <li
-                  key={task.id}
-                  className="task"
-                  ref={active ? selectedRef : undefined}
-                >
+                <li key={task.id} className="task">
                   <Task
                     active={active}
-                    task={active ? selected : task}
+                    task={task}
                     labels={labels}
                     filters={filters}
                     onFilter={onFilter}
-                    onSelect={handleFocus(task)}
+                    onSelect={handleFocus}
                     onUpdate={handleUpdate(task)}
                     onDeselect={handleDeselect}
                     onChange={handleChange}
