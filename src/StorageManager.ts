@@ -391,10 +391,13 @@ class StorageManager {
 
   // Labels
   getLabelsById(data: Data): Record<string, Label> {
-    return data.labels.reduce((state, label) => {
-      state[label.id] = label
-      return state
-    }, {})
+    return data?.labels.reduce(
+      (state, label) => {
+        state[label.id] = label
+        return state
+      },
+      {} as Record<string, Label>
+    )
   }
 
   addLabel = (data: Data, label: Label): Data => {
@@ -431,10 +434,9 @@ class StorageManager {
   updateTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
-
     const index = newData.tasks[key]?.findIndex(t => t.id === task.id)
 
-    if (index > -1) {
+    if (typeof index === "number" && index > -1) {
       const completedStateChanged =
         newData.tasks[key]?.[index].completed !== task.completed
 
@@ -443,9 +445,9 @@ class StorageManager {
       }
 
       set(newData, `tasks.${key}.${index}`, task)
-    }
 
-    this.sync(newData, "UPDATE_TASK")
+      this.sync(newData, "UPDATE_TASK")
+    }
 
     return newData
   }

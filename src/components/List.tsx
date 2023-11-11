@@ -21,27 +21,6 @@ interface Props {
   onRemoveTask: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onMoveToToday?: (task: TaskType) => void
-  onPinTask?: (task: TaskType) => void
-}
-
-const taskHasChanged = (
-  prevTask: TaskType | undefined,
-  newTask: TaskType
-): boolean => {
-  if (!prevTask) return false
-
-  return (
-    prevTask.title !== newTask.title ||
-    prevTask.description !== newTask.description ||
-    prevTask.labels?.join(",") !== newTask.labels?.join(",")
-  )
-}
-
-const isSelected = (
-  selected: TaskType | undefined,
-  task: TaskType
-): task is TaskType => {
-  return Boolean(selected) && task.id === selected?.id
 }
 
 const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
@@ -79,14 +58,14 @@ const List: React.FC<Props> = ({
   onMoveToToday
 }) => {
   const selectedRef = useRef<any>()
-  const [selected, setSelected] = React.useState<TaskType>()
+  const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
   const [displayCompleted, setDisplayCompleted] = React.useState(
     !collapseCompleted
   )
   const filteredTasks = getFilteredTasks(tasks, filters)
 
-  function setSelectedTask(task: TaskType | undefined) {
-    setSelected(task)
+  function setSelectedTask(taskId: TaskType["id"] | undefined) {
+    setSelected(taskId)
   }
 
   const [uncompleted, completed] = filteredTasks.reduce(
@@ -124,48 +103,22 @@ const List: React.FC<Props> = ({
     Tooltip.rebuild()
   })
 
-  const handleLabelsChange = (newLabels: string[]) => {
-    if (selected) {
-      const newTask = {
-        ...selected,
-        labels: newLabels
-      }
-      setSelectedTask(newTask)
-      onUpdateTask(newTask)
-    }
-  }
-
-  const handleChange =
-    (field: keyof TaskType) =>
-    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-      if (selected) {
-        setSelectedTask({
-          ...selected,
-          [field]: event.target.value
-        })
-      }
-    }
-
   const handleFocus = useCallback(
-    (originalTask: TaskType) => {
-      if (!isSelected(selected, originalTask)) {
-        setSelectedTask(originalTask)
+    (taskId: string) => {
+      if (selected !== taskId) {
+        setSelectedTask(taskId)
       }
     },
     [selected]
   )
 
-  const handleUpdate = (originalTask: TaskType) => () => {
-    setTimeout(() => {
-      if (selected && taskHasChanged(selected, originalTask)) {
-        onUpdateTask(selected)
-      }
-    })
-  }
+  const handleUpdate = useCallback(
+    (task: TaskType) => onUpdateTask(task),
+    [onUpdateTask]
+  )
 
   const handleDeselect = () => {
     setSelectedTask(undefined)
-    console.log("Focus::deselecting", selected)
     ;(document.activeElement as HTMLElement)?.blur()
   }
 
@@ -174,9 +127,19 @@ const List: React.FC<Props> = ({
     handleDeselect()
   }
 
+  const callbackHandlers = {
+    onFilter: onFilter,
+    onSelect: handleFocus,
+    onUpdate: handleUpdate,
+    onDeselect: handleDeselect,
+    onRemoveTask: onRemoveTask,
+    onMarkAsComplete: handleMarkAsComplete,
+    onMoveToToday: onMoveToToday
+  }
+
   return (
     <div>
-      {filters.length ? (
+      {filters.length > 0 && (
         <div className="my-2">
           <small>Showing: </small>
           {filters.map(id => (
@@ -191,31 +154,20 @@ const List: React.FC<Props> = ({
             </div>
           ))}
         </div>
-      ) : null}
+      )}
       <ul className="task-list" ref={selectedRef}>
-        {uncompleted.map(item => {
-          const active = isSelected(selected, item)
-          const task = active ? selected : item
-
+        {uncompleted.map(task => {
           if (!task) return null
 
           return (
             <li key={task.id} className="task">
               <Task
-                active={active}
+                {...callbackHandlers}
+                active={task.id === selected}
                 task={task}
                 labels={labels}
                 filters={filters}
-                onFilter={onFilter}
-                onSelect={handleFocus}
-                onUpdate={handleUpdate(task)}
-                onDeselect={handleDeselect}
-                onChange={handleChange}
-                onChangeLabels={handleLabelsChange}
-                onPinTask={canPinTasks ? onUpdateTask : undefined}
-                onRemoveTask={onRemoveTask}
-                onMarkAsComplete={handleMarkAsComplete}
-                onMoveToToday={onMoveToToday}
+                canPin={canPinTasks}
               />
             </li>
           )
@@ -243,29 +195,18 @@ const List: React.FC<Props> = ({
         )}
 
         {displayCompleted
-          ? completed.map(item => {
-              const active = isSelected(selected, item)
-              const task = active ? selected : item
-
+          ? completed.map(task => {
               if (!task) return null
 
               return (
                 <li key={task.id} className="task">
                   <Task
-                    active={active}
+                    {...callbackHandlers}
+                    active={task.id === selected}
                     task={task}
+                    canPin={canPinTasks}
                     labels={labels}
                     filters={filters}
-                    onFilter={onFilter}
-                    onSelect={handleFocus}
-                    onUpdate={handleUpdate(task)}
-                    onDeselect={handleDeselect}
-                    onChange={handleChange}
-                    onChangeLabels={handleLabelsChange}
-                    onPinTask={canPinTasks ? onUpdateTask : undefined}
-                    onRemoveTask={onRemoveTask}
-                    onMarkAsComplete={handleMarkAsComplete}
-                    onMoveToToday={onMoveToToday}
                   />
                 </li>
               )

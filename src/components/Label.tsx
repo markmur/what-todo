@@ -8,7 +8,7 @@ interface Props {
   className?: string
   label: LabelType
   small?: boolean
-  onClick?: () => void
+  onClick?: (event: React.MouseEvent) => void
   onRemove?: () => void
 }
 

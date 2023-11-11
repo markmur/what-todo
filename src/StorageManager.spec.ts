@@ -1,8 +1,8 @@
 import { Data } from "./index.d"
+import StorageManager from "./StorageManager"
+import { browser } from "webextension-polyfill-ts"
 jest.mock("webextension-polyfill-ts")
 
-import { browser } from "webextension-polyfill-ts"
-import StorageManager from "./StorageManager"
 
 describe("StorageManager", () => {
   let inst = new StorageManager()
@@ -61,8 +61,6 @@ describe("StorageManager", () => {
     browser.storage.sync.set(badData)
 
     const { data: newData } = await inst.getData()
-
-    console.log({ newData })
 
     expect(newData).toEqual({
       filters: inst.defaultData.filters,

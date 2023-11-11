@@ -198,7 +198,6 @@ const Todo: React.FC = ({}) => {
               labels={labelsById}
               filters={data.filters}
               onFilter={updateFilters}
-              onPinTask={handleUpdateTask}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
               onMarkAsComplete={markAsComplete}

@@ -1,6 +1,12 @@
 import type { Label as LabelType, Task as TaskType } from "../index.d"
 // Types
-import React, { FormEvent, MouseEvent, useRef } from "react"
+import React, {
+  FormEvent,
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useRef
+} from "react"
 
 import Animate from "./Animate"
 // Components
@@ -18,24 +24,18 @@ import cx from "classnames"
 const MAX_DESCRIPTION_LENGTH = 140
 
 interface Props {
+  canPin?: boolean
   task: TaskType
   active: boolean
   labels: Record<string, LabelType>
   filters: string[]
   onFilter: (filters: string[]) => void
-  onSelect: (task: TaskType, event: FormEvent) => void
+  onSelect: (taskId: TaskType["id"], event: FormEvent) => void
   onDeselect: () => void
   onUpdate: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
-  onPinTask?: (task: TaskType) => void
-  onChange: (
-    key: keyof TaskType
-  ) => (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => void
   onMoveToToday?: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
-  onChangeLabels: (labels: string[]) => void
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g
@@ -47,6 +47,20 @@ function shortenURL(url: string) {
   } catch {
     return url
   }
+}
+
+const taskHasChanged = (
+  prevTask: TaskType | undefined,
+  newTask: TaskType
+): boolean => {
+  if (!prevTask) return false
+
+  const hasChanged =
+    prevTask.title !== newTask.title ||
+    prevTask.description !== newTask.description ||
+    prevTask.labels?.join(",") !== newTask.labels?.join(",")
+
+  return hasChanged
 }
 
 function urlify(text: string | undefined): string | (string | JSX.Element)[] {
@@ -74,15 +88,16 @@ function urlify(text: string | undefined): string | (string | JSX.Element)[] {
   )
 }
 
-const getDescription = (active: boolean, task: TaskType) => {
+const getDescription = (active: boolean, task?: TaskType) => {
   return active
-    ? task.description
-    : (task.description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
-    ? task.description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
-    : task.description
+    ? task?.description
+    : (task?.description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
+    ? task?.description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
+    : task?.description
 }
 
 const Task: React.FC<Props> = ({
+  canPin = true,
   task,
   active,
   labels,
@@ -92,13 +107,23 @@ const Task: React.FC<Props> = ({
   onDeselect,
   onUpdate,
   onMarkAsComplete,
-  onChange,
   onMoveToToday,
-  onRemoveTask,
-  onPinTask,
-  onChangeLabels
+  onRemoveTask
 }) => {
   const ref = useRef<HTMLDivElement>(null)
+  const [state, setState] = React.useState<TaskType | undefined>(task)
+
+  const handleChange =
+    (field: keyof TaskType) =>
+    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      if (state) {
+        setState({
+          ...state,
+          [field]: event.target.value
+        })
+      }
+    }
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && event.metaKey) {
       onDeselect()
@@ -112,6 +137,21 @@ const Task: React.FC<Props> = ({
       return fn(event)
     }
 
+  const handleBlur = useCallback(() => {
+    if (state && taskHasChanged(task, state)) {
+      onUpdate(state)
+    }
+  }, [state, task, onUpdate])
+
+  const selectTask = useCallback(
+    (event: any) => {
+      if (!active) {
+        onSelect(task.id, event)
+      }
+    },
+    [active, onSelect, task]
+  )
+
   return (
     <Animate active duration={0.15}>
       <div
@@ -124,9 +164,8 @@ const Task: React.FC<Props> = ({
         )}
         onClick={event => {
           if (active) return
-
           if (event.currentTarget.nodeName !== "TEXTAREA") {
-            onSelect(task, event)
+            onSelect(task.id, event)
             setTimeout(() => {
               const title = ref.current?.querySelector("textarea")
               title?.focus()
@@ -138,7 +177,7 @@ const Task: React.FC<Props> = ({
         <div className="mt-[2px] mr-3">
           <Checkbox
             id={task.id}
-            checked={task.completed}
+            checked={state?.completed ?? false}
             onChange={() =>
               onMarkAsComplete({
                 ...task,
@@ -151,70 +190,78 @@ const Task: React.FC<Props> = ({
         <div className="w-full">
           <Textarea
             maxRows={3}
-            value={task.title}
+            value={state?.title}
             spellCheck={active}
             className={cx(
               "unstyled task-title-input leading-normal bg-transparent pt-0",
               {
-                ["strike text-slate-400"]: task.completed
+                ["strike text-slate-400"]: state?.completed
               }
             )}
             onKeyDown={handleKeyDown}
-            onChange={onChange("title")}
-            onFocus={event => {
-              if (!active) {
-                onSelect(task, event)
-              }
-            }}
-            onBlur={() => onUpdate(task)}
+            onChange={handleChange("title")}
+            onFocus={selectTask}
+            onBlur={handleBlur}
           />
 
-          {(active || task.description) && (
-            <>
-              {active ? (
-                <div className="mt-1">
-                  <Textarea
-                    maxRows={5}
-                    value={getDescription(active, task)}
-                    placeholder="Add description..."
-                    className="unstyled text-slate-500 text-sm bg-transparent"
-                    onChange={onChange("description")}
-                    onKeyDown={handleKeyDown}
-                    onFocus={event => onSelect(task, event)}
-                    onBlur={() => onUpdate(task)}
-                  />
-                </div>
-              ) : (
-                <p
-                  className="unstyled text-slate-500 text-sm cursor-text"
-                  onClick={event => onSelect(task, event)}
-                >
-                  {urlify(getDescription(active, task))}
-                </p>
-              )}
-            </>
-          )}
+          <Animate active={task.description && !active}>
+            <p
+              className="unstyled text-slate-500 text-sm cursor-text"
+              onClick={preventDefault(event => {
+                onSelect(task.id, event)
+                setTimeout(() => {
+                  const description = ref.current?.querySelector(
+                    "textarea[name='description']"
+                  ) as HTMLTextAreaElement
+                  description?.focus()
+                  description?.setSelectionRange(
+                    description?.value.length,
+                    description?.value.length
+                  )
+                })
+              })}
+            >
+              {urlify(getDescription(active, state))}
+            </p>
+          </Animate>
 
           <Animate active={active}>
-            {active && (
-              <div className="flex mt-2 flex-wrap">
-                {Object.entries(labels).map(([id, label]) => (
-                  <div className="mr-1 mb-1" key={id}>
-                    <Label
-                      small
-                      active={task.labels?.includes(id) ?? false}
-                      label={label}
-                      onClick={() => {
-                        const nextLabels = task.labels?.includes(id)
-                          ? task.labels.filter(l => l !== id)
-                          : [...(task.labels ?? []), id]
-                        onChangeLabels(nextLabels)
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="mt-1">
+              <Textarea
+                maxRows={5}
+                name="description"
+                value={getDescription(active, state)}
+                placeholder="Add description..."
+                className="unstyled text-slate-500 text-sm bg-transparent"
+                onChange={handleChange("description")}
+                onKeyDown={handleKeyDown}
+                onFocus={selectTask}
+                onBlur={handleBlur}
+              />
+            </div>
+          </Animate>
+
+          <Animate active={active}>
+            <div className="flex mt-2 flex-wrap">
+              {Object.entries(labels).map(([id, label]) => (
+                <div className="mr-1 mb-1" key={id}>
+                  <Label
+                    small
+                    active={task.labels?.includes(id) ?? false}
+                    label={label}
+                    onClick={preventDefault(() => {
+                      const nextLabels = task.labels?.includes(id)
+                        ? task.labels.filter(l => l !== id)
+                        : [...(task.labels ?? []), id]
+                      onUpdate({
+                        ...task,
+                        labels: nextLabels
+                      })
+                    })}
+                  />
+                </div>
+              ))}
+            </div>
           </Animate>
         </div>
 
@@ -232,12 +279,12 @@ const Task: React.FC<Props> = ({
             </div>
           )}
 
-          {onPinTask && (
+          {canPin && (
             <div
               data-tip={task.pinned ? "Unpin task" : "Pin task"}
               className={cx("remove-icon", { active: task.pinned })}
               onClick={preventDefault(() => {
-                onPinTask({
+                onUpdate({
                   ...task,
                   pinned: !Boolean(task.pinned)
                 })

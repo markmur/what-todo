@@ -1,6 +1,7 @@
+import { Data, Filters, Label, Note, Task } from "../index.d"
 import React, { PropsWithChildren } from "react"
+
 import StorageManager from "../StorageManager"
-import { Data, Note, Task, Label, Filters } from "../index.d"
 
 const storage = new StorageManager()
 
@@ -43,7 +44,12 @@ export const StorageContext = React.createContext<Storage>({
 })
 
 function StorageProvider({ children }: PropsWithChildren<unknown>): any {
-  const [data, setData] = React.useState<Data>(storage.defaultData)
+  const [data, setDataFn] = React.useState<Data>(storage.defaultData)
+
+  function setData(data: Data) {
+    console.trace("setData", data)
+    setDataFn(data)
+  }
 
   const fetchData = () => {
     storage.getData().then(({ data }) => {
@@ -55,6 +61,10 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     return React.useCallback(
       (item: T) => {
         const newData = fn.call(storage, data, item)
+
+        if (typeof newData === "undefined") {
+          throw new Error("Trying to update storage data with undefined")
+        }
 
         setData(newData)
       },
