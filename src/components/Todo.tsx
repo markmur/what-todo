@@ -146,7 +146,7 @@ const Todo: React.FC = ({}) => {
       <Flex
         width={1}
         flexDirection="column"
-        height="100vh"
+        height="calc(100vh - 66px)"
         className="pr-8"
         onClick={() => updateSection("completed", { collapsed: false })}
       >
