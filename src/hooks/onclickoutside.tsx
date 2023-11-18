@@ -1,17 +1,13 @@
-import React from "react"
+import { useEffect, MutableRefObject } from "react"
 
 // Hook
 export default function useOnClickOutside(
-  ref: React.MutableRefObject<any>,
+  ref: MutableRefObject<any>,
   handle: (event: Event) => void,
   options?: { ignore: string }
 ): void {
-  React.useEffect(() => {
+  useEffect(() => {
     const listener = (event: any) => {
-      if (!ref || !ref.current) {
-        return handle(event)
-      }
-
       if (
         !ref.current ||
         ref.current.contains(event.target) ||
@@ -30,5 +26,5 @@ export default function useOnClickOutside(
       document.removeEventListener("mousedown", listener)
       document.removeEventListener("touchstart", listener)
     }
-  }, [ref, handle])
+  }, [handle, options, ref])
 }

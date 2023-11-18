@@ -6,6 +6,7 @@
   "scripts": {
     "build": "yarn clean && vite build",
     "clean": "rm -rf dist",
+    "dev": "vite",
     "preview": "vite preview",
     "start": "vite"
   },
