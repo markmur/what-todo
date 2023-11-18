@@ -16,6 +16,7 @@ interface Props {
   labels: Record<string, LabelType>
   collapseCompleted?: boolean
   canPinTasks?: boolean
+  canCollapse?: boolean
   onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
@@ -51,6 +52,7 @@ const List: React.FC<Props> = ({
   labels,
   collapseCompleted = false,
   canPinTasks = true,
+  canCollapse = true,
   onFilter,
   onUpdateTask,
   onRemoveTask,
@@ -139,22 +141,6 @@ const List: React.FC<Props> = ({
 
   return (
     <div>
-      {filters.length > 0 && (
-        <div className="my-2">
-          <small>Showing: </small>
-          {filters.map(id => (
-            <div className="inline mb-1 mr-1" key={id}>
-              <Label
-                active
-                label={labels[id]}
-                onRemove={() => {
-                  onFilter(filters.filter(x => x !== id))
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
       <ul className="task-list" ref={selectedRef}>
         {uncompleted.map(task => {
           if (!task) return null

@@ -2,8 +2,8 @@
 import "../styles.scss"
 
 // Types
-import type { Data, Task } from "../index.d"
-import React, { PropsWithChildren } from "react"
+import type { Data, Task, Label as LabelType, Note } from "../index.d"
+import React, { PropsWithChildren, useCallback } from "react"
 // utils
 import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
@@ -19,14 +19,17 @@ import colors from "../color-palette"
 import cx from "classnames"
 // Hooks
 import { useStorage } from "../context/StorageContext"
+import Label from "./Label"
+import Animate from "./Animate"
+import { FiArrowLeft as ArrowLeft } from "@meronex/icons/fi"
 
-function Title({ children }: PropsWithChildren<{}>) {
+function Title({ children }: PropsWithChildren) {
   return (
-    <h1 className=" text-4xl mt-4 mb-3 text-slate-300 font-bold">{children}</h1>
+    <h1 className="text-4xl mt-4 mb-3 text-slate-300 font-bold">{children}</h1>
   )
 }
 
-function Subtitle({ children }: PropsWithChildren<{}>) {
+function Subtitle({ children }: PropsWithChildren) {
   return <h2 className="text-sm mb-4 text-slate-500">{children}</h2>
 }
 
@@ -57,6 +60,7 @@ const Todo: React.FC = ({}) => {
   const breakpoint = useMedia()
   const {
     data,
+    sections,
     labelsById,
     addTask,
     updateTask,
@@ -67,14 +71,15 @@ const Todo: React.FC = ({}) => {
     updateLabel,
     removeLabel,
     updateNote,
-    updateFilters
+    updateFilters,
+    updateSection
   } = useStorage()
 
   // Refs
   const heightRef = React.createRef<HTMLDivElement>()
 
   const todayDateStr = today().toDateString()
-  const yesterdayDateStr = yesterday().toDateString()
+  // const yesterdayDateStr = yesterday().toDateString()
 
   const [activeDay, setActiveDay] = React.useState(todayDateStr)
   const pastWeek = getPastSevenDays()
@@ -89,8 +94,8 @@ const Todo: React.FC = ({}) => {
     }
   })
 
-  function createCallback<T>(fn: (item: T) => void) {
-    return React.useCallback(
+  function useAction<T>(fn: (item: T) => void) {
+    return useCallback(
       (item: T) => {
         fn(item)
       },
@@ -100,7 +105,7 @@ const Todo: React.FC = ({}) => {
 
   // Task callbacks
   const handleAddTask = React.useCallback(
-    (task, created_at) => {
+    (task: Task, created_at: Date) => {
       addTask({
         ...task,
         created_at: new Date(created_at).toISOString()
@@ -109,77 +114,128 @@ const Todo: React.FC = ({}) => {
     [addTask]
   )
 
-  const handleUpdateTask = createCallback<Task>(updateTask)
-  const handleRemoveTask = createCallback<Task>(removeTask)
-  const handleMoveToToday = createCallback<Task>(moveToToday)
+  const handleUpdateTask = useAction<Task>(updateTask)
+  const handleRemoveTask = useAction<Task>(removeTask)
+  const handleMoveToToday = useAction<Task>(moveToToday)
 
   // Label callbacks
-  const handleAddLabel = createCallback<Label>(addLabel)
-  const handleRemoveLabel = createCallback<Label>(removeLabel)
-  const handleUpdateLabel = createCallback<Label>(updateLabel)
+  const handleAddLabel = useAction<LabelType>(addLabel)
+  const handleRemoveLabel = useAction<LabelType>(removeLabel)
+  const handleUpdateLabel = useAction<LabelType>(updateLabel)
 
   // Notes callbacks
   const handleUpdateNote = React.useCallback(
-    (note, date) => {
+    (note: Note, date: string) => {
       updateNote(note, date)
     },
     [updateNote]
   )
 
+  const completed = sections?.["completed"] ?? { collapsed: false }
+
+  const grid = {
+    completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
+    focus: completed.collapsed
+      ? [1, 3 / 5, 3 / 5, 7 / 12]
+      : [1, 3 / 5, 1 / 3, 1 / 2],
+    notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
+  }
+
+  const completedCollapsed = (
+    <Animate active={completed.collapsed}>
+      <Flex
+        width={1}
+        flexDirection="column"
+        height="100vh"
+        className="pr-8"
+        onClick={() => updateSection("completed", { collapsed: false })}
+      >
+        <div className="border-r-slate-100  border-r-[2px] items-center flex col cursor-pointer hover:bg-slate-50 hover:text-slate-400 text-slate-300 max-h-fit flex-1">
+          <p className="rotate-90 text-l flex items-center font-bold m-[-16px] p-0 whitespace-nowrap">
+            Show completed
+          </p>
+        </div>
+      </Flex>
+    </Animate>
+  )
+
+  const completedExpanded = (
+    <Flex
+      width={grid.completed}
+      height="calc(100vh - 66px)"
+      p={padding}
+      pt={paddingTop}
+      flexDirection="column"
+    >
+      <div
+        className="pb-1"
+        onClick={() => updateSection("completed", { collapsed: true })}
+      >
+        <Title>Completed</Title>
+        <div className="flex items-center cursor-pointer">
+          <div className="flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+            <ArrowLeft size={16} className="mr-1" /> Hide section
+          </div>
+        </div>
+      </div>
+
+      {data.filters.length > 0 && (
+        <div className="my-2">
+          <small>Showing: </small>
+          {data.filters.map(id => (
+            <div className="inline mb-1 mr-1" key={id}>
+              <Label
+                active
+                label={labelsById[id]}
+                onRemove={() => {
+                  updateFilters(data.filters.filter(x => x !== id))
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="w-full overflow-y-auto flex-[2]">
+        <div>
+          <List
+            tasks={yesterdaysTasks}
+            labels={labelsById}
+            filters={data.filters}
+            collapseCompleted={true}
+            canPinTasks={false}
+            canCollapse={false}
+            onFilter={updateFilters}
+            onUpdateTask={handleUpdateTask}
+            onRemoveTask={handleRemoveTask}
+            onMarkAsComplete={markAsComplete}
+            onMoveToToday={handleMoveToToday}
+          />
+        </div>
+      </div>
+
+      <div className="pt-3">
+        <TaskInput
+          placeholder="Forget something?"
+          labels={data.labels}
+          filters={data.filters}
+          onAdd={task => handleAddTask(task, yesterday())}
+        />
+      </div>
+    </Flex>
+  )
+
   return (
     <main>
       <div className="flex">
-        {breakpoint != Breakpoints.MOBILE &&
-          breakpoint != Breakpoints.TABLET && (
-            <Flex
-              width={[0, 1 / 3]}
-              height="calc(100vh - 66px)"
-              p={padding}
-              pt={paddingTop}
-              flexDirection="column"
-            >
-              <div className="pb-1">
-                <Title>Completed</Title>
-                <Subtitle>
-                  {formatDateHeading(yesterdayDateStr, {
-                    weekday: undefined,
-                    year: undefined,
-                    month: "long",
-                    day: "numeric"
-                  })}
-                </Subtitle>
-              </div>
-
-              <div className="w-full overflow-y-auto flex-[2]">
-                <div>
-                  <List
-                    tasks={yesterdaysTasks}
-                    labels={labelsById}
-                    filters={data.filters}
-                    collapseCompleted
-                    canPinTasks={false}
-                    onFilter={updateFilters}
-                    onUpdateTask={handleUpdateTask}
-                    onRemoveTask={handleRemoveTask}
-                    onMarkAsComplete={markAsComplete}
-                    onMoveToToday={handleMoveToToday}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-3">
-                <TaskInput
-                  placeholder="Forget something?"
-                  labels={data.labels}
-                  filters={data.filters}
-                  onAdd={task => handleAddTask(task, yesterday())}
-                />
-              </div>
-            </Flex>
-          )}
+        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
+          ? completed.collapsed
+            ? completedCollapsed
+            : completedExpanded
+          : null}
 
         <Flex
-          width={[1, 3 / 5, 1 / 3, 1 / 2]}
+          width={grid.focus}
           px={[mobilePadding, padding]}
           pl={[mobilePadding, mobilePadding, 0]}
           pt={[paddingTop]}
@@ -192,7 +248,24 @@ const Todo: React.FC = ({}) => {
             <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
           </div>
 
-          <div className="w-full flex-[2] overflow-y-auto">
+          {data.filters.length > 0 && (
+            <div className="my-2">
+              <small>Showing: </small>
+              {data.filters.map(id => (
+                <div className="inline mb-1 mr-1" key={id}>
+                  <Label
+                    active
+                    label={labelsById[id]}
+                    onRemove={() => {
+                      updateFilters(data.filters.filter(x => x !== id))
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="w-full flex-[2] overflow-y-scroll">
             <List
               tasks={todaysTasks}
               labels={labelsById}
@@ -216,7 +289,7 @@ const Todo: React.FC = ({}) => {
 
         {breakpoint != Breakpoints.MOBILE && (
           <Flex
-            width={[0, 2 / 5, 1 / 3]}
+            width={grid.notes}
             p={padding}
             pl={0}
             pt={paddingTop}

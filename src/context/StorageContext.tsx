@@ -1,5 +1,13 @@
-import { Data, Filters, Label, Note, Task } from "../index.d"
-import React, { PropsWithChildren } from "react"
+import {
+  Data,
+  Filters,
+  Label,
+  Note,
+  Section,
+  SectionData,
+  Task
+} from "../index.d"
+import React, { PropsWithChildren, useCallback } from "react"
 
 import StorageManager from "../StorageManager"
 
@@ -9,6 +17,7 @@ interface Storage {
   data: Data
   labelsById: Record<string, Label>
   storage: typeof storage
+  sections?: Record<Section, SectionData>
   fetchData: () => void
   addTask: (task: Task) => void
   updateTask: (task: Task) => void
@@ -20,6 +29,7 @@ interface Storage {
   removeLabel: (label: Label) => void
   updateNote: (note: Note, date: string) => void
   updateFilters: (filters: Filters) => void
+  updateSection: (key: Section, data: SectionData) => void
   uploadData: typeof storage.uploadData
 }
 
@@ -28,6 +38,7 @@ const noop = () => undefined
 export const StorageContext = React.createContext<Storage>({
   data: storage.defaultData,
   labelsById: {},
+  sections: storage.defaultData.sections,
   storage,
   fetchData: noop,
   addTask: noop,
@@ -40,14 +51,14 @@ export const StorageContext = React.createContext<Storage>({
   removeLabel: noop,
   updateNote: noop,
   updateFilters: noop,
-  uploadData: noop
+  uploadData: noop,
+  updateSection: noop
 })
 
 function StorageProvider({ children }: PropsWithChildren<unknown>): any {
   const [data, setDataFn] = React.useState<Data>(storage.defaultData)
 
   function setData(data: Data) {
-    console.trace("setData", data)
     setDataFn(data)
   }
 
@@ -57,10 +68,12 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     })
   }
 
-  function createAction<T>(fn: (data: Data, dataType: T) => Data) {
-    return React.useCallback(
-      (item: T) => {
-        const newData = fn.call(storage, data, item)
+  function useAction<A, B = any>(
+    fn: (data: Data, dataType: A, otherType?: B) => Data
+  ) {
+    return useCallback(
+      (dataType: A, otherType?: B) => {
+        const newData = fn.call(storage, data, dataType, otherType)
 
         if (typeof newData === "undefined") {
           throw new Error("Trying to update storage data with undefined")
@@ -68,27 +81,31 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
 
         setData(newData)
       },
-      [data]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [fn, data]
     )
   }
 
   // Callbacks for tasks
-  const addTask = createAction<Task>(storage.addTask)
-  const updateTask = createAction<Task>(storage.updateTask)
-  const removeTask = createAction<Task>(storage.removeTask)
-  const moveToToday = createAction<Task>(storage.moveTaskToToday)
+  const addTask = useAction<Task>(storage.addTask)
+  const updateTask = useAction<Task>(storage.updateTask)
+  const removeTask = useAction<Task>(storage.removeTask)
+  const moveToToday = useAction<Task>(storage.moveTaskToToday)
 
   // Callbacks for labels
-  const addLabel = createAction<Label>(storage.addLabel)
-  const removeLabel = createAction<Label>(storage.removeLabel)
-  const updateLabel = createAction<Label>(storage.updateLabel)
+  const addLabel = useAction<Label>(storage.addLabel)
+  const removeLabel = useAction<Label>(storage.removeLabel)
+  const updateLabel = useAction<Label>(storage.updateLabel)
 
   // Callbacks for filters
-  const updateFilters = createAction<Filters>(storage.updateFilters)
+  const updateFilters = useAction<Filters>(storage.updateFilters)
+
+  // Callbacks for secctions
+  const updateSection = useAction<Section, any>(storage.updateSection)
 
   // Callbacks for notes
   const updateNote = React.useCallback(
-    (note, date) => {
+    (note: Note, date: string) => {
       const newData = storage.updateNote(data, note, date)
       setData(newData)
     },
@@ -97,7 +114,7 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
 
   const labelsById = storage.getLabelsById(data)
 
-  const api = {
+  const api: Storage = {
     addLabel,
     addTask: addTask.bind(storage),
     data,
@@ -108,10 +125,12 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     removeLabel,
     removeTask,
     storage,
+    sections: data.sections,
     updateFilters,
     updateLabel,
     updateNote,
     updateTask,
+    updateSection,
     uploadData: storage.uploadData
   }
 

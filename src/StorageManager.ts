@@ -1,5 +1,5 @@
 // Types
-import { Action, Data, Label, Task } from "./index.d"
+import { Action, Data, Label, Section, SectionData, Task } from "./index.d"
 
 import { bytesToSize } from "./utils"
 import colors from "./color-palette"
@@ -34,12 +34,21 @@ interface Browser {
   }
 }
 
-const defaultData = {
+const defaultData: Data = {
   migrated: true,
   filters: [],
   tasks: {},
   notes: {},
-  labels: defaultLabels
+  labels: defaultLabels,
+  sections: {
+    completed: {
+      collapsed: true
+    },
+    focus: {},
+    notes: {
+      collapsed: false
+    }
+  }
 }
 
 const browser: Browser = {
@@ -77,6 +86,7 @@ class StorageManager {
     console.groupCollapsed(`Sync (${action})`)
 
     console.time("sync")
+    console.log({ newData })
     await browser.storage.local.set(newData)
     console.timeEnd("sync")
 
@@ -556,6 +566,20 @@ class StorageManager {
     newData.filters = filters.filter(id => labelIds.includes(id))
 
     this.sync(newData, "UPDATE_FILTERS")
+
+    return newData
+  }
+
+  updateSection = (data: Data, key: Section, section: SectionData) => {
+    const newData = this.cloneData(data)
+
+    if (typeof newData.sections !== "object") {
+      newData.sections = defaultData.sections
+    }
+
+    set(newData, `sections.${key}`, section)
+
+    this.sync(newData, "UPDATE_SECTION")
 
     return newData
   }

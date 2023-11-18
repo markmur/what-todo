@@ -25,6 +25,12 @@ export interface Task {
   completed_at?: string | undefined
 }
 
+export type Section = "completed" | "focus" | "notes"
+
+export interface SectionData {
+  collapsed?: boolean
+}
+
 export type Note = string
 
 export type Notes = Record<string, Note>
@@ -38,6 +44,7 @@ export type Data = {
   tasks: Tasks
   notes: Notes
   labels: Label[]
+  sections?: Record<Section, SectionData>
   /**
    * This field indicates whether the data from sync storage was migrated to local storage
    */
@@ -60,6 +67,7 @@ type StorageAction =
   | "MIGRATE_DATA_FROM_SYNC"
   | "CLEAN_DATA"
 type MergeAction = "MERGE_PERSISTED_DATA"
+type SectionAction = "UPDATE_SECTION"
 
 export type Action =
   | TaskAction
@@ -68,3 +76,4 @@ export type Action =
   | FilterAction
   | StorageAction
   | MergeAction
+  | SectionAction
