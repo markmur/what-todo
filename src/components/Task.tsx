@@ -152,6 +152,30 @@ const Task: React.FC<Props> = ({
     [active, onSelect, task]
   )
 
+  const handleSelect = useCallback(() => {
+    if (state) {
+      const prevState = state.completed
+      setState({
+        ...task,
+        completed: !state.completed
+      })
+
+      if (prevState) {
+        onMarkAsComplete({
+          ...task,
+          completed: !task.completed
+        })
+      } else {
+        setTimeout(() => {
+          onMarkAsComplete({
+            ...task,
+            completed: !task.completed
+          })
+        }, 1500)
+      }
+    }
+  }, [onMarkAsComplete, state, task])
+
   return (
     <Animate active duration={0.15}>
       <div
@@ -162,9 +186,15 @@ const Task: React.FC<Props> = ({
             ["cursor-pointer"]: !active
           }
         )}
-        onClick={event => {
+        onClick={(event: React.MouseEvent) => {
           if (active) return
-          if (event.currentTarget.nodeName !== "TEXTAREA") {
+
+          const target = event.target as HTMLElement
+
+          if (
+            !["TEXTAREA"].includes(event.currentTarget.nodeName) &&
+            !["INPUT", "svg"].includes(target.nodeName)
+          ) {
             onSelect(task.id, event)
             setTimeout(() => {
               const title = ref.current?.querySelector("textarea")
@@ -178,31 +208,36 @@ const Task: React.FC<Props> = ({
           <Checkbox
             id={task.id}
             checked={state?.completed ?? false}
-            onChange={() =>
-              onMarkAsComplete({
-                ...task,
-                completed: !task.completed
-              })
-            }
+            onChange={handleSelect}
           />
         </div>
 
         <div className="w-full">
-          <Textarea
-            maxRows={3}
-            value={state?.title}
-            spellCheck={active}
-            className={cx(
-              "unstyled task-title-input leading-normal bg-transparent pt-0",
-              {
-                ["strike text-slate-400"]: state?.completed
-              }
-            )}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange("title")}
-            onFocus={selectTask}
-            onBlur={handleBlur}
-          />
+          {active ? (
+            <Textarea
+              maxRows={3}
+              value={state?.title}
+              spellCheck={active}
+              className={cx(
+                "unstyled task-title-input leading-normal bg-transparent pt-0",
+                {
+                  ["text-slate-400"]: state?.completed
+                }
+              )}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange("title")}
+              onFocus={selectTask}
+              onBlur={handleBlur}
+            />
+          ) : (
+            <div
+              className={cx("inline", {
+                ["strike-animated text-slate-400"]: state?.completed
+              })}
+            >
+              {state?.title}
+            </div>
+          )}
 
           <Animate active={task.description && !active}>
             <p
