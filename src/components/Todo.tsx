@@ -141,20 +141,22 @@ const Todo: React.FC = ({}) => {
     notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
   }
 
+  const fullHeight = "calc(100dvh - 66px)"
+
   const completedCollapsed = (
     <Animate active={completed.collapsed}>
       <Flex
-        width={1}
+        width="80px"
         flexDirection="column"
-        height="calc(100vh - 66px)"
-        className="pr-8"
+        height={fullHeight}
+        justifyContent={"center"}
+        marginRight={padding}
+        className="cursor-pointer hover:text-slate-400 text-slate-300 border-r-[2px] border-slate-50 hover:bg-slate-50"
         onClick={() => updateSection("completed", { collapsed: false })}
       >
-        <div className="border-r-slate-100  border-r-[2px] items-center flex col cursor-pointer hover:bg-slate-50 hover:text-slate-400 text-slate-300 max-h-fit flex-1">
-          <p className="rotate-90 text-l flex items-center font-bold m-[-16px] p-0 whitespace-nowrap">
-            Show completed
-          </p>
-        </div>
+        <p className="rotate-90 origin-center text-l font-bold m-[-16px] p-0 whitespace-nowrap">
+          Show completed
+        </p>
       </Flex>
     </Animate>
   )
@@ -162,7 +164,7 @@ const Todo: React.FC = ({}) => {
   const completedExpanded = (
     <Flex
       width={grid.completed}
-      height="calc(100vh - 66px)"
+      height={fullHeight}
       p={padding}
       pt={paddingTop}
       flexDirection="column"
@@ -240,7 +242,7 @@ const Todo: React.FC = ({}) => {
           pl={[mobilePadding, mobilePadding, 0]}
           pt={[paddingTop]}
           pb={[mobilePadding, padding]}
-          height="calc(100vh - 66px)"
+          height={fullHeight}
           flexDirection="column"
         >
           <div className="pb-1">
@@ -293,7 +295,7 @@ const Todo: React.FC = ({}) => {
             p={padding}
             pl={0}
             pt={paddingTop}
-            height="calc(100vh - 66px)"
+            height={fullHeight}
           >
             <div className="flex flex-col flex-grow justify-start">
               <div className="mb-1">

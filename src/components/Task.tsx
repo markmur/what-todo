@@ -3,8 +3,8 @@ import type { Label as LabelType, Task as TaskType } from "../index.d"
 import React, {
   FormEvent,
   MouseEvent,
+  TouchEvent,
   useCallback,
-  useEffect,
   useRef
 } from "react"
 
@@ -176,6 +176,27 @@ const Task: React.FC<Props> = ({
     }
   }, [onMarkAsComplete, state, task])
 
+  const handlePress = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      if (active) return
+
+      const target = event.target as HTMLElement
+
+      if (
+        !["TEXTAREA"].includes(event.currentTarget.nodeName) &&
+        !["INPUT", "svg"].includes(target.nodeName)
+      ) {
+        onSelect(task.id, event)
+        setTimeout(() => {
+          const title = ref.current?.querySelector("textarea")
+          title?.focus()
+          title?.setSelectionRange(title?.value.length, title?.value.length)
+        })
+      }
+    },
+    [onSelect, task, active]
+  )
+
   return (
     <Animate active duration={0.15}>
       <div
@@ -186,23 +207,8 @@ const Task: React.FC<Props> = ({
             ["cursor-pointer"]: !active
           }
         )}
-        onClick={(event: React.MouseEvent) => {
-          if (active) return
-
-          const target = event.target as HTMLElement
-
-          if (
-            !["TEXTAREA"].includes(event.currentTarget.nodeName) &&
-            !["INPUT", "svg"].includes(target.nodeName)
-          ) {
-            onSelect(task.id, event)
-            setTimeout(() => {
-              const title = ref.current?.querySelector("textarea")
-              title?.focus()
-              title?.setSelectionRange(title?.value.length, title?.value.length)
-            })
-          }
-        }}
+        onClick={handlePress}
+        onTouchStart={handlePress}
       >
         <div className="mt-[2px] mr-3">
           <Checkbox

@@ -3,7 +3,7 @@ import { Label as LabelType, Task } from "../index.d"
 import Animate from "./Animate"
 import Icon from "@meronex/icons/fi/FiArrowUpCircle"
 import Label from "./Label"
-import React from "react"
+import React, { useCallback } from "react"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 
@@ -35,15 +35,17 @@ const TaskInput: React.FC<Props> = ({
 
   React.useEffect(() => {
     setTask({ ...task, labels: [...filters] })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, setTask])
 
-  const clearTask = () => {
+  const clearTask = useCallback(() => {
     setTask({
       ...task,
       title: "",
       description: ""
     })
-  }
+  }, [task, setTask])
 
   const handleChange =
     (field: keyof Task) =>
@@ -132,8 +134,8 @@ const TaskInput: React.FC<Props> = ({
             <textarea
               rows={2}
               value={task.description}
-              className="text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
-              placeholder="Add a brief description or URL..."
+              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
+              placeholder="Add a description or URL..."
               onChange={handleChange("description")}
               onKeyDown={handleKeyDown("description")}
             />
