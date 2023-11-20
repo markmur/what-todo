@@ -232,10 +232,22 @@ const Task: React.FC<Props> = ({
           ) : (
             <div
               className={cx("inline", {
-                ["strike-animated text-slate-400"]: state?.completed
+                ["text-slate-400"]: state?.completed
               })}
             >
-              {state?.title}
+              {state?.completed
+                ? state?.title
+                    .split(/\s/)
+                    .filter(Boolean)
+                    .map(word => (
+                      <span
+                        key={word}
+                        className="strike-animated inline-flex mr-1"
+                      >
+                        {word}
+                      </span>
+                    ))
+                : state?.title}
             </div>
           )}
 
