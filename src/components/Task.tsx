@@ -20,6 +20,7 @@ import ReactTooltip from "react-tooltip"
 import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
 import Textarea from "react-textarea-autosize"
 import cx from "classnames"
+import { FiLink } from "@meronex/icons/fi"
 
 const MAX_DESCRIPTION_LENGTH = 140
 
@@ -63,6 +64,32 @@ const taskHasChanged = (
   return hasChanged
 }
 
+function getDescriptionURL(text: string | undefined): string | undefined {
+  if (!text) return undefined
+
+  const matches = text.match(URL_RE)
+
+  if (!matches?.length) {
+    return undefined
+  }
+
+  return matches[0]
+}
+
+function extractURL(text: string | undefined, match: string | undefined) {
+  if (!text) return ""
+  if (!match) return text
+
+  const index = text.indexOf(match)
+
+  if (index === -1) return text
+
+  const before = text.slice(0, index)
+  const after = text.slice(index + match.length)
+
+  return before + after
+}
+
 function urlify(text: string | undefined): string | (string | JSX.Element)[] {
   if (!text) return ""
 
@@ -88,12 +115,12 @@ function urlify(text: string | undefined): string | (string | JSX.Element)[] {
   )
 }
 
-const getDescription = (active: boolean, task?: TaskType) => {
+const getDescription = (active: boolean, description: string | undefined) => {
   return active
-    ? task?.description
-    : (task?.description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
-    ? task?.description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
-    : task?.description
+    ? description
+    : (description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
+    ? description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
+    : description
 }
 
 const Task: React.FC<Props> = ({
@@ -112,6 +139,8 @@ const Task: React.FC<Props> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [state, setState] = React.useState<TaskType | undefined>(task)
+  const descriptionURL = getDescriptionURL(state?.description)
+  const description = extractURL(state?.description, descriptionURL)
 
   const handleChange =
     (field: keyof TaskType) =>
@@ -237,7 +266,7 @@ const Task: React.FC<Props> = ({
             />
           ) : (
             <div
-              className={cx("inline", {
+              className={cx("inline font-semibold text-slate-700", {
                 ["text-slate-400"]: state?.completed
               })}
             >
@@ -274,7 +303,7 @@ const Task: React.FC<Props> = ({
                 })
               })}
             >
-              {urlify(getDescription(active, state))}
+              {urlify(getDescription(active, description))}
             </p>
           </Animate>
 
@@ -283,7 +312,7 @@ const Task: React.FC<Props> = ({
               <Textarea
                 maxRows={5}
                 name="description"
-                value={getDescription(active, state)}
+                value={getDescription(active, state?.description)}
                 placeholder="Add description..."
                 className="unstyled text-slate-500 text-sm bg-transparent"
                 onChange={handleChange("description")}
@@ -344,6 +373,18 @@ const Task: React.FC<Props> = ({
               })}
             >
               {task.pinned ? <PinFilled /> : <Pin />}
+            </div>
+          )}
+
+          {descriptionURL && (
+            <div
+              data-tip={shortenURL(descriptionURL)}
+              className={cx("remove-icon", { active: true })}
+              onClick={preventDefault(() => {
+                window.open(descriptionURL, "_blank")
+              })}
+            >
+              <FiLink />
             </div>
           )}
 
