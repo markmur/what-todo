@@ -141,6 +141,7 @@ const Task: React.FC<Props> = ({
   const [state, setState] = React.useState<TaskType | undefined>(task)
   const descriptionURL = getDescriptionURL(state?.description)
   const description = extractURL(state?.description, descriptionURL)
+  const [hovering, setHovering] = React.useState<boolean>(false)
 
   const handleChange =
     (field: keyof TaskType) =>
@@ -238,6 +239,8 @@ const Task: React.FC<Props> = ({
         )}
         onClick={handlePress}
         onTouchStart={handlePress}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
       >
         <div className="mt-[2px] mr-3">
           <Checkbox
@@ -254,7 +257,7 @@ const Task: React.FC<Props> = ({
               value={state?.title}
               spellCheck={active}
               className={cx(
-                "unstyled task-title-input leading-normal bg-transparent pt-0",
+                "unstyled task-title-input font-semibold text-slate-700 leading-normal bg-transparent pt-0",
                 {
                   ["text-slate-400"]: state?.completed
                 }
@@ -303,47 +306,51 @@ const Task: React.FC<Props> = ({
                 })
               })}
             >
-              {urlify(getDescription(active, description))}
+              <Animate active={hovering}>
+                {urlify(
+                  hovering ? description : getDescription(active, description)
+                )}
+              </Animate>
             </p>
           </Animate>
 
           <Animate active={active}>
-            <div className="mt-1">
-              <Textarea
-                maxRows={5}
-                name="description"
-                value={getDescription(active, state?.description)}
-                placeholder="Add description..."
-                className="unstyled text-slate-500 text-sm bg-transparent"
-                onChange={handleChange("description")}
-                onKeyDown={handleKeyDown}
-                onFocus={selectTask}
-                onBlur={handleBlur}
-              />
-            </div>
-          </Animate>
+            <>
+              <div className="mt-1">
+                <Textarea
+                  maxRows={5}
+                  name="description"
+                  value={getDescription(active, state?.description)}
+                  placeholder="Add description..."
+                  className="unstyled text-slate-500 text-sm bg-transparent"
+                  onChange={handleChange("description")}
+                  onKeyDown={handleKeyDown}
+                  onFocus={selectTask}
+                  onBlur={handleBlur}
+                />
+              </div>
 
-          <Animate active={active}>
-            <div className="flex mt-2 flex-wrap">
-              {Object.entries(labels).map(([id, label]) => (
-                <div className="mr-1 mb-1" key={id}>
-                  <Label
-                    small
-                    active={task.labels?.includes(id) ?? false}
-                    label={label}
-                    onClick={preventDefault(() => {
-                      const nextLabels = task.labels?.includes(id)
-                        ? task.labels.filter(l => l !== id)
-                        : [...(task.labels ?? []), id]
-                      onUpdate({
-                        ...task,
-                        labels: nextLabels
-                      })
-                    })}
-                  />
-                </div>
-              ))}
-            </div>
+              <div className="flex mt-2 flex-wrap">
+                {Object.entries(labels).map(([id, label]) => (
+                  <div className="mr-1 mb-1" key={id}>
+                    <Label
+                      small
+                      active={task.labels?.includes(id) ?? false}
+                      label={label}
+                      onClick={preventDefault(() => {
+                        const nextLabels = task.labels?.includes(id)
+                          ? task.labels.filter(l => l !== id)
+                          : [...(task.labels ?? []), id]
+                        onUpdate({
+                          ...task,
+                          labels: nextLabels
+                        })
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
           </Animate>
         </div>
 
