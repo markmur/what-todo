@@ -115,10 +115,12 @@ function urlify(text: string | undefined): string | (string | JSX.Element)[] {
   )
 }
 
-const getDescription = (active: boolean, description: string | undefined) => {
-  return active
-    ? description
-    : (description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
+const getDescription = (truncate: boolean, description: string | undefined) => {
+  if (truncate) {
+    return description
+  }
+
+  return (description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
     ? description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
     : description
 }
@@ -141,7 +143,7 @@ const Task: React.FC<Props> = ({
   const [state, setState] = React.useState<TaskType | undefined>(task)
   const descriptionURL = getDescriptionURL(state?.description)
   const description = extractURL(state?.description, descriptionURL)
-  const [hovering, setHovering] = React.useState<boolean>(false)
+  const [, setHovering] = React.useState<boolean>(false)
 
   const handleChange =
     (field: keyof TaskType) =>
@@ -306,11 +308,7 @@ const Task: React.FC<Props> = ({
                 })
               })}
             >
-              <Animate active={hovering}>
-                {urlify(
-                  hovering ? description : getDescription(active, description)
-                )}
-              </Animate>
+              {urlify(getDescription(false, description))}
             </p>
           </Animate>
 
