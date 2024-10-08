@@ -135,7 +135,7 @@ const Todo: React.FC = ({}) => {
   )
 
   const completed = sections?.["completed"] ?? { collapsed: false }
-  const notesSection = sections?.["notes"] ?? { collapsed: true } // TODO: change to false
+  const notesSection = sections?.["notes"] ?? { collapsed: false }
 
   const grid = {
     completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
