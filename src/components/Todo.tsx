@@ -21,7 +21,10 @@ import cx from "classnames"
 import { useStorage } from "../context/StorageContext"
 import Label from "./Label"
 import Animate from "./Animate"
-import { FiArrowLeft as ArrowLeft } from "@meronex/icons/fi"
+import {
+  FiArrowLeft as ArrowLeft,
+  FiArrowRight as ArrowRight
+} from "@meronex/icons/fi"
 
 function Title({ children }: PropsWithChildren) {
   return (
@@ -132,11 +135,12 @@ const Todo: React.FC = ({}) => {
   )
 
   const completed = sections?.["completed"] ?? { collapsed: false }
+  const notesSection = sections?.["notes"] ?? { collapsed: true } // TODO: change to false
 
   const grid = {
     completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
     focus: completed.collapsed
-      ? [1, 3 / 5, 3 / 5, 7 / 12]
+      ? [1, 3 / 5, 3 / 5, notesSection.collapsed ? 1 : 7 / 12]
       : [1, 3 / 5, 1 / 3, 1 / 2],
     notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
   }
@@ -227,6 +231,103 @@ const Todo: React.FC = ({}) => {
     </Flex>
   )
 
+  const notesCollapsed = (
+    <Animate active={notesSection.collapsed}>
+      <Flex
+        width="80px"
+        flexDirection="column"
+        height={fullHeight}
+        justifyContent={"center"}
+        className="cursor-pointer hover:text-slate-400 text-slate-300 border-l-[2px] border-slate-50 hover:bg-slate-50"
+        onClick={() => updateSection("notes", { collapsed: false })}
+      >
+        <p className="rotate-90 origin-center text-l font-bold m-[-16px] p-0 whitespace-nowrap">
+          Show notes
+        </p>
+      </Flex>
+    </Animate>
+  )
+
+  const notesExpanded = (
+    <Flex
+      width={grid.notes}
+      p={padding}
+      pl={0}
+      pt={paddingTop}
+      height={fullHeight}
+    >
+      <div className="flex flex-col flex-grow justify-start">
+        <div className="mb-1">
+          <div
+            className="pb-1"
+            onClick={() => updateSection("notes", { collapsed: true })}
+          >
+            <Title>Notes</Title>
+            <div className="flex items-center cursor-pointer">
+              <div className="flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+                Hide section <ArrowRight size={16} className="mr-1" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full">
+            {pastWeek.map(day => (
+              <div
+                className="flex-1 pb-1"
+                key={day.number}
+                onClick={() => setActiveDay(day.date.toDateString())}
+              >
+                <div
+                  className={cx("calendar-day p-1", {
+                    active: day.date.toDateString() === activeDay,
+                    hasNote: !!data.notes[day.date.toDateString()],
+                    today: day.isToday
+                  })}
+                >
+                  <div>
+                    <small>{day.name}</small>
+                  </div>
+                  <div>
+                    <em>{day.number}</em>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 mb-4" ref={heightRef}>
+          <Notes
+            heightRef={heightRef}
+            note={data.notes[activeDay] || ""}
+            onChange={note => handleUpdateNote(note, activeDay)}
+          />
+        </div>
+
+        <div className="flex flex-col h-[34%]">
+          <Title>Labels</Title>
+
+          <div className="flex-1 overflow-y-scroll pb-2">
+            <Labels
+              labels={data.labels}
+              limit={10}
+              colors={colors}
+              filters={data.filters}
+              onFilter={updateFilters}
+              onAddLabel={handleAddLabel}
+              onUpdateLabel={handleUpdateLabel}
+              onRemoveLabel={handleRemoveLabel}
+            />
+          </div>
+        </div>
+
+        <div className="h-[55px]">
+          <Footer />
+        </div>
+      </div>
+    </Flex>
+  )
+
   return (
     <main>
       <div className="flex">
@@ -289,75 +390,11 @@ const Todo: React.FC = ({}) => {
           </div>
         </Flex>
 
-        {breakpoint != Breakpoints.MOBILE && (
-          <Flex
-            width={grid.notes}
-            p={padding}
-            pl={0}
-            pt={paddingTop}
-            height={fullHeight}
-          >
-            <div className="flex flex-col flex-grow justify-start">
-              <div className="mb-1">
-                <Title>Notes</Title>
-
-                <div className="flex w-full">
-                  {pastWeek.map(day => (
-                    <div
-                      className="flex-1 pb-1"
-                      key={day.number}
-                      onClick={() => setActiveDay(day.date.toDateString())}
-                    >
-                      <div
-                        className={cx("calendar-day p-1", {
-                          active: day.date.toDateString() === activeDay,
-                          hasNote: !!data.notes[day.date.toDateString()],
-                          today: day.isToday
-                        })}
-                      >
-                        <div>
-                          <small>{day.name}</small>
-                        </div>
-                        <div>
-                          <em>{day.number}</em>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex-1 mb-4" ref={heightRef}>
-                <Notes
-                  heightRef={heightRef}
-                  note={data.notes[activeDay] || ""}
-                  onChange={note => handleUpdateNote(note, activeDay)}
-                />
-              </div>
-
-              <div className="flex flex-col h-[34%]">
-                <Title>Labels</Title>
-
-                <div className="flex-1 overflow-y-scroll pb-2">
-                  <Labels
-                    labels={data.labels}
-                    limit={10}
-                    colors={colors}
-                    filters={data.filters}
-                    onFilter={updateFilters}
-                    onAddLabel={handleAddLabel}
-                    onUpdateLabel={handleUpdateLabel}
-                    onRemoveLabel={handleRemoveLabel}
-                  />
-                </div>
-              </div>
-
-              <div className="h-[55px]">
-                <Footer />
-              </div>
-            </div>
-          </Flex>
-        )}
+        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
+          ? notesSection.collapsed
+            ? notesCollapsed
+            : notesExpanded
+          : null}
       </div>
     </main>
   )
