@@ -4,7 +4,6 @@ import React, { useCallback, useRef } from "react"
 // Icons
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
-import Label from "./Label"
 import Task from "./Task"
 import Tooltip from "react-tooltip"
 import cx from "classnames"
@@ -50,9 +49,8 @@ const List: React.FC<Props> = ({
   filters = [],
   tasks = [],
   labels,
-  collapseCompleted = false,
+  collapseCompleted = true,
   canPinTasks = true,
-  canCollapse = true,
   onFilter,
   onUpdateTask,
   onRemoveTask,
@@ -61,9 +59,7 @@ const List: React.FC<Props> = ({
 }) => {
   const selectedRef = useRef<any>()
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
-  const [displayCompleted, setDisplayCompleted] = React.useState(
-    !collapseCompleted
-  )
+  const [collapsed, setCollapsed] = React.useState(collapseCompleted)
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -165,22 +161,22 @@ const List: React.FC<Props> = ({
               "mt-10": uncompleted.length > 0,
               "mt-4": uncompleted.length === 0
             })}
-            onClick={() => setDisplayCompleted(!displayCompleted)}
+            onClick={() => setCollapsed(!collapsed)}
           >
             <h4 className="text-slate-600 hover:text-black font-bold">
               {completed.length} Completed
             </h4>
             <div className="align-center">
-              {displayCompleted ? (
-                <ChevronUp style={{ verticalAlign: "middle" }} />
-              ) : (
+              {collapsed ? (
                 <ChevronDown style={{ verticalAlign: "middle" }} />
+              ) : (
+                <ChevronUp style={{ verticalAlign: "middle" }} />
               )}
             </div>
           </div>
         )}
 
-        {displayCompleted
+        {!collapsed && hasCompletedTasks
           ? completed.map(task => {
               if (!task) return null
 
