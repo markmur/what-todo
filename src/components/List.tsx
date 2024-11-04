@@ -28,10 +28,10 @@ const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
     return tasks
   }
 
-  // If more than one selected, filter by tasks containing only both
+  // If more than one selected, filter by tasks with an OR condition
   if (filters.length > 1) {
     return tasks.filter(task => {
-      return task.labels?.sort().join(",") === filters.sort().join(",")
+      return task.labels?.some(label => filters.includes(label))
     })
   }
 
