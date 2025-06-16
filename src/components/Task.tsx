@@ -22,7 +22,7 @@ import Textarea from "react-textarea-autosize"
 import cx from "classnames"
 import { FiLink } from "@meronex/icons/fi"
 
-const MAX_DESCRIPTION_LENGTH = 140
+const MAX_DESCRIPTION_LENGTH = 1000
 
 interface Props {
   canPin?: boolean
@@ -291,7 +291,7 @@ const Task: React.FC<Props> = ({
             </div>
           )}
 
-          <Animate active={task.description && !active}>
+          {/* <Animate active={task.description && !active}>
             <p
               className="unstyled text-slate-500 text-sm cursor-text"
               onClick={preventDefault(event => {
@@ -310,24 +310,24 @@ const Task: React.FC<Props> = ({
             >
               {urlify(getDescription(false, description))}
             </p>
-          </Animate>
+          </Animate> */}
 
-          <Animate active={active}>
-            <>
-              <div className="mt-1">
-                <Textarea
-                  maxRows={5}
-                  name="description"
-                  value={getDescription(active, state?.description)}
-                  placeholder="Add description..."
-                  className="unstyled text-slate-500 text-sm bg-transparent"
-                  onChange={handleChange("description")}
-                  onKeyDown={handleKeyDown}
-                  onFocus={selectTask}
-                  onBlur={handleBlur}
-                />
-              </div>
+          <>
+            <div className="mt-1">
+              <Textarea
+                maxRows={10}
+                name="description"
+                value={getDescription(active, state?.description)}
+                placeholder="Add description..."
+                className="unstyled text-slate-500 text-sm bg-transparent max-h-[800px]"
+                onChange={handleChange("description")}
+                onKeyDown={handleKeyDown}
+                onFocus={selectTask}
+                onBlur={handleBlur}
+              />
+            </div>
 
+            <Animate active={active}>
               <div className="flex mt-2 flex-wrap">
                 {Object.entries(labels).map(([id, label]) => (
                   <div className="mr-1 mb-1" key={id}>
@@ -348,8 +348,8 @@ const Task: React.FC<Props> = ({
                   </div>
                 ))}
               </div>
-            </>
-          </Animate>
+            </Animate>
+          </>
         </div>
 
         <div id="actions" className="flex mt-1">
