@@ -64,11 +64,11 @@ function StorageProvider({
     setDataFn(data)
   }
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     storage.getData().then(({ data }) => {
       setData(data)
     })
-  }
+  }, [])
 
   function useAction<A, B = any>(
     fn: (data: Data, dataType: A, otherType?: B) => Data
