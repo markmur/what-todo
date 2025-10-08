@@ -139,9 +139,7 @@ const Todo: React.FC = ({}) => {
 
   const grid = {
     completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
-    focus: completed.collapsed
-      ? [1, 3 / 5, 3 / 5, notesSection.collapsed ? 1 : 7 / 12]
-      : [1, 3 / 5, 1 / 3, 1 / 2],
+    focus: completed.collapsed ? [1] : [1, 3 / 5, 1 / 3, 1 / 2],
     notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
   }
 
