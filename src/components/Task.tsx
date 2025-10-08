@@ -76,45 +76,6 @@ function getDescriptionURL(text: string | undefined): string | undefined {
   return matches[0]
 }
 
-function extractURL(text: string | undefined, match: string | undefined) {
-  if (!text) return ""
-  if (!match) return text
-
-  const index = text.indexOf(match)
-
-  if (index === -1) return text
-
-  const before = text.slice(0, index)
-  const after = text.slice(index + match.length)
-
-  return before + after
-}
-
-function urlify(text: string | undefined): string | (string | JSX.Element)[] {
-  if (!text) return ""
-
-  const matches = text.match(URL_RE)
-
-  if (!matches?.length) {
-    return text
-  }
-
-  return text.split(URL_RE).map((str, i) =>
-    URL_RE.test(str) ? (
-      <a
-        key={`${str}-${i}`}
-        rel="noopener noreferrer"
-        href={str}
-        target="_blank"
-      >
-        {shortenURL(str)}
-      </a>
-    ) : (
-      str
-    )
-  )
-}
-
 const getDescription = (truncate: boolean, description: string | undefined) => {
   if (truncate) {
     return description
@@ -142,8 +103,6 @@ const Task: React.FC<Props> = ({
   const ref = useRef<HTMLDivElement>(null)
   const [state, setState] = React.useState<TaskType | undefined>(task)
   const descriptionURL = getDescriptionURL(state?.description)
-  const description = extractURL(state?.description, descriptionURL)
-  const [, setHovering] = React.useState<boolean>(false)
 
   const handleChange =
     (field: keyof TaskType) =>
@@ -241,8 +200,6 @@ const Task: React.FC<Props> = ({
         )}
         onClick={handlePress}
         onTouchStart={handlePress}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
       >
         <div className="mt-[2px] mr-3">
           <Checkbox
@@ -291,65 +248,42 @@ const Task: React.FC<Props> = ({
             </div>
           )}
 
-          {/* <Animate active={task.description && !active}>
-            <p
-              className="unstyled text-slate-500 text-sm cursor-text"
-              onClick={preventDefault(event => {
-                onSelect(task.id, event)
-                setTimeout(() => {
-                  const description = ref.current?.querySelector(
-                    "textarea[name='description']"
-                  ) as HTMLTextAreaElement
-                  description?.focus()
-                  description?.setSelectionRange(
-                    description?.value.length,
-                    description?.value.length
-                  )
-                })
-              })}
-            >
-              {urlify(getDescription(false, description))}
-            </p>
-          </Animate> */}
+          <div className="mt-1">
+            <Textarea
+              maxRows={10}
+              name="description"
+              value={getDescription(active, state?.description)}
+              placeholder="Add description..."
+              className="unstyled text-slate-500 text-sm bg-transparent max-h-[800px]"
+              onChange={handleChange("description")}
+              onKeyDown={handleKeyDown}
+              onFocus={selectTask}
+              onBlur={handleBlur}
+            />
+          </div>
 
-          <>
-            <div className="mt-1">
-              <Textarea
-                maxRows={10}
-                name="description"
-                value={getDescription(active, state?.description)}
-                placeholder="Add description..."
-                className="unstyled text-slate-500 text-sm bg-transparent max-h-[800px]"
-                onChange={handleChange("description")}
-                onKeyDown={handleKeyDown}
-                onFocus={selectTask}
-                onBlur={handleBlur}
-              />
+          <Animate active={active}>
+            <div className="flex mt-2 flex-wrap">
+              {Object.entries(labels).map(([id, label]) => (
+                <div className="mr-1 mb-1" key={id}>
+                  <Label
+                    small
+                    active={task.labels?.includes(id) ?? false}
+                    label={label}
+                    onClick={preventDefault(() => {
+                      const nextLabels = task.labels?.includes(id)
+                        ? task.labels.filter(l => l !== id)
+                        : [...(task.labels ?? []), id]
+                      onUpdate({
+                        ...task,
+                        labels: nextLabels
+                      })
+                    })}
+                  />
+                </div>
+              ))}
             </div>
-
-            <Animate active={active}>
-              <div className="flex mt-2 flex-wrap">
-                {Object.entries(labels).map(([id, label]) => (
-                  <div className="mr-1 mb-1" key={id}>
-                    <Label
-                      small
-                      active={task.labels?.includes(id) ?? false}
-                      label={label}
-                      onClick={preventDefault(() => {
-                        const nextLabels = task.labels?.includes(id)
-                          ? task.labels.filter(l => l !== id)
-                          : [...(task.labels ?? []), id]
-                        onUpdate({
-                          ...task,
-                          labels: nextLabels
-                        })
-                      })}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Animate>
-          </>
+          </Animate>
         </div>
 
         <div id="actions" className="flex mt-1">

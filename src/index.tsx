@@ -1,7 +1,6 @@
 import "./tailwind.css"
 
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 
 // Context
 import ContextWrapper from "./App"
@@ -23,7 +22,7 @@ const App = () => {
     return () => {
       window.removeEventListener("focus", fetchData)
     }
-  }, [])
+  }, [fetchData])
 
   return (
     <main>
@@ -41,6 +40,7 @@ const App = () => {
 }
 
 const container = document.getElementById("app")
+if (!container) throw new Error("App container not found")
 const root = createRoot(container)
 
 root.render(

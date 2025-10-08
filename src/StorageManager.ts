@@ -3,10 +3,22 @@ import { Action, Data, Label, Section, SectionData, Task } from "./index.d"
 
 import { bytesToSize } from "./utils"
 import colors from "./color-palette"
-import set from "lodash-es/set"
+import { set } from "lodash-es"
 import sizeOf from "object-sizeof"
 // import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
+
+// Debounce helper
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null
+  return function (this: any, ...args: Parameters<T>) {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(() => func.apply(this, args), wait)
+  }
+}
 
 type Item = Label
 type ItemKey = "labels"
@@ -78,7 +90,13 @@ class StorageManager {
 
   private subscriptions: Array<(data: Data) => void> = []
 
-  private async sync(newData: Data, action: Action): Promise<Data> {
+  private debouncedSync = debounce(
+    async (newData: Data, action: Action) =>
+      this.syncImmediately(newData, action),
+    300
+  )
+
+  private async syncImmediately(newData: Data, action: Action): Promise<Data> {
     if (this.busy && this.syncQueue.length) {
       console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
     }
@@ -107,6 +125,17 @@ class StorageManager {
     const hasData = Object.keys(data).length > 0
 
     return hasData
+  }
+
+  private sync(newData: Data, action: Action): Promise<Data> {
+    // Use immediate sync for critical operations
+    const criticalActions = ["CLEAR_DATA", "MIGRATE_DATA_FROM_SYNC"]
+    if (criticalActions.includes(action)) {
+      return this.syncImmediately(newData, action)
+    }
+    // Debounce for user-triggered operations
+    this.debouncedSync(newData, action)
+    return Promise.resolve(newData)
   }
 
   private add(
@@ -187,12 +216,6 @@ class StorageManager {
     return { ...data }
   }
 
-  private clearAllData(): Data {
-    this.sync(this.defaultData, "CLEAR_DATA")
-
-    return this.defaultData
-  }
-
   private async clearLegacyData() {
     console.log("Clearing all legacy sync storage data")
     try {
@@ -209,7 +232,7 @@ class StorageManager {
     const unsynced = this.syncQueue.length
 
     while (this.syncQueue.length) {
-      this.syncQueue.shift()(data)
+      this.syncQueue.shift()?.(data)
     }
     if (unsynced) {
       console.log(`>>> SYNC_QUEUE_CLEARED (${unsynced})`)
@@ -326,7 +349,7 @@ class StorageManager {
     usage: string
     quota: string
   }> {
-    let parsedData: Data
+    let parsedData: Data = this.defaultData
 
     this.setBusyState()
     console.groupCollapsed("GET_STORAGE_DATA")
@@ -367,20 +390,20 @@ class StorageManager {
       return {
         data: parsedData,
         usage: usagePct,
-        quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
+        quota: bytesToSize(browser.storage.local.QUOTA_BYTES ?? 0)
       }
     } catch (error) {
       console.error(error)
+      return {
+        data: parsedData,
+        usage: "0%",
+        quota: bytesToSize(browser.storage.local.QUOTA_BYTES ?? 0)
+      }
     } finally {
       console.timeEnd("getData()")
       console.groupEnd()
 
       this.unsetBusyState(parsedData)
-      // return {
-      //   data: defaultData,
-      //   usage: null,
-      //   quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
-      // }
     }
   }
 
@@ -392,7 +415,7 @@ class StorageManager {
       return 0
     }
 
-    return inUse / browser.storage.local.QUOTA_BYTES
+    return inUse / total
   }
 
   uploadData = (data: Data): void => {

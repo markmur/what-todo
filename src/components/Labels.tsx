@@ -1,5 +1,5 @@
 import type { IntermediateLabel, Label as LabelType } from "../index.d"
-import React, { MouseEvent } from "react"
+import React from "react"
 
 import Animate from "./Animate"
 import { Color } from "../color-palette"
@@ -45,10 +45,13 @@ const Labels: React.FC<Props> = ({
   })
 
   React.useEffect(() => {
-    const labelsById = labels.reduce((state, label) => {
-      state[label.id] = label
-      return state
-    }, {})
+    const labelsById = labels.reduce(
+      (state, label) => {
+        state[label.id] = label
+        return state
+      },
+      {} as Record<string, LabelType>
+    )
 
     setControlledLabels(labelsById)
   }, [labels])
@@ -58,17 +61,17 @@ const Labels: React.FC<Props> = ({
       title: "",
       color: colors[0].backgroundColor
     })
-  }, [newLabel])
+  }, [colors])
 
   const handleSave = React.useCallback(() => {
-    if (newLabel.title.trim().length > 0) {
+    if (newLabel && newLabel.title.trim().length > 0) {
       onAddLabel(newLabel)
     }
     setNewLabel(undefined)
   }, [newLabel, onAddLabel])
 
   const handleChangeTitle = React.useCallback(
-    (id, event) => {
+    (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
       const newLabel = {
         ...controlledLabels[id],
         title: event.target.value
@@ -84,7 +87,7 @@ const Labels: React.FC<Props> = ({
   )
 
   const handleKeyPress = React.useCallback(
-    event => {
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === "Enter") {
         handleSave()
       }
@@ -93,7 +96,7 @@ const Labels: React.FC<Props> = ({
   )
 
   const handleColorChange = React.useCallback(
-    (color: Color, label) => {
+    (color: Color, label: LabelType) => {
       // do something
       const newLabel = {
         ...label,
@@ -112,7 +115,7 @@ const Labels: React.FC<Props> = ({
   )
 
   const handleBlur = React.useCallback(
-    id => {
+    (id: string) => {
       onUpdateLabel(controlledLabels[id])
     },
     [controlledLabels, onUpdateLabel]
@@ -178,7 +181,7 @@ const Labels: React.FC<Props> = ({
           </li>
         ))}
 
-        <Animate active={newLabel}>
+        <Animate active={!!newLabel}>
           {newLabel && (
             <li key="new">
               <div className="flex items-center py-2">

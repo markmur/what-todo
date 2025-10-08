@@ -2,8 +2,14 @@
 import "../styles.scss"
 
 // Types
-import type { Data, Task, Label as LabelType, Note } from "../index.d"
-import React, { PropsWithChildren, useCallback } from "react"
+import type {
+  Data,
+  IntermediateLabel,
+  Label as LabelType,
+  Note,
+  Task
+} from "../index.d"
+import React, { PropsWithChildren } from "react"
 // utils
 import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
@@ -55,11 +61,13 @@ const getOlderTasks = (data: Data): Task[] => {
   return list
 }
 
-const mobilePadding = 3
-const padding = 4
-const paddingTop = 2
+// Layout constants
+const MOBILE_PADDING = 3
+const PADDING = 4
+const PADDING_TOP = 2
+const FULL_HEIGHT = "calc(100dvh - 66px)"
 
-const Todo: React.FC = ({}) => {
+const Todo: React.FC = () => {
   const breakpoint = useMedia()
   const {
     data,
@@ -78,33 +86,26 @@ const Todo: React.FC = ({}) => {
     updateSection
   } = useStorage()
 
-  // Refs
-  const heightRef = React.createRef<HTMLDivElement>()
-
   const todayDateStr = today().toDateString()
   // const yesterdayDateStr = yesterday().toDateString()
 
   const [activeDay, setActiveDay] = React.useState(todayDateStr)
   const pastWeek = getPastSevenDays()
 
-  const todaysTasks = getTasksFor(todayDateStr)(data)
-  const yesterdaysTasks = getOlderTasks(data)
+  const todaysTasks = React.useMemo(
+    () => getTasksFor(todayDateStr)(data),
+    [todayDateStr, data]
+  )
+  const yesterdaysTasks = React.useMemo(() => getOlderTasks(data), [data])
 
   // Move any pinned tasks to today
-  yesterdaysTasks.map(task => {
-    if (task.pinned) {
-      moveToToday(task)
-    }
-  })
-
-  function useAction<T>(fn: (item: T) => void) {
-    return useCallback(
-      (item: T) => {
-        fn(item)
-      },
-      [fn]
-    )
-  }
+  React.useEffect(() => {
+    yesterdaysTasks.forEach(task => {
+      if (task.pinned) {
+        moveToToday(task)
+      }
+    })
+  }, [yesterdaysTasks, moveToToday])
 
   // Task callbacks
   const handleAddTask = React.useCallback(
@@ -117,14 +118,32 @@ const Todo: React.FC = ({}) => {
     [addTask]
   )
 
-  const handleUpdateTask = useAction<Task>(updateTask)
-  const handleRemoveTask = useAction<Task>(removeTask)
-  const handleMoveToToday = useAction<Task>(moveToToday)
+  const handleUpdateTask = React.useCallback(
+    (task: Task) => updateTask(task),
+    [updateTask]
+  )
+  const handleRemoveTask = React.useCallback(
+    (task: Task) => removeTask(task),
+    [removeTask]
+  )
+  const handleMoveToToday = React.useCallback(
+    (task: Task) => moveToToday(task),
+    [moveToToday]
+  )
 
   // Label callbacks
-  const handleAddLabel = useAction<LabelType>(addLabel)
-  const handleRemoveLabel = useAction<LabelType>(removeLabel)
-  const handleUpdateLabel = useAction<LabelType>(updateLabel)
+  const handleAddLabel = React.useCallback(
+    (label: IntermediateLabel) => addLabel(label as LabelType),
+    [addLabel]
+  )
+  const handleRemoveLabel = React.useCallback(
+    (label: LabelType) => removeLabel(label),
+    [removeLabel]
+  )
+  const handleUpdateLabel = React.useCallback(
+    (label: LabelType) => updateLabel(label),
+    [updateLabel]
+  )
 
   // Notes callbacks
   const handleUpdateNote = React.useCallback(
@@ -137,22 +156,23 @@ const Todo: React.FC = ({}) => {
   const completed = sections?.["completed"] ?? { collapsed: false }
   const notesSection = sections?.["notes"] ?? { collapsed: false }
 
-  const grid = {
-    completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
-    focus: completed.collapsed ? [1] : [1, 3 / 5, 1 / 3, 1 / 2],
-    notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
-  }
-
-  const fullHeight = "calc(100dvh - 66px)"
+  const grid = React.useMemo(
+    () => ({
+      completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
+      focus: completed.collapsed ? [1] : [1, 3 / 5, 1 / 3, 1 / 2],
+      notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
+    }),
+    [completed.collapsed]
+  )
 
   const completedCollapsed = (
-    <Animate active={completed.collapsed}>
+    <Animate active={completed.collapsed ?? false}>
       <Flex
         width="80px"
         flexDirection="column"
-        height={fullHeight}
+        height={FULL_HEIGHT}
         justifyContent={"center"}
-        marginRight={padding}
+        marginRight={PADDING}
         className="cursor-pointer hover:text-slate-400 text-slate-300 border-r-[2px] border-slate-50 hover:bg-slate-50"
         onClick={() => updateSection("completed", { collapsed: false })}
       >
@@ -166,9 +186,9 @@ const Todo: React.FC = ({}) => {
   const completedExpanded = (
     <Flex
       width={grid.completed}
-      height={fullHeight}
-      p={padding}
-      pt={paddingTop}
+      height={FULL_HEIGHT}
+      p={PADDING}
+      pt={PADDING_TOP}
       flexDirection="column"
     >
       <div
@@ -230,11 +250,11 @@ const Todo: React.FC = ({}) => {
   )
 
   const notesCollapsed = (
-    <Animate active={notesSection.collapsed}>
+    <Animate active={notesSection.collapsed ?? false}>
       <Flex
         width="80px"
         flexDirection="column"
-        height={fullHeight}
+        height={FULL_HEIGHT}
         justifyContent={"center"}
         className="cursor-pointer hover:text-slate-400 text-slate-300 border-l-[2px] border-slate-50 hover:bg-slate-50"
         onClick={() => updateSection("notes", { collapsed: false })}
@@ -249,10 +269,10 @@ const Todo: React.FC = ({}) => {
   const notesExpanded = (
     <Flex
       width={grid.notes}
-      p={padding}
+      p={PADDING}
       pl={0}
-      pt={paddingTop}
-      height={fullHeight}
+      pt={PADDING_TOP}
+      height={FULL_HEIGHT}
     >
       <div className="flex flex-col flex-grow justify-start">
         <div className="mb-1">
@@ -294,9 +314,8 @@ const Todo: React.FC = ({}) => {
           </div>
         </div>
 
-        <div className="flex-1 mb-4" ref={heightRef}>
+        <div className="flex-1 mb-4">
           <Notes
-            heightRef={heightRef}
             note={data.notes[activeDay] || ""}
             onChange={note => handleUpdateNote(note, activeDay)}
           />
@@ -337,11 +356,11 @@ const Todo: React.FC = ({}) => {
 
         <Flex
           width={grid.focus}
-          px={[mobilePadding, padding]}
-          pl={[mobilePadding, mobilePadding, 0]}
-          pt={[paddingTop]}
-          pb={[mobilePadding, padding]}
-          height={fullHeight}
+          px={[MOBILE_PADDING, PADDING]}
+          pl={[MOBILE_PADDING, MOBILE_PADDING, 0]}
+          pt={[PADDING_TOP]}
+          pb={[MOBILE_PADDING, PADDING]}
+          height={FULL_HEIGHT}
           flexDirection="column"
         >
           <div className="pb-1">

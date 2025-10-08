@@ -2,7 +2,6 @@ import React from "react"
 
 interface Props {
   note: string
-  heightRef: React.Ref<HTMLDivElement>
   onChange: (note: string) => void
 }
 
@@ -19,10 +18,10 @@ const Notes: React.FC<Props> = ({ note = "", onChange }) => {
   }, [state, onChange])
 
   const handleChange = React.useCallback(
-    event => {
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       setState(event.target.value)
     },
-    [state]
+    []
   )
 
   return (

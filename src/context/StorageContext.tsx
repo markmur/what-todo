@@ -55,7 +55,9 @@ export const StorageContext = React.createContext<Storage>({
   updateSection: noop
 })
 
-function StorageProvider({ children }: PropsWithChildren<unknown>): any {
+function StorageProvider({
+  children
+}: PropsWithChildren<unknown>): JSX.Element {
   const [data, setDataFn] = React.useState<Data>(storage.defaultData)
 
   function setData(data: Data) {
@@ -112,7 +114,7 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     [data]
   )
 
-  const labelsById = storage.getLabelsById(data)
+  const labelsById = React.useMemo(() => storage.getLabelsById(data), [data])
 
   const api: Storage = {
     addLabel,

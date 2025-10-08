@@ -1,7 +1,1 @@
-Object.defineProperty(global, "chrome", {
-  value: {
-    runtime: {
-      lastError: undefined
-    }
-  }
-})
+require("@testing-library/jest-dom")

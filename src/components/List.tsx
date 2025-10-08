@@ -76,8 +76,8 @@ const List: React.FC<Props> = ({
 
   // Sort uncompleted by pinned state
   uncompleted.sort((a, b) => {
-    const ap = typeof a.pinned === "boolean" && +a.pinned
-    const bp = typeof b.pinned === "boolean" && +b.pinned
+    const ap = typeof a.pinned === "boolean" ? +a.pinned : 0
+    const bp = typeof b.pinned === "boolean" ? +b.pinned : 0
     const createdAt = a.created_at.localeCompare(b.created_at)
 
     return bp - ap || createdAt

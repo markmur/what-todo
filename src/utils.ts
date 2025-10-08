@@ -1,5 +1,5 @@
 import { MouseEvent } from "react"
-import { Data, Day } from "./index.d"
+import { Day } from "./index.d"
 
 export const today = (): Date => {
   return new Date()

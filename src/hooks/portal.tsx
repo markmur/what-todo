@@ -5,10 +5,12 @@ function usePortal(): HTMLDivElement {
 
   React.useEffect(function setupElement() {
     const parentElem = document.querySelector("#portal")
+    if (!parentElem) return
 
-    parentElem.appendChild(rootElemRef.current)
+    const currentElem = rootElemRef.current
+    parentElem.appendChild(currentElem)
 
-    return () => rootElemRef.current.remove()
+    return () => currentElem.remove()
   }, [])
 
   return rootElemRef.current

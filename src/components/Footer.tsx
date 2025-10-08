@@ -20,23 +20,25 @@ const Footer: React.FC = () => {
   const { data, uploadData } = useStorage()
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
-  const downloadLinkRef = React.useRef()
+  const downloadLinkRef = React.useRef<HTMLAnchorElement>(null)
 
   const downloadJSON = React.useCallback(() => {
     if (downloadLinkRef && downloadLinkRef.current) {
       // @ts-ignore
       downloadLinkRef.current.click()
     }
-  }, [data])
+  }, [])
 
   const handleSecretUpload = React.useCallback(() => {
     const value = window.prompt("Insert todo data object")
+    if (!value) return
+
     const parsed = parseDataStr(value) as any
 
     if (Object.keys(parsed).length > 0) {
       uploadData(parsed)
     }
-  }, [parseDataStr, uploadData])
+  }, [uploadData])
 
   return (
     <footer>
