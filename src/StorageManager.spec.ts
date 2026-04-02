@@ -34,8 +34,7 @@ describe("StorageManager", () => {
         "02/02": [
           { id: "2", title: "Test 2", created_at: "02/02", completed: true }
         ]
-      },
-      notes: {}
+      }
     }
 
     browser.storage.sync.set(oldData)
@@ -55,7 +54,6 @@ describe("StorageManager", () => {
         { id: "1", title: "Test", created_at: "03/02", completed: false },
         { id: "2", title: "Test 2", created_at: "02/02", completed: true }
       ],
-      notes: []
     }
 
     browser.storage.sync.set(badData)
@@ -66,7 +64,6 @@ describe("StorageManager", () => {
       filters: inst.defaultData.filters,
       labels: inst.defaultData.labels,
       tasks: inst.defaultData.tasks,
-      notes: inst.defaultData.notes,
       migrated: true
     })
   })
@@ -75,8 +72,7 @@ describe("StorageManager", () => {
     const data: Data = {
       filters: ["does-not-exist"],
       labels: [{ id: "label-1", title: "Work", color: "black" }],
-      tasks: {},
-      notes: {}
+      tasks: {}
     }
 
     browser.storage.local.set(data)
@@ -86,8 +82,7 @@ describe("StorageManager", () => {
     expect(newData).toEqual({
       filters: [],
       labels: [{ id: "label-1", title: "Work", color: "black" }],
-      tasks: {},
-      notes: {}
+      tasks: {}
     })
   })
 })
