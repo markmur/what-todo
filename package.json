@@ -36,6 +36,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/classnames": "^2.2.11",
     "@types/lodash-es": "^4.17.4",
     "@types/node": "^22.0.0",
@@ -55,9 +58,12 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "happy-dom": "^20.8.9",
+    "jsdom": "^29.0.1",
     "prettier": "^3.0.3",
     "sass": "^1.77.0",
     "typescript": "^5.2.2",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vitest": "^4.1.2"
   }
 }
