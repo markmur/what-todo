@@ -10,6 +10,9 @@
     "preview": "vite preview",
     "start": "vite"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "author": "Mark Murray <mark.murray.ie@gmail.com> (https://markmurray.co)",
   "bugs": {
     "url": "https://github.com/markmur/what-todo/issues"
@@ -35,7 +38,7 @@
   "devDependencies": {
     "@types/classnames": "^2.2.11",
     "@types/lodash-es": "^4.17.4",
-    "@types/node": "^20.9.0",
+    "@types/node": "^22.0.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@types/react-test-renderer": "^16.9.3",
@@ -45,17 +48,16 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
-    "@vitejs/plugin-react": "^4.1.1",
+    "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "node-sass": "^7.0.1",
     "prettier": "^3.0.3",
-    "sass": "^1.69.5",
+    "sass": "^1.77.0",
     "typescript": "^5.2.2",
-    "vite": "^4.5.0"
+    "vite": "^6.0.0"
   }
 }
