@@ -1,16 +1,13 @@
-import React from "react"
-import { Flex, Box } from "rebass"
-import Tooltip from "react-tooltip"
+import { Label as LabelType, Task as TaskType } from "../index.d"
+import React, { useCallback, useRef } from "react"
 
 // Icons
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
-
-import Label from "./Label"
-
-import { Task as TaskType, Label as LabelType } from "../index.d"
-import useOnClickOutside from "@src/hooks/onclickoutside"
 import Task from "./Task"
+import Tooltip from "react-tooltip"
+import cx from "classnames"
+import useOnClickOutside from "../hooks/onclickoutside"
 
 interface Props {
   tasks?: TaskType[]
@@ -18,47 +15,30 @@ interface Props {
   labels: Record<string, LabelType>
   collapseCompleted?: boolean
   canPinTasks?: boolean
+  canCollapse?: boolean
   onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onMoveToToday?: (task: TaskType) => void
-  onPinTask?: (task: TaskType) => void
 }
 
-const taskHasChanged = (
-  prevTask: TaskType | undefined,
-  newTask: TaskType
-): boolean => {
-  if (!prevTask) return false
-
-  return (
-    prevTask.title !== newTask.title ||
-    prevTask.description !== newTask.description ||
-    prevTask.labels.join(",") !== newTask.labels.join(",")
-  )
-}
-
-const isSelected = (selected: TaskType | undefined, task: TaskType) => {
-  return task.id && task.id === selected?.id
-}
-
-const getFilteredTasks = (tasks: TaskType[], filters: string[]) => {
+const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
   if (!filters.length) {
     return tasks
   }
 
-  // If more than one selected, filter by tasks containing only both
+  // If more than one selected, filter by tasks with an OR condition
   if (filters.length > 1) {
     return tasks.filter(task => {
-      return task.labels.sort().join(",") === filters.sort().join(",")
+      return task.labels?.some(label => filters.includes(label))
     })
   }
 
   // By default include any task that includes a selected filter
   return tasks.filter(task => {
     for (const id of filters) {
-      if (task.labels.includes(id)) return true
+      if (task.labels?.includes(id)) return true
     }
 
     return false
@@ -69,7 +49,7 @@ const List: React.FC<Props> = ({
   filters = [],
   tasks = [],
   labels,
-  collapseCompleted = false,
+  collapseCompleted = true,
   canPinTasks = true,
   onFilter,
   onUpdateTask,
@@ -77,19 +57,21 @@ const List: React.FC<Props> = ({
   onMarkAsComplete,
   onMoveToToday
 }) => {
-  const selectedRef = React.useRef<any>()
-  const [selected, setSelectedTask] = React.useState<TaskType>()
-  const [displayCompleted, setDisplayCompleted] = React.useState(
-    !collapseCompleted
-  )
+  const selectedRef = useRef<any>()
+  const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
+  const [collapsed, setCollapsed] = React.useState(collapseCompleted)
   const filteredTasks = getFilteredTasks(tasks, filters)
+
+  function setSelectedTask(taskId: TaskType["id"] | undefined) {
+    setSelected(taskId)
+  }
 
   const [uncompleted, completed] = filteredTasks.reduce(
     (state, task) => {
       state[task.completed ? 1 : 0].push(task)
       return state
     },
-    [[], []]
+    [[] as TaskType[], [] as TaskType[]]
   )
 
   // Sort uncompleted by pinned state
@@ -102,139 +84,111 @@ const List: React.FC<Props> = ({
   })
 
   // Sort completed tasks by when they were completed
-  completed.sort((a, b) => b.completed_at?.localeCompare(a.completed_at))
+  completed.sort(
+    (a, b) => Number(b.completed_at?.localeCompare(a.completed_at ?? "")) ?? 0
+  )
   const hasCompletedTasks = completed.length > 0
 
-  useOnClickOutside(selectedRef, () => {
+  const clickOutsideHandler = () => {
     setTimeout(() => {
       setSelectedTask(undefined)
     })
-  })
+  }
+
+  useOnClickOutside(selectedRef, clickOutsideHandler)
 
   React.useEffect(() => {
     Tooltip.rebuild()
   })
 
-  const handleLabelsChange = (newLabels: string[]) => {
-    setSelectedTask({
-      ...selected,
-      labels: newLabels
-    })
-  }
-
-  const handleChange = (field: keyof TaskType) => (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    setSelectedTask({
-      ...selected,
-      [field]: event.target.value
-    })
-  }
-
-  const handleFocus = (originalTask: TaskType) => () => {
-    if (!isSelected(selected, originalTask)) {
-      setSelectedTask(originalTask)
-    }
-  }
-
-  const handleBlur = (originalTask: TaskType) => () => {
-    setTimeout(() => {
-      if (taskHasChanged(selected, originalTask)) {
-        onUpdateTask(selected)
+  const handleFocus = useCallback(
+    (taskId: string) => {
+      if (selected !== taskId) {
+        setSelectedTask(taskId)
       }
-    })
+    },
+    [selected]
+  )
+
+  const handleUpdate = useCallback(
+    (task: TaskType) => onUpdateTask(task),
+    [onUpdateTask]
+  )
+
+  const handleDeselect = () => {
+    setSelectedTask(undefined)
+    ;(document.activeElement as HTMLElement)?.blur()
+  }
+
+  const handleMarkAsComplete = (task: TaskType) => {
+    onMarkAsComplete(task)
+    handleDeselect()
+  }
+
+  const callbackHandlers = {
+    onFilter: onFilter,
+    onSelect: handleFocus,
+    onUpdate: handleUpdate,
+    onDeselect: handleDeselect,
+    onRemoveTask: onRemoveTask,
+    onMarkAsComplete: handleMarkAsComplete,
+    onMoveToToday: onMoveToToday
   }
 
   return (
     <div>
-      {filters.length ? (
-        <Box my={2}>
-          <small>Showing: </small>
-          {filters.map(id => (
-            <Box display="inline" key={id} mr={1} mb={1}>
-              <Label
-                active
-                label={labels[id]}
-                onRemove={() => {
-                  onFilter(filters.filter(x => x !== id))
-                }}
-              />
-            </Box>
-          ))}
-        </Box>
-      ) : null}
-      <ul>
+      <ul className="task-list" ref={selectedRef}>
         {uncompleted.map(task => {
-          const active = isSelected(selected, task)
+          if (!task) return null
 
           return (
-            <li
-              key={task.id}
-              className="task"
-              ref={active ? selectedRef : undefined}
-            >
+            <li key={task.id} className="task">
               <Task
-                active={active}
-                task={active ? selected : task}
+                {...callbackHandlers}
+                active={task.id === selected}
+                task={task}
                 labels={labels}
                 filters={filters}
-                onFilter={onFilter}
-                onSelect={handleFocus(task)}
-                onDeselect={handleBlur(task)}
-                onChange={handleChange}
-                onChangeLabels={handleLabelsChange}
-                onPinTask={canPinTasks ? onUpdateTask : undefined}
-                onRemoveTask={onRemoveTask}
-                onMarkAsComplete={onMarkAsComplete}
-                onMoveToToday={onMoveToToday}
+                canPin={canPinTasks}
               />
             </li>
           )
         })}
 
         {hasCompletedTasks && (
-          <Flex
-            mt={uncompleted.length > 0 ? 5 : 4}
-            mb={2}
-            alignItems="center"
-            style={{ cursor: "pointer" }}
-            onClick={() => setDisplayCompleted(!displayCompleted)}
+          <div
+            className={cx("flex mb-2 items-center cursor-pointer", {
+              "mt-10": uncompleted.length > 0,
+              "mt-4": uncompleted.length === 0
+            })}
+            onClick={() => setCollapsed(!collapsed)}
           >
-            <h4>Completed ({completed.length})</h4>
-            <Box mt={"-1px"} ml={1} alignSelf="center">
-              {displayCompleted ? (
-                <ChevronUp style={{ verticalAlign: "middle" }} />
-              ) : (
+            <h4 className="text-slate-600 hover:text-black font-bold">
+              {completed.length} Completed
+            </h4>
+            <div className="align-center">
+              {collapsed ? (
                 <ChevronDown style={{ verticalAlign: "middle" }} />
+              ) : (
+                <ChevronUp style={{ verticalAlign: "middle" }} />
               )}
-            </Box>
-          </Flex>
+            </div>
+          </div>
         )}
 
-        {displayCompleted
+        {!collapsed && hasCompletedTasks
           ? completed.map(task => {
-              const active = isSelected(selected, task)
+              if (!task) return null
 
               return (
-                <li
-                  key={task.id}
-                  className="task"
-                  ref={active ? selectedRef : undefined}
-                >
+                <li key={task.id} className="task">
                   <Task
-                    active={active}
-                    task={active ? selected : task}
+                    {...callbackHandlers}
+                    active={task.id === selected}
+                    task={task}
+                    canPin={canPinTasks}
                     labels={labels}
                     filters={filters}
-                    onFilter={onFilter}
-                    onSelect={handleFocus(task)}
-                    onDeselect={handleBlur(task)}
-                    onChange={handleChange}
-                    onChangeLabels={handleLabelsChange}
-                    onPinTask={canPinTasks ? onUpdateTask : undefined}
-                    onRemoveTask={onRemoveTask}
-                    onMarkAsComplete={onMarkAsComplete}
-                    onMoveToToday={onMoveToToday}
                   />
                 </li>
               )

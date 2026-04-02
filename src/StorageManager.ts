@@ -1,13 +1,12 @@
-import { sync } from "./decorators/sync"
-import { bytesToSize } from "./utils"
-import { browser } from "webextension-polyfill-ts"
-import { v4 as uuid } from "uuid"
-import set from "lodash-es/set"
-import colors from "./color-palette"
-import sizeOf from "object-sizeof"
-
 // Types
-import { Action, Data, Label, Task } from "./index.d"
+import { Action, Data, Label, Section, SectionData, Task } from "./index.d"
+
+import { bytesToSize } from "./utils"
+import colors from "./color-palette"
+import set from "lodash-es/set"
+import sizeOf from "object-sizeof"
+// import { browser } from "webextension-polyfill-ts"
+import { v4 as uuid } from "uuid"
 
 type Item = Label
 type ItemKey = "labels"
@@ -21,26 +20,63 @@ const defaultLabels: Label[] = [
   { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
 ]
 
+interface Browser {
+  storage: {
+    sync: {
+      get: () => any
+      clear: () => void
+    }
+    local: {
+      QUOTA_BYTES?: number | null
+      set: (data: any) => void
+      get: () => any
+    }
+  }
+}
+
+const defaultData: Data = {
+  migrated: true,
+  filters: [],
+  tasks: {},
+  notes: {},
+  labels: defaultLabels,
+  sections: {
+    completed: {
+      collapsed: true
+    },
+    focus: {},
+    notes: {
+      collapsed: false
+    }
+  }
+}
+
+const browser: Browser = {
+  storage: {
+    sync: {
+      get: () => ({}),
+      clear: () => undefined
+    },
+    local: {
+      QUOTA_BYTES: null,
+      set: data => localStorage.setItem("what-todo", JSON.stringify(data)),
+      get: () =>
+        JSON.parse(
+          localStorage.getItem("what-todo") || JSON.stringify(defaultData)
+        )
+    }
+  }
+}
+
 // Class
 class StorageManager {
-  public defaultData: Data
+  public defaultData: Data = defaultData
 
-  public busy: boolean
+  public busy = false
 
-  public syncQueue: Array<(data: Data, ...args: any[]) => Data>
+  public syncQueue: Array<(data: Data, ...args: any[]) => Data> = []
 
-  constructor() {
-    this.defaultData = {
-      filters: [],
-      tasks: {},
-      notes: {},
-      labels: defaultLabels
-    }
-
-    this.busy = false
-
-    this.syncQueue = []
-  }
+  private subscriptions: Array<(data: Data) => void> = []
 
   private async sync(newData: Data, action: Action): Promise<Data> {
     if (this.busy && this.syncQueue.length) {
@@ -50,8 +86,17 @@ class StorageManager {
     console.groupCollapsed(`Sync (${action})`)
 
     console.time("sync")
+    console.log({ newData })
     await browser.storage.local.set(newData)
     console.timeEnd("sync")
+
+    console.time("emit subscriptions")
+    this.subscriptions.forEach(fn => {
+      if (typeof fn === "function") {
+        fn(newData)
+      }
+    })
+    console.timeEnd("emit subscriptions")
 
     console.debug(action, newData)
     console.groupEnd()
@@ -162,6 +207,7 @@ class StorageManager {
   private unsetBusyState(data: Data) {
     this.busy = false
     const unsynced = this.syncQueue.length
+
     while (this.syncQueue.length) {
       this.syncQueue.shift()(data)
     }
@@ -242,17 +288,18 @@ class StorageManager {
 
   private cleanData(data: Data) {
     console.time("cleanData()")
-    const labelIds = data.labels.map(x => x.id)
+    const labelIds = data.labels?.map(x => x.id)
     const newData = this.cloneData(data)
 
-    for (const [, tasks] of Object.entries(newData.tasks)) {
+    for (const [, tasks] of Object.entries(newData.tasks || {})) {
       for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i]
-        for (const label of task.labels) {
+        const { labels = [] } = task
+        for (const label of labels) {
           if (!labelIds.includes(label)) {
             const newTask = {
               ...task,
-              labels: task.labels.filter(x => x !== label)
+              labels: labels.filter(x => x !== label)
             }
             set(newData, `tasks.${this.getTaskKey(task)}.${i}`, newTask)
           }
@@ -264,8 +311,21 @@ class StorageManager {
     return this.sync(newData, "CLEAN_DATA")
   }
 
-  // PUBLIC API
-  async getData(): Promise<{ data: Data; usage: string; quota: string }> {
+  // ======================= PUBLIC API ============================== //
+
+  subscribe = (fn: (data: Data) => void): void => {
+    this.subscriptions.push(fn)
+  }
+
+  unsubscribe = (fn: (data: Data) => void): void => {
+    this.subscriptions = this.subscriptions.filter(x => x !== fn)
+  }
+
+  async getData(): Promise<{
+    data: Data
+    usage: string
+    quota: string
+  }> {
     let parsedData: Data
 
     this.setBusyState()
@@ -273,12 +333,11 @@ class StorageManager {
     console.time("getData()")
     try {
       const data = await browser.storage.local.get()
+      console.log({ data })
 
       const valid = this.validateData(data)
       parsedData = (valid ? data : this.defaultData) as Data
       parsedData = await this.cleanData(parsedData)
-
-      console.log(parsedData)
 
       if (!Boolean(parsedData.migrated)) {
         // Migrate data from Release #1 from sync storage to local storage
@@ -287,15 +346,19 @@ class StorageManager {
         if (migratedData) parsedData = migratedData
       }
 
-      const filteringByMissingLabels = data.filters?.some(filterId => {
-        return (
-          (parsedData.labels || []).findIndex(({ id }) => filterId === id) < 0
-        )
-      })
+      const filteringByMissingLabels = data.filters?.some(
+        (filterId: string) => {
+          return (
+            (parsedData.labels || []).findIndex(({ id }) => filterId === id) < 0
+          )
+        }
+      )
 
       if (filteringByMissingLabels) {
         parsedData = this.updateFilters(parsedData, [])
       }
+
+      this.moveUncompletedTasksToToday(parsedData)
 
       // Usage
       const usage = await this.getStorageUsagePercent(parsedData)
@@ -309,20 +372,26 @@ class StorageManager {
     } catch (error) {
       console.error(error)
     } finally {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError)
-        throw chrome.runtime.lastError
-      }
-
       console.timeEnd("getData()")
       console.groupEnd()
 
       this.unsetBusyState(parsedData)
+      // return {
+      //   data: defaultData,
+      //   usage: null,
+      //   quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
+      // }
     }
   }
 
   getStorageUsagePercent = async (data: Data): Promise<number> => {
     const inUse = sizeOf(data)
+    const total = browser.storage.local.QUOTA_BYTES
+
+    if (!total) {
+      return 0
+    }
+
     return inUse / browser.storage.local.QUOTA_BYTES
   }
 
@@ -332,10 +401,13 @@ class StorageManager {
 
   // Labels
   getLabelsById(data: Data): Record<string, Label> {
-    return data.labels.reduce((state, label) => {
-      state[label.id] = label
-      return state
-    }, {})
+    return data?.labels.reduce(
+      (state, label) => {
+        state[label.id] = label
+        return state
+      },
+      {} as Record<string, Label>
+    )
   }
 
   addLabel = (data: Data, label: Label): Data => {
@@ -351,7 +423,7 @@ class StorageManager {
   }
 
   // Tasks
-  @sync()
+  // @sync()
   addTask(data: Data, task: Task): Data {
     const newTask: Task = {
       ...task,
@@ -368,14 +440,13 @@ class StorageManager {
     return newData
   }
 
-  @sync()
+  // @sync()
   updateTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
-
     const index = newData.tasks[key]?.findIndex(t => t.id === task.id)
 
-    if (index > -1) {
+    if (typeof index === "number" && index > -1) {
       const completedStateChanged =
         newData.tasks[key]?.[index].completed !== task.completed
 
@@ -384,14 +455,14 @@ class StorageManager {
       }
 
       set(newData, `tasks.${key}.${index}`, task)
-    }
 
-    this.sync(newData, "UPDATE_TASK")
+      this.sync(newData, "UPDATE_TASK")
+    }
 
     return newData
   }
 
-  @sync()
+  // @sync()
   removeTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
@@ -407,7 +478,28 @@ class StorageManager {
     return newData
   }
 
-  @sync()
+  private moveUncompletedTasksToToday(data: Data) {
+    const todayKey = this.getTodayKey()
+    const uncompletedTasks = Object.entries(data.tasks)
+      .filter(([key]) => key !== todayKey)
+      .map(([, tasks]) => tasks)
+      .flat()
+      .filter(task => !task.completed)
+
+    if (uncompletedTasks?.length > 0) {
+      return uncompletedTasks.reduce(
+        (state, task) => {
+          state = this.moveTaskToToday(data, task)
+          return state
+        },
+        { ...data }
+      )
+    }
+
+    return data
+  }
+
+  // @sync()
   moveTaskToToday(data: Data, task: Task): Data {
     const oldKey = this.getTaskKey(task)
     const todayKey = this.getTodayKey()
@@ -474,6 +566,20 @@ class StorageManager {
     newData.filters = filters.filter(id => labelIds.includes(id))
 
     this.sync(newData, "UPDATE_FILTERS")
+
+    return newData
+  }
+
+  updateSection = (data: Data, key: Section, section: SectionData) => {
+    const newData = this.cloneData(data)
+
+    if (typeof newData.sections !== "object") {
+      newData.sections = defaultData.sections
+    }
+
+    set(newData, `sections.${key}`, section)
+
+    this.sync(newData, "UPDATE_SECTION")
 
     return newData
   }

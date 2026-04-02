@@ -1,7 +1,6 @@
-import React, { StyleHTMLAttributes } from "react"
-import { Flex, Box } from "rebass"
-
+import React, { useRef } from "react"
 import colors, { Color } from "../color-palette"
+
 import Portal from "./Portal"
 import useOnClickOutside from "../hooks/onclickoutside"
 
@@ -18,20 +17,19 @@ const ColorPicker: React.FC<Props> = ({
   onChange,
   onHide
 }) => {
-  const childRef = React.useRef()
-  const internalRef = React.useRef()
+  const childRef = useRef<HTMLDivElement>(null)
+  const internalRef = useRef<HTMLDivElement>(null)
   const style = {} as any
   const width = 120
 
   if (childRef && childRef.current) {
-    // @ts-ignore
     const dimensions = childRef.current?.getBoundingClientRect()
 
     style.left = dimensions.left + dimensions.width / 2 - width / 2
     style.top = dimensions.top - 128
   }
 
-  useOnClickOutside(internalRef, onHide)
+  useOnClickOutside(internalRef, onHide, { ignore: "color-picker-item" })
 
   return (
     <div>
@@ -42,20 +40,18 @@ const ColorPicker: React.FC<Props> = ({
       {visible && (
         <Portal>
           <div className="color-picker" style={style} ref={internalRef}>
-            <Flex flexWrap="wrap" width={width}>
+            <div className={"flex flex-wrap"} style={{ width }}>
               {colors.map(color => (
-                <Box
+                <div
+                  className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer color-picker-item"
                   key={color.name}
-                  m={1}
-                  flex="0 0 16px"
-                  className="circle"
                   data-tip={color.name}
                   data-background-color={color.backgroundColor}
                   style={{ backgroundColor: color.backgroundColor }}
                   onClick={() => onChange(color)}
                 />
               ))}
-            </Flex>
+            </div>
           </div>
         </Portal>
       )}

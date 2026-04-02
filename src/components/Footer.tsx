@@ -1,14 +1,10 @@
 import React from "react"
-import { Flex, Box } from "rebass"
-
 // Icons
 import ReportIcon from "@meronex/icons/fi/FiFrown"
 import RequestIcon from "@meronex/icons/fi/FiSmile"
-import PrivacyIcon from "@meronex/icons/fi/FiLock"
 import SaveIcon from "@meronex/icons/fi/FiSave"
-
-import { DataContext } from "../index"
-import { parseDataStr } from "@src/utils"
+import { parseDataStr } from "../utils"
+import { useStorage } from "../context/StorageContext"
 
 const iconProps = {
   fontSize: 22,
@@ -21,7 +17,7 @@ const linkProps = {
 }
 
 const Footer: React.FC = () => {
-  const { data, usage, quota, uploadData } = React.useContext(DataContext)
+  const { data, uploadData } = useStorage()
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
   const downloadLinkRef = React.useRef()
@@ -33,33 +29,26 @@ const Footer: React.FC = () => {
     }
   }, [data])
 
+  const handleSecretUpload = React.useCallback(() => {
+    const value = window.prompt("Insert todo data object")
+    const parsed = parseDataStr(value) as any
+
+    if (Object.keys(parsed).length > 0) {
+      uploadData(parsed)
+    }
+  }, [parseDataStr, uploadData])
+
   return (
     <footer>
-      <Flex justifyContent="space-between">
+      <div className="flex justify-between">
         <em data-tip="🤷‍♂️">
-          <a {...linkProps} href="https://github.com/markmur/what-todo">
+          <a {...linkProps} onDoubleClick={handleSecretUpload}>
             What Todo
           </a>
         </em>
 
-        <Flex alignItems="center">
-          <Box
-            mt={-1}
-            onDoubleClick={() => {
-              const value = window.prompt("Insert todo data object")
-              const parsed = parseDataStr(value) as any
-
-              if (Object.keys(parsed).length > 0) {
-                uploadData(parsed)
-              }
-            }}
-          >
-            <div data-tip={`Storage usage (MAX: ${quota})`} {...iconProps}>
-              ({usage})
-            </div>
-          </Box>
-
-          <Box ml={2}>
+        <div className="flex items-center">
+          <div className="ml-2">
             <a
               ref={downloadLinkRef}
               hidden
@@ -71,15 +60,9 @@ const Footer: React.FC = () => {
               {...iconProps}
               onClick={downloadJSON}
             />
-          </Box>
+          </div>
 
-          <Box ml={2}>
-            <span data-tip="Privacy: your data is stored in browser storage and nowhere else. This extension does not send your data over the network.">
-              <PrivacyIcon {...iconProps} />
-            </span>
-          </Box>
-
-          <Box ml={2}>
+          <div className="ml-2">
             <a
               {...linkProps}
               data-tip="Request a feature"
@@ -87,9 +70,9 @@ const Footer: React.FC = () => {
             >
               <RequestIcon {...iconProps} />
             </a>
-          </Box>
+          </div>
 
-          <Box ml={2}>
+          <div className="ml-2">
             <a
               {...linkProps}
               data-tip="Report a bug"
@@ -97,9 +80,9 @@ const Footer: React.FC = () => {
             >
               <ReportIcon {...iconProps} />
             </a>
-          </Box>
-        </Flex>
-      </Flex>
+          </div>
+        </div>
+      </div>
     </footer>
   )
 }

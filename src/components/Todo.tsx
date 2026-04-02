@@ -1,32 +1,50 @@
-import React from "react"
-import cx from "classnames"
-import { Box, Flex } from "rebass"
-import colors from "../color-palette"
-
-// Hooks
-import { today, yesterday, formatDateHeading } from "../utils"
-import useMedia, { Breakpoints } from "@src/hooks/media"
-
 // Styles
 import "../styles.scss"
 
 // Types
-import { Label, Task, Data, IntermediateLabel, Note, Day } from "../index.d"
+import type { Data, Task, Label as LabelType, Note } from "../index.d"
+import React, { PropsWithChildren, useCallback } from "react"
+// utils
+import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
+import useMedia, { Breakpoints } from "../hooks/media"
 
-// Components
-import TaskInput from "@src/components/TaskInput"
-import List from "@src/components/List"
-import Labels from "@src/components/Labels"
-import Notes from "./Notes"
+import { Flex } from "rebass"
 import Footer from "./Footer"
+import Labels from "./Labels"
+import List from "./List"
+import Notes from "./Notes"
+// Components
+import TaskInput from "./TaskInput"
+import colors from "../color-palette"
+import cx from "classnames"
+// Hooks
+import { useStorage } from "../context/StorageContext"
+import Label from "./Label"
+import Animate from "./Animate"
+import {
+  FiArrowLeft as ArrowLeft,
+  FiArrowRight as ArrowRight
+} from "@meronex/icons/fi"
 
-const getTasksFor = (date: string) => (data: Data): Task[] => {
-  return data.tasks[date] ?? []
+function Title({ children }: PropsWithChildren) {
+  return (
+    <h1 className="text-4xl mt-4 mb-3 text-slate-300 font-bold">{children}</h1>
+  )
 }
+
+function Subtitle({ children }: PropsWithChildren) {
+  return <h2 className="text-sm mb-4 text-slate-500">{children}</h2>
+}
+
+const getTasksFor =
+  (date: string) =>
+  (data: Data): Task[] => {
+    return data.tasks[date] ?? []
+  }
 
 const getOlderTasks = (data: Data): Task[] => {
   const todayDateStr = today().toDateString()
-  let list = []
+  let list: Task[] = []
 
   for (const [date, tasks] of Object.entries(data.tasks)) {
     if (date !== todayDateStr) {
@@ -39,48 +57,35 @@ const getOlderTasks = (data: Data): Task[] => {
 
 const mobilePadding = 3
 const padding = 4
+const paddingTop = 2
 
-interface Props {
-  data: Data
-  pastWeek: Day[]
-  labelsById: Record<string, Label>
-  onAddTask: (task: Task) => void
-  onUpdateTask: (task: Task) => void
-  onRemoveTask: (task: Task) => void
-  onMarkAsComplete: (task: Task) => void
-  onMoveToToday: (task: Task) => void
-  onAddLabel: (label: IntermediateLabel) => void
-  onUpdateLabel: (label: Label) => void
-  onRemoveLabel: (label: Label) => void
-  onUpdateNote: (note: Note, date: string) => void
-  onUpdateFilters: (filters: string[]) => void
-}
-
-const Todo: React.FC<Props> = ({
-  data,
-  pastWeek,
-  labelsById,
-  onAddTask,
-  onUpdateTask,
-  onRemoveTask,
-  onMarkAsComplete,
-  onMoveToToday,
-  onAddLabel,
-  onUpdateLabel,
-  onRemoveLabel,
-  onUpdateNote,
-  onUpdateFilters
-}: Props) => {
-  // Hooks
+const Todo: React.FC = ({}) => {
   const breakpoint = useMedia()
+  const {
+    data,
+    sections,
+    labelsById,
+    addTask,
+    updateTask,
+    removeTask,
+    markAsComplete,
+    moveToToday,
+    addLabel,
+    updateLabel,
+    removeLabel,
+    updateNote,
+    updateFilters,
+    updateSection
+  } = useStorage()
 
   // Refs
   const heightRef = React.createRef<HTMLDivElement>()
 
   const todayDateStr = today().toDateString()
-  const yesterdayDateStr = yesterday().toDateString()
+  // const yesterdayDateStr = yesterday().toDateString()
 
   const [activeDay, setActiveDay] = React.useState(todayDateStr)
+  const pastWeek = getPastSevenDays()
 
   const todaysTasks = getTasksFor(todayDateStr)(data)
   const yesterdaysTasks = getOlderTasks(data)
@@ -88,12 +93,12 @@ const Todo: React.FC<Props> = ({
   // Move any pinned tasks to today
   yesterdaysTasks.map(task => {
     if (task.pinned) {
-      onMoveToToday(task)
+      moveToToday(task)
     }
   })
 
-  function createCallback<T>(fn: (item: T) => void) {
-    return React.useCallback(
+  function useAction<T>(fn: (item: T) => void) {
+    return useCallback(
       (item: T) => {
         fn(item)
       },
@@ -103,188 +108,292 @@ const Todo: React.FC<Props> = ({
 
   // Task callbacks
   const handleAddTask = React.useCallback(
-    (task, created_at) => {
-      onAddTask({
+    (task: Task, created_at: Date) => {
+      addTask({
         ...task,
         created_at: new Date(created_at).toISOString()
       })
     },
-    [onAddTask]
+    [addTask]
   )
 
-  const handleUpdateTask = createCallback<Task>(onUpdateTask)
-  const handleRemoveTask = createCallback<Task>(onRemoveTask)
-  const handleMoveToToday = createCallback<Task>(onMoveToToday)
+  const handleUpdateTask = useAction<Task>(updateTask)
+  const handleRemoveTask = useAction<Task>(removeTask)
+  const handleMoveToToday = useAction<Task>(moveToToday)
 
   // Label callbacks
-  const handleAddLabel = createCallback<Label>(onAddLabel)
-  const handleRemoveLabel = createCallback<Label>(onRemoveLabel)
-  const handleUpdateLabel = createCallback<Label>(onUpdateLabel)
+  const handleAddLabel = useAction<LabelType>(addLabel)
+  const handleRemoveLabel = useAction<LabelType>(removeLabel)
+  const handleUpdateLabel = useAction<LabelType>(updateLabel)
 
   // Notes callbacks
   const handleUpdateNote = React.useCallback(
-    (note, date) => {
-      onUpdateNote(note, date)
+    (note: Note, date: string) => {
+      updateNote(note, date)
     },
-    [onUpdateNote]
+    [updateNote]
+  )
+
+  const completed = sections?.["completed"] ?? { collapsed: false }
+  const notesSection = sections?.["notes"] ?? { collapsed: false }
+
+  const grid = {
+    completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
+    focus: completed.collapsed ? [1] : [1, 3 / 5, 1 / 3, 1 / 2],
+    notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
+  }
+
+  const fullHeight = "calc(100dvh - 66px)"
+
+  const completedCollapsed = (
+    <Animate active={completed.collapsed}>
+      <Flex
+        width="80px"
+        flexDirection="column"
+        height={fullHeight}
+        justifyContent={"center"}
+        marginRight={padding}
+        className="cursor-pointer hover:text-slate-400 text-slate-300 border-r-[2px] border-slate-50 hover:bg-slate-50"
+        onClick={() => updateSection("completed", { collapsed: false })}
+      >
+        <p className="rotate-90 origin-center text-l font-bold m-[-16px] p-0 whitespace-nowrap">
+          Show completed
+        </p>
+      </Flex>
+    </Animate>
+  )
+
+  const completedExpanded = (
+    <Flex
+      width={grid.completed}
+      height={fullHeight}
+      p={padding}
+      pt={paddingTop}
+      flexDirection="column"
+    >
+      <div
+        className="pb-1"
+        onClick={() => updateSection("completed", { collapsed: true })}
+      >
+        <Title>Completed</Title>
+        <div className="flex items-center cursor-pointer">
+          <div className="flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+            <ArrowLeft size={16} className="mr-1" /> Hide section
+          </div>
+        </div>
+      </div>
+
+      {data.filters.length > 0 && (
+        <div className="my-2">
+          <small>Showing: </small>
+          {data.filters.map(id => (
+            <div className="inline mb-1 mr-1" key={id}>
+              <Label
+                active
+                label={labelsById[id]}
+                onRemove={() => {
+                  updateFilters(data.filters.filter(x => x !== id))
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="w-full overflow-y-auto flex-[2]">
+        <div>
+          <List
+            tasks={yesterdaysTasks}
+            labels={labelsById}
+            filters={data.filters}
+            collapseCompleted={true}
+            canPinTasks={false}
+            canCollapse={false}
+            onFilter={updateFilters}
+            onUpdateTask={handleUpdateTask}
+            onRemoveTask={handleRemoveTask}
+            onMarkAsComplete={markAsComplete}
+            onMoveToToday={handleMoveToToday}
+          />
+        </div>
+      </div>
+
+      <div className="pt-3">
+        <TaskInput
+          placeholder="Forget something?"
+          labels={data.labels}
+          filters={data.filters}
+          onAdd={task => handleAddTask(task, yesterday())}
+        />
+      </div>
+    </Flex>
+  )
+
+  const notesCollapsed = (
+    <Animate active={notesSection.collapsed}>
+      <Flex
+        width="80px"
+        flexDirection="column"
+        height={fullHeight}
+        justifyContent={"center"}
+        className="cursor-pointer hover:text-slate-400 text-slate-300 border-l-[2px] border-slate-50 hover:bg-slate-50"
+        onClick={() => updateSection("notes", { collapsed: false })}
+      >
+        <p className="rotate-90 origin-center text-l font-bold m-[-16px] p-0 whitespace-nowrap">
+          Show notes
+        </p>
+      </Flex>
+    </Animate>
+  )
+
+  const notesExpanded = (
+    <Flex
+      width={grid.notes}
+      p={padding}
+      pl={0}
+      pt={paddingTop}
+      height={fullHeight}
+    >
+      <div className="flex flex-col flex-grow justify-start">
+        <div className="mb-1">
+          <div
+            className="pb-1"
+            onClick={() => updateSection("notes", { collapsed: true })}
+          >
+            <Title>Notes</Title>
+            <div className="flex items-center cursor-pointer">
+              <div className="flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+                Hide section <ArrowRight size={16} className="mr-1" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full">
+            {pastWeek.map(day => (
+              <div
+                className="flex-1 pb-1"
+                key={day.number}
+                onClick={() => setActiveDay(day.date.toDateString())}
+              >
+                <div
+                  className={cx("calendar-day p-1", {
+                    active: day.date.toDateString() === activeDay,
+                    hasNote: !!data.notes[day.date.toDateString()],
+                    today: day.isToday
+                  })}
+                >
+                  <div>
+                    <small>{day.name}</small>
+                  </div>
+                  <div>
+                    <em>{day.number}</em>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 mb-4" ref={heightRef}>
+          <Notes
+            heightRef={heightRef}
+            note={data.notes[activeDay] || ""}
+            onChange={note => handleUpdateNote(note, activeDay)}
+          />
+        </div>
+
+        <div className="flex flex-col h-[34%]">
+          <Title>Labels</Title>
+
+          <div className="flex-1 overflow-y-scroll pb-2">
+            <Labels
+              labels={data.labels}
+              limit={10}
+              colors={colors}
+              filters={data.filters}
+              onFilter={updateFilters}
+              onAddLabel={handleAddLabel}
+              onUpdateLabel={handleUpdateLabel}
+              onRemoveLabel={handleRemoveLabel}
+            />
+          </div>
+        </div>
+
+        <div className="h-[55px]">
+          <Footer />
+        </div>
+      </div>
+    </Flex>
   )
 
   return (
     <main>
-      <Flex>
-        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET && (
-          <Flex
-            width={[0, 1 / 3]}
-            height="100vh"
-            p={padding}
-            flexDirection="column"
-          >
-            <Box pb={1}>
-              <h1>Older</h1>
-              <h5>
-                Older -{" "}
-                {formatDateHeading(yesterdayDateStr, {
-                  weekday: undefined,
-                  year: undefined,
-                  month: "long",
-                  day: "numeric"
-                })}
-              </h5>
-            </Box>
-            <Box width={1} overflowY="auto" flex={2}>
-              <Box>
-                <List
-                  tasks={yesterdaysTasks}
-                  labels={labelsById}
-                  filters={data.filters}
-                  collapseCompleted
-                  canPinTasks={false}
-                  onFilter={onUpdateFilters}
-                  onUpdateTask={handleUpdateTask}
-                  onRemoveTask={handleRemoveTask}
-                  onMarkAsComplete={onMarkAsComplete}
-                  onMoveToToday={handleMoveToToday}
-                />
-              </Box>
-            </Box>
-
-            <Box pt={3}>
-              <TaskInput
-                placeholder="Forget something?"
-                labels={data.labels}
-                filters={data.filters}
-                onAdd={task => handleAddTask(task, yesterday())}
-              />
-            </Box>
-          </Flex>
-        )}
+      <div className="flex">
+        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
+          ? completed.collapsed
+            ? completedCollapsed
+            : completedExpanded
+          : null}
 
         <Flex
-          width={[1, 3 / 5, 1 / 3, 1 / 2]}
-          p={[mobilePadding, padding]}
+          width={grid.focus}
+          px={[mobilePadding, padding]}
           pl={[mobilePadding, mobilePadding, 0]}
-          height="100vh"
+          pt={[paddingTop]}
+          pb={[mobilePadding, padding]}
+          height={fullHeight}
           flexDirection="column"
         >
-          <Box pb={1}>
-            <h1>Today</h1>
-            <h5>{formatDateHeading(todayDateStr)}</h5>
-          </Box>
-          <Box width={1} overflowY="auto" flex={2}>
-            <Box>
-              <List
-                tasks={todaysTasks}
-                labels={labelsById}
-                filters={data.filters}
-                onFilter={onUpdateFilters}
-                onPinTask={handleUpdateTask}
-                onUpdateTask={handleUpdateTask}
-                onRemoveTask={handleRemoveTask}
-                onMarkAsComplete={onMarkAsComplete}
-              />
-            </Box>
-          </Box>
+          <div className="pb-1">
+            <Title>Focus</Title>
+            <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
+          </div>
 
-          <Box pt={3}>
+          {data.filters.length > 0 && (
+            <div className="my-2">
+              <small>Showing: </small>
+              {data.filters.map(id => (
+                <div className="inline mb-1 mr-1" key={id}>
+                  <Label
+                    active
+                    label={labelsById[id]}
+                    onRemove={() => {
+                      updateFilters(data.filters.filter(x => x !== id))
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="w-full flex-[2] overflow-y-scroll">
+            <List
+              tasks={todaysTasks}
+              labels={labelsById}
+              filters={data.filters}
+              onFilter={updateFilters}
+              onUpdateTask={handleUpdateTask}
+              onRemoveTask={handleRemoveTask}
+              onMarkAsComplete={markAsComplete}
+            />
+          </div>
+
+          <div className="pt-3">
             <TaskInput
               placeholder="Write a todo for today..."
               labels={data.labels}
               filters={data.filters}
               onAdd={task => handleAddTask(task, today())}
             />
-          </Box>
+          </div>
         </Flex>
 
-        {breakpoint != Breakpoints.MOBILE && (
-          <Flex width={[0, 2 / 5, 1 / 3]} p={padding} pl={0} height="100vh">
-            <Flex
-              flexDirection="column"
-              flexGrow={1}
-              justifyContent="flex-start"
-            >
-              <Box mb={1}>
-                <h1>Notes</h1>
-
-                <Flex width="100%">
-                  {pastWeek.map(day => (
-                    <Box
-                      pb={1}
-                      key={day.number}
-                      flex={1}
-                      onClick={() => setActiveDay(day.date.toDateString())}
-                    >
-                      <Box
-                        className={cx("calendar-day", {
-                          active: day.date.toDateString() === activeDay,
-                          hasNote: !!data.notes[day.date.toDateString()],
-                          today: day.isToday
-                        })}
-                        p={1}
-                      >
-                        <div>
-                          <small>{day.name}</small>
-                        </div>
-                        <div>
-                          <em>{day.number}</em>
-                        </div>
-                      </Box>
-                    </Box>
-                  ))}
-                </Flex>
-              </Box>
-
-              <Box ref={heightRef} flex={1} mb={4}>
-                <Notes
-                  heightRef={heightRef}
-                  note={data.notes[activeDay] || ""}
-                  onChange={note => handleUpdateNote(note, activeDay)}
-                />
-              </Box>
-
-              <Flex flexDirection="column" height="34%">
-                <h1>Labels</h1>
-
-                <Box flex={1} overflowY="scroll" pb={2}>
-                  <Labels
-                    labels={data.labels}
-                    limit={10}
-                    colors={colors}
-                    filters={data.filters}
-                    onFilter={onUpdateFilters}
-                    onAddLabel={handleAddLabel}
-                    onUpdateLabel={handleUpdateLabel}
-                    onRemoveLabel={handleRemoveLabel}
-                  />
-                </Box>
-              </Flex>
-
-              <Box height="55px">
-                <Footer />
-              </Box>
-            </Flex>
-          </Flex>
-        )}
-      </Flex>
+        {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
+          ? notesSection.collapsed
+            ? notesCollapsed
+            : notesExpanded
+          : null}
+      </div>
     </main>
   )
 }

@@ -17,10 +17,10 @@ export default function useMedia(
     window.matchMedia(`(max-width: ${q})`)
   )
 
-  const getValue = () => {
+  const getValue = React.useCallback(() => {
     const index = mediaQueryLists.findIndex(mql => mql.matches)
     return typeof values[index] !== "undefined" ? values[index] : defaultValue
-  }
+  }, [mediaQueryLists, defaultValue])
 
   const [value, setValue] = React.useState(getValue)
 
@@ -31,7 +31,7 @@ export default function useMedia(
 
     return () =>
       mediaQueryLists.forEach(mql => mql.removeEventListener("change", handler))
-  }, [])
+  }, [getValue, mediaQueryLists])
 
   return value
 }

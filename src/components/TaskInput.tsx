@@ -1,14 +1,14 @@
-import React from "react"
-import { Flex, Box } from "rebass"
-
-import PlusIcon from "@meronex/icons/fi/FiPlusCircle"
-
 import { Label as LabelType, Task } from "../index.d"
-import useOnClickOutside from "../hooks/onclickoutside"
+
+import Animate from "./Animate"
+import Icon from "@meronex/icons/fi/FiArrowUpCircle"
 import Label from "./Label"
+import React, { useCallback } from "react"
+import cx from "classnames"
+import useOnClickOutside from "../hooks/onclickoutside"
 
 const validTask = (task: Partial<Task>): boolean => {
-  return task.title.trim().length > 0
+  return (task.title || "").trim().length > 0
 }
 
 interface Props {
@@ -24,7 +24,7 @@ const TaskInput: React.FC<Props> = ({
   labels,
   onAdd
 }) => {
-  const ref = React.useRef()
+  const ref = React.useRef<HTMLDivElement>(null)
 
   const [task, setTask] = React.useState<Partial<Task>>({
     title: "",
@@ -35,24 +35,26 @@ const TaskInput: React.FC<Props> = ({
 
   React.useEffect(() => {
     setTask({ ...task, labels: [...filters] })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, setTask])
 
-  const clearTask = () => {
+  const clearTask = useCallback(() => {
     setTask({
       ...task,
       title: "",
       description: ""
     })
-  }
+  }, [task, setTask])
 
-  const handleChange = (field: keyof Task) => (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setTask({
-      ...task,
-      [field]: event.target.value
-    })
-  }
+  const handleChange =
+    (field: keyof Task) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setTask({
+        ...task,
+        [field]: event.target.value
+      })
+    }
 
   const handleAdd = React.useCallback(() => {
     if (validTask(task)) {
@@ -66,20 +68,26 @@ const TaskInput: React.FC<Props> = ({
   const handleLabelClick = (id: string) => {
     const newTask = { ...task }
 
-    if (task.labels.includes(id)) {
+    if (task.labels?.includes(id)) {
       newTask.labels = task.labels.filter(l => l !== id)
     } else {
-      newTask.labels.push(id)
+      newTask.labels?.push(id)
     }
 
     setTask(newTask)
   }
 
-  const handleKeyPress = event => {
-    if (event.key === "Enter") {
-      handleAdd()
+  const handleKeyDown =
+    (field: keyof Task) =>
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (field === "title" && event.key === "Enter") {
+        handleAdd()
+      }
+
+      if (field === "description" && event.key === "Enter" && event.metaKey) {
+        handleAdd()
+      }
     }
-  }
 
   useOnClickOutside(ref, () => {
     setOpen(false)
@@ -94,53 +102,64 @@ const TaskInput: React.FC<Props> = ({
   })
 
   return (
-    <Box className="task-input" backgroundColor="#eee" p={1} px={3} ref={ref}>
-      <Flex justifyContent="space-between" alignItems="center">
+    <div
+      ref={ref}
+      className={cx(
+        "bg-slate-100 p-4 rounded-lg transition-all border-solid border-slate-200 border-2"
+      )}
+    >
+      <div className="flex justify-between items-center">
         <input
           type="text"
-          className="task-title"
+          className="text-md font-bold"
           value={task.title}
           placeholder={placeholder}
           onFocus={() => setOpen(true)}
           onChange={handleChange("title")}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown("title")}
         />
         {open && (
-          <PlusIcon onClick={handleAdd} cursor="pointer" fontSize={24} />
+          <Icon
+            onClick={handleAdd}
+            className="mb-2 text-slate-600 hover:text-slate-800"
+            cursor="pointer"
+            fontSize={24}
+          />
         )}
-      </Flex>
+      </div>
 
-      {open && (
-        <React.Fragment>
-          <Box>
+      <Animate duration={0.15} active={open}>
+        {open && (
+          <>
             <textarea
               rows={2}
               value={task.description}
-              className="task-description"
-              placeholder="Brief description"
+              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
+              placeholder="Add a description or URL..."
               onChange={handleChange("description")}
+              onKeyDown={handleKeyDown("description")}
             />
-          </Box>
 
-          <Box>
-            <Box mb={2}>
-              <label htmlFor="">Labels</label>
-            </Box>
-            <Box>
-              {labels.map(label => (
-                <Box display="inline-flex" key={label.id} mr={1} mb={1}>
-                  <Label
-                    label={label}
-                    active={task.labels.includes(label.id)}
-                    onClick={() => handleLabelClick(label.id)}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        </React.Fragment>
-      )}
-    </Box>
+            <div>
+              <div className="mb-2">
+                <label htmlFor="">Labels</label>
+              </div>
+              <div>
+                {labels.map(label => (
+                  <div className="inline-flex mr-1 mb-1" key={label.id}>
+                    <Label
+                      label={label}
+                      active={task.labels?.includes(label.id) ?? false}
+                      onClick={() => handleLabelClick(label.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </Animate>
+    </div>
   )
 }
 

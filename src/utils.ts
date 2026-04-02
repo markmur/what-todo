@@ -1,3 +1,4 @@
+import { MouseEvent } from "react"
 import { Data, Day } from "./index.d"
 
 export const today = (): Date => {
@@ -41,7 +42,11 @@ export const formatDateHeading = (
   return new Date(date).toLocaleDateString(window.navigator.language, options)
 }
 
-export const bytesToSize = (bytes: number): string => {
+export const bytesToSize = (bytes: number | null | undefined): string => {
+  if (bytes == null) {
+    return ""
+  }
+
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
   if (bytes == 0) return "0 Byte"
 
@@ -57,3 +62,12 @@ export const parseDataStr = (data: string): Record<string, unknown> => {
     return {}
   }
 }
+
+export const preventDefault =
+  (fn: (event: MouseEvent, ...args: any[]) => any) =>
+  (event: MouseEvent, ...args: any[]) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    fn(event, ...args)
+  }

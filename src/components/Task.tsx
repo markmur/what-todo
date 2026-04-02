@@ -1,52 +1,98 @@
-import React from "react"
-import cx from "classnames"
-import { Flex, Box } from "rebass"
+import type { Label as LabelType, Task as TaskType } from "../index.d"
+// Types
+import React, {
+  FormEvent,
+  MouseEvent,
+  TouchEvent,
+  useCallback,
+  useRef
+} from "react"
 
-// Icons
-import CrossIcon from "@meronex/icons/fi/FiX"
-import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
-import Pin from "@meronex/icons/ai/AiOutlinePushpin"
-import PinFilled from "@meronex/icons/ai/AiFillPushpin"
-
-import Textarea from "react-textarea-autosize"
-
+import Animate from "./Animate"
 // Components
 import Checkbox from "./Checkbox"
+// Icons
+import CrossIcon from "@meronex/icons/fi/FiX"
 import Label from "./Label"
-
-// Types
-import { Task as TaskType, Label as LabelType } from "../index.d"
+import Pin from "@meronex/icons/ai/AiOutlinePushpin"
+import PinFilled from "@meronex/icons/ai/AiFillPushpin"
 import ReactTooltip from "react-tooltip"
+import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
+import Textarea from "react-textarea-autosize"
+import cx from "classnames"
+import { FiLink } from "@meronex/icons/fi"
 
-const MAX_DESCRIPTION_LENGTH = 140
+const MAX_DESCRIPTION_LENGTH = 1000
 
 interface Props {
+  canPin?: boolean
   task: TaskType
   active: boolean
   labels: Record<string, LabelType>
   filters: string[]
   onFilter: (filters: string[]) => void
-  onSelect: (task: TaskType) => void
-  onDeselect: (task: TaskType) => void
+  onSelect: (taskId: TaskType["id"], event: FormEvent) => void
+  onDeselect: () => void
+  onUpdate: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
-  onPinTask?: (task: TaskType) => void
-  onChange: (key: keyof TaskType) => (event: React.ChangeEvent) => void
-  onMoveToToday: (task: TaskType) => void
+  onMoveToToday?: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
-  onChangeLabels: (labels: string[]) => void
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g
 
 function shortenURL(url: string) {
   try {
-    return new URL(url).hostname
+    const parsed = new URL(url)
+    return parsed.hostname + parsed.pathname
   } catch {
     return url
   }
 }
 
-function urlify(text: string): string | (string | JSX.Element)[] {
+const taskHasChanged = (
+  prevTask: TaskType | undefined,
+  newTask: TaskType
+): boolean => {
+  if (!prevTask) return false
+
+  const hasChanged =
+    prevTask.title !== newTask.title ||
+    prevTask.description !== newTask.description ||
+    prevTask.labels?.join(",") !== newTask.labels?.join(",")
+
+  return hasChanged
+}
+
+function getDescriptionURL(text: string | undefined): string | undefined {
+  if (!text) return undefined
+
+  const matches = text.match(URL_RE)
+
+  if (!matches?.length) {
+    return undefined
+  }
+
+  return matches[0]
+}
+
+function extractURL(text: string | undefined, match: string | undefined) {
+  if (!text) return ""
+  if (!match) return text
+
+  const index = text.indexOf(match)
+
+  if (index === -1) return text
+
+  const before = text.slice(0, index)
+  const after = text.slice(index + match.length)
+
+  return before + after
+}
+
+function urlify(text: string | undefined): string | (string | JSX.Element)[] {
+  if (!text) return ""
+
   const matches = text.match(URL_RE)
 
   if (!matches?.length) {
@@ -55,7 +101,12 @@ function urlify(text: string): string | (string | JSX.Element)[] {
 
   return text.split(URL_RE).map((str, i) =>
     URL_RE.test(str) ? (
-      <a key={`${str}-${i}`} rel="noopener noreferer" href={str}>
+      <a
+        key={`${str}-${i}`}
+        rel="noopener noreferrer"
+        href={str}
+        target="_blank"
+      >
         {shortenURL(str)}
       </a>
     ) : (
@@ -64,15 +115,18 @@ function urlify(text: string): string | (string | JSX.Element)[] {
   )
 }
 
-const getDescription = (active: boolean, task: TaskType) => {
-  return active
-    ? task.description
-    : task.description.length >= MAX_DESCRIPTION_LENGTH
-    ? task.description.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
-    : task.description
+const getDescription = (truncate: boolean, description: string | undefined) => {
+  if (truncate) {
+    return description
+  }
+
+  return (description?.length ?? 0) >= MAX_DESCRIPTION_LENGTH
+    ? description?.slice(0, MAX_DESCRIPTION_LENGTH - 3) + "..."
+    : description
 }
 
 const Task: React.FC<Props> = ({
+  canPin = true,
   task,
   active,
   labels,
@@ -80,138 +134,294 @@ const Task: React.FC<Props> = ({
   onFilter,
   onSelect,
   onDeselect,
+  onUpdate,
   onMarkAsComplete,
-  onChange,
   onMoveToToday,
-  onRemoveTask,
-  onPinTask,
-  onChangeLabels
+  onRemoveTask
 }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [state, setState] = React.useState<TaskType | undefined>(task)
+  const descriptionURL = getDescriptionURL(state?.description)
+  const description = extractURL(state?.description, descriptionURL)
+  const [, setHovering] = React.useState<boolean>(false)
+
+  const handleChange =
+    (field: keyof TaskType) =>
+    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      if (state) {
+        setState({
+          ...state,
+          [field]: event.target.value
+        })
+      }
+    }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && event.metaKey) {
+      onDeselect()
+    }
+  }
+
+  const preventDefault =
+    (fn: (event: MouseEvent<any>) => any) => (event: MouseEvent<any>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      return fn(event)
+    }
+
+  const handleBlur = useCallback(() => {
+    if (state && taskHasChanged(task, state)) {
+      onUpdate(state)
+    }
+  }, [state, task, onUpdate])
+
+  const selectTask = useCallback(
+    (event: any) => {
+      if (!active) {
+        onSelect(task.id, event)
+      }
+    },
+    [active, onSelect, task]
+  )
+
+  const handleSelect = useCallback(() => {
+    if (state) {
+      const prevState = state.completed
+      setState({
+        ...task,
+        completed: !state.completed
+      })
+
+      if (prevState) {
+        onMarkAsComplete({
+          ...task,
+          completed: !task.completed
+        })
+      } else {
+        setTimeout(() => {
+          onMarkAsComplete({
+            ...task,
+            completed: !task.completed
+          })
+        }, 1500)
+      }
+    }
+  }, [onMarkAsComplete, state, task])
+
+  const handlePress = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      if (active) return
+
+      const target = event.target as HTMLElement
+
+      if (
+        !["TEXTAREA"].includes(event.currentTarget.nodeName) &&
+        !["INPUT", "svg"].includes(target.nodeName)
+      ) {
+        onSelect(task.id, event)
+        setTimeout(() => {
+          const title = ref.current?.querySelector("textarea")
+          title?.focus()
+          title?.setSelectionRange(title?.value.length, title?.value.length)
+        })
+      }
+    },
+    [onSelect, task, active]
+  )
+
   return (
-    <Flex alignItems="flex-start" py={3} onBlur={() => onDeselect(task)}>
-      <Box width={20} mr={2}>
-        <Checkbox
-          id={task.id}
-          checked={task.completed}
-          onChange={() =>
-            onMarkAsComplete({
-              ...task,
-              completed: !task.completed
-            })
+    <Animate active duration={0.15}>
+      <div
+        ref={ref}
+        className={cx(
+          "flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
+          {
+            ["cursor-pointer"]: !active
           }
-        />
-      </Box>
-
-      <Box width={1}>
-        <Textarea
-          maxRows={3}
-          value={task.title}
-          spellCheck={active}
-          className={cx("unstyled task-title-input", {
-            strike: task.completed
-          })}
-          onChange={onChange("title")}
-          onFocus={() => onSelect(task)}
-        />
-
-        {(active || task.description) && (
-          <>
-            {active ? (
-              <Textarea
-                maxRows={5}
-                value={getDescription(active, task)}
-                placeholder="Add description..."
-                className="unstyled task-description-input"
-                onChange={onChange("description")}
-                onFocus={() => onSelect(task)}
-              />
-            ) : (
-              <p className="unstyled task-description-input">
-                {urlify(getDescription(active, task))}
-              </p>
-            )}
-          </>
         )}
-
-        {active && (
-          <React.Fragment>
-            <hr />
-            <Flex mt={2} flexWrap="wrap">
-              {Object.entries(labels).map(([id, label]) => (
-                <Box key={id} mr={1} mb={1}>
-                  <Label
-                    small
-                    active={task.labels.includes(id)}
-                    label={label}
-                    onClick={() => {
-                      const nextLabels = task.labels.includes(id)
-                        ? task.labels.filter(l => l !== id)
-                        : [...task.labels, id]
-                      onChangeLabels(nextLabels)
-                    }}
-                  />
-                </Box>
-              ))}
-            </Flex>
-          </React.Fragment>
-        )}
-      </Box>
-
-      {onMoveToToday && (
-        <div
-          data-tip="Move to today"
-          className="remove-icon"
-          onClick={() => {
-            onMoveToToday(task)
-            ReactTooltip.hide()
-          }}
-        >
-          <RightArrowIcon />
+        onClick={handlePress}
+        onTouchStart={handlePress}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+      >
+        <div className="mt-[2px] mr-3">
+          <Checkbox
+            id={task.id}
+            checked={state?.completed ?? false}
+            onChange={handleSelect}
+          />
         </div>
-      )}
 
-      {onPinTask && (
-        <div
-          data-tip={task.pinned ? "Unpin task" : "Pin task"}
-          className={cx("remove-icon", { active: task.pinned })}
-          onClick={() => {
-            onPinTask({
-              ...task,
-              pinned: !Boolean(task.pinned)
-            })
-          }}
-        >
-          {task.pinned ? <PinFilled /> : <Pin />}
-        </div>
-      )}
-
-      {!active
-        ? task.labels.map(id => (
-            <span
-              key={id}
-              className="circle"
-              data-tip={labels[id]?.title}
-              data-background-color={labels[id]?.color}
-              style={{ backgroundColor: labels[id]?.color }}
-              onClick={event => {
-                if (filters.includes(id)) {
-                  onFilter(filters.filter(f => f !== id))
-                } else {
-                  if (event.metaKey) {
-                    onFilter([...filters, id])
-                  } else {
-                    onFilter([id])
-                  }
+        <div className="w-full">
+          {active ? (
+            <Textarea
+              maxRows={3}
+              value={state?.title}
+              spellCheck={active}
+              className={cx(
+                "unstyled task-title-input font-semibold text-slate-700 leading-normal bg-transparent pt-0",
+                {
+                  ["text-slate-400"]: state?.completed
                 }
-              }}
+              )}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange("title")}
+              onFocus={selectTask}
+              onBlur={handleBlur}
             />
-          ))
-        : null}
+          ) : (
+            <div
+              className={cx("inline font-semibold text-slate-700", {
+                ["text-slate-400"]: state?.completed
+              })}
+            >
+              {state?.completed
+                ? state?.title
+                    .split(/\s/)
+                    .filter(Boolean)
+                    .map(word => (
+                      <span
+                        key={word}
+                        className="strike-animated inline-flex mr-1"
+                      >
+                        {word}
+                      </span>
+                    ))
+                : state?.title}
+            </div>
+          )}
 
-      <span className="remove-icon" onClick={() => onRemoveTask(task)}>
-        <CrossIcon />
-      </span>
-    </Flex>
+          {/* <Animate active={task.description && !active}>
+            <p
+              className="unstyled text-slate-500 text-sm cursor-text"
+              onClick={preventDefault(event => {
+                onSelect(task.id, event)
+                setTimeout(() => {
+                  const description = ref.current?.querySelector(
+                    "textarea[name='description']"
+                  ) as HTMLTextAreaElement
+                  description?.focus()
+                  description?.setSelectionRange(
+                    description?.value.length,
+                    description?.value.length
+                  )
+                })
+              })}
+            >
+              {urlify(getDescription(false, description))}
+            </p>
+          </Animate> */}
+
+          <>
+            <div className="mt-1">
+              <Textarea
+                maxRows={10}
+                name="description"
+                value={getDescription(active, state?.description)}
+                placeholder="Add description..."
+                className="unstyled text-slate-500 text-sm bg-transparent max-h-[800px]"
+                onChange={handleChange("description")}
+                onKeyDown={handleKeyDown}
+                onFocus={selectTask}
+                onBlur={handleBlur}
+              />
+            </div>
+
+            <Animate active={active}>
+              <div className="flex mt-2 flex-wrap">
+                {Object.entries(labels).map(([id, label]) => (
+                  <div className="mr-1 mb-1" key={id}>
+                    <Label
+                      small
+                      active={task.labels?.includes(id) ?? false}
+                      label={label}
+                      onClick={preventDefault(() => {
+                        const nextLabels = task.labels?.includes(id)
+                          ? task.labels.filter(l => l !== id)
+                          : [...(task.labels ?? []), id]
+                        onUpdate({
+                          ...task,
+                          labels: nextLabels
+                        })
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
+            </Animate>
+          </>
+        </div>
+
+        <div id="actions" className="flex mt-1">
+          {onMoveToToday && (
+            <div
+              data-tip="Move to today"
+              className="remove-icon"
+              onClick={preventDefault(() => {
+                onMoveToToday(task)
+                ReactTooltip.hide()
+              })}
+            >
+              <RightArrowIcon />
+            </div>
+          )}
+
+          {canPin && (
+            <div
+              data-tip={task.pinned ? "Unpin task" : "Pin task"}
+              className={cx("remove-icon", { active: task.pinned })}
+              onClick={preventDefault(() => {
+                onUpdate({
+                  ...task,
+                  pinned: !Boolean(task.pinned)
+                })
+              })}
+            >
+              {task.pinned ? <PinFilled /> : <Pin />}
+            </div>
+          )}
+
+          {descriptionURL && (
+            <div
+              data-tip={shortenURL(descriptionURL)}
+              className={cx("remove-icon", { active: true })}
+              onClick={preventDefault(() => {
+                window.open(descriptionURL, "_blank")
+              })}
+            >
+              <FiLink />
+            </div>
+          )}
+
+          {task.labels
+            ?.sort((a, b) => a.localeCompare(b))
+            ?.map(id => (
+              <span
+                key={id}
+                className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                data-tip={labels[id]?.title}
+                data-background-color={labels[id]?.color}
+                style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
+                onClick={preventDefault(event => {
+                  if (filters.includes(id)) {
+                    onFilter(filters.filter(f => f !== id))
+                  } else {
+                    if (event.metaKey) {
+                      onFilter([...filters, id])
+                    } else {
+                      onFilter([id])
+                    }
+                  }
+                })}
+              />
+            ))}
+
+          <span className="remove-icon" onClick={() => onRemoveTask(task)}>
+            <CrossIcon />
+          </span>
+        </div>
+      </div>
+    </Animate>
   )
 }
 
