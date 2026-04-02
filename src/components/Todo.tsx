@@ -2,21 +2,19 @@
 import "../styles.scss"
 
 // Types
-import type { Data, Task, Label as LabelType, Note } from "../index.d"
+import type { Data, Task, Label as LabelType } from "../index.d"
 import React, { PropsWithChildren, useCallback } from "react"
 // utils
-import { formatDateHeading, getPastSevenDays, today, yesterday } from "../utils"
+import { formatDateHeading, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
 
 import { Flex } from "rebass"
 import Footer from "./Footer"
 import Labels from "./Labels"
 import List from "./List"
-import Notes from "./Notes"
 // Components
 import TaskInput from "./TaskInput"
 import colors from "../color-palette"
-import cx from "classnames"
 // Hooks
 import { useStorage } from "../context/StorageContext"
 import Label from "./Label"
@@ -73,19 +71,11 @@ const Todo: React.FC = ({}) => {
     addLabel,
     updateLabel,
     removeLabel,
-    updateNote,
     updateFilters,
     updateSection
   } = useStorage()
 
-  // Refs
-  const heightRef = React.createRef<HTMLDivElement>()
-
   const todayDateStr = today().toDateString()
-  // const yesterdayDateStr = yesterday().toDateString()
-
-  const [activeDay, setActiveDay] = React.useState(todayDateStr)
-  const pastWeek = getPastSevenDays()
 
   const todaysTasks = getTasksFor(todayDateStr)(data)
   const yesterdaysTasks = getOlderTasks(data)
@@ -126,21 +116,13 @@ const Todo: React.FC = ({}) => {
   const handleRemoveLabel = useAction<LabelType>(removeLabel)
   const handleUpdateLabel = useAction<LabelType>(updateLabel)
 
-  // Notes callbacks
-  const handleUpdateNote = React.useCallback(
-    (note: Note, date: string) => {
-      updateNote(note, date)
-    },
-    [updateNote]
-  )
-
   const completed = sections?.["completed"] ?? { collapsed: false }
-  const notesSection = sections?.["notes"] ?? { collapsed: false }
+  const sidebar = sections?.["sidebar"] ?? { collapsed: false }
 
   const grid = {
     completed: completed.collapsed ? [0, 0, 0, 1 / 12] : [0, 1 / 3],
     focus: completed.collapsed ? [1] : [1, 3 / 5, 1 / 3, 1 / 2],
-    notes: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
+    sidebar: completed.collapsed ? [0, 2 / 5, 2 / 5, 4 / 12] : [0, 2 / 5, 1 / 3]
   }
 
   const fullHeight = "calc(100dvh - 66px)"
@@ -229,103 +211,6 @@ const Todo: React.FC = ({}) => {
     </Flex>
   )
 
-  const notesCollapsed = (
-    <Animate active={notesSection.collapsed}>
-      <Flex
-        width="80px"
-        flexDirection="column"
-        height={fullHeight}
-        justifyContent={"center"}
-        className="cursor-pointer hover:text-slate-400 text-slate-300 border-l-[2px] border-slate-50 hover:bg-slate-50"
-        onClick={() => updateSection("notes", { collapsed: false })}
-      >
-        <p className="rotate-90 origin-center text-l font-bold m-[-16px] p-0 whitespace-nowrap">
-          Show notes
-        </p>
-      </Flex>
-    </Animate>
-  )
-
-  const notesExpanded = (
-    <Flex
-      width={grid.notes}
-      p={padding}
-      pl={0}
-      pt={paddingTop}
-      height={fullHeight}
-    >
-      <div className="flex flex-col flex-grow justify-start">
-        <div className="mb-1">
-          <div
-            className="pb-1"
-            onClick={() => updateSection("notes", { collapsed: true })}
-          >
-            <Title>Notes</Title>
-            <div className="flex items-center cursor-pointer">
-              <div className="flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
-                Hide section <ArrowRight size={16} className="mr-1" />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex w-full">
-            {pastWeek.map(day => (
-              <div
-                className="flex-1 pb-1"
-                key={day.number}
-                onClick={() => setActiveDay(day.date.toDateString())}
-              >
-                <div
-                  className={cx("calendar-day p-1", {
-                    active: day.date.toDateString() === activeDay,
-                    hasNote: !!data.notes[day.date.toDateString()],
-                    today: day.isToday
-                  })}
-                >
-                  <div>
-                    <small>{day.name}</small>
-                  </div>
-                  <div>
-                    <em>{day.number}</em>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 mb-4" ref={heightRef}>
-          <Notes
-            heightRef={heightRef}
-            note={data.notes[activeDay] || ""}
-            onChange={note => handleUpdateNote(note, activeDay)}
-          />
-        </div>
-
-        <div className="flex flex-col h-[34%]">
-          <Title>Labels</Title>
-
-          <div className="flex-1 overflow-y-scroll pb-2">
-            <Labels
-              labels={data.labels}
-              limit={15}
-              colors={colors}
-              filters={data.filters}
-              onFilter={updateFilters}
-              onAddLabel={handleAddLabel}
-              onUpdateLabel={handleUpdateLabel}
-              onRemoveLabel={handleRemoveLabel}
-            />
-          </div>
-        </div>
-
-        <div className="h-[55px]">
-          <Footer />
-        </div>
-      </div>
-    </Flex>
-  )
-
   return (
     <main>
       <div className="flex">
@@ -389,9 +274,63 @@ const Todo: React.FC = ({}) => {
         </Flex>
 
         {breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
-          ? notesSection.collapsed
-            ? notesCollapsed
-            : notesExpanded
+          ? sidebar.collapsed
+            ? (
+              <Animate active={sidebar.collapsed}>
+                <Flex
+                  width="80px"
+                  flexDirection="column"
+                  height={fullHeight}
+                  justifyContent={"center"}
+                  className="cursor-pointer hover:text-slate-400 text-slate-300 border-l-[2px] border-slate-50 hover:bg-slate-50"
+                  onClick={() => updateSection("sidebar", { collapsed: false })}
+                >
+                  <p className="rotate-90 origin-center text-l font-bold m-[-16px] p-0 whitespace-nowrap">
+                    Show labels
+                  </p>
+                </Flex>
+              </Animate>
+            )
+            : (
+              <Flex
+                width={grid.sidebar}
+                p={padding}
+                pl={0}
+                pt={paddingTop}
+                height={fullHeight}
+              >
+                <div className="flex flex-col flex-grow justify-start">
+                  <div
+                    className="pb-1"
+                    onClick={() => updateSection("sidebar", { collapsed: true })}
+                  >
+                    <Title>Labels</Title>
+                    <div className="flex items-center cursor-pointer">
+                      <div className="flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+                        Hide section <ArrowRight size={16} className="ml-1" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-scroll pb-2">
+                    <Labels
+                      labels={data.labels}
+                      limit={15}
+                      colors={colors}
+                      filters={data.filters}
+                      onFilter={updateFilters}
+                      onAddLabel={handleAddLabel}
+                      onUpdateLabel={handleUpdateLabel}
+                      onRemoveLabel={handleRemoveLabel}
+                    />
+                  </div>
+
+                  <div className="h-[55px]">
+                    <Footer />
+                  </div>
+                </div>
+              </Flex>
+            )
           : null}
       </div>
     </main>

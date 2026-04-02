@@ -25,15 +25,12 @@ export interface Task {
   completed_at?: string | undefined
 }
 
-export type Section = "completed" | "focus" | "notes"
+export type Section = "completed" | "focus" | "sidebar"
 
 export interface SectionData {
   collapsed?: boolean
 }
 
-export type Note = string
-
-export type Notes = Record<string, Note>
 export type Tasks = Record<string, Task[]>
 
 // Array of label id strings
@@ -42,7 +39,6 @@ export type Filters = string[]
 export type Data = {
   filters: Filters
   tasks: Tasks
-  notes: Notes
   labels: Label[]
   sections?: Record<Section, SectionData>
   /**
@@ -59,7 +55,6 @@ export type IntermediateLabel = Partial<Label> & {
 
 type TaskAction = "ADD_TASK" | "REMOVE_TASK" | "UPDATE_TASK" | "MOVE_TASK"
 type LabelAction = "ADD_LABEL" | "REMOVE_LABEL" | "UPDATE_LABEL"
-type NoteAction = "UPDATE_NOTE"
 type FilterAction = "UPDATE_FILTERS"
 type StorageAction =
   | "CLEAR_DATA"
@@ -72,7 +67,6 @@ type SectionAction = "UPDATE_SECTION"
 export type Action =
   | TaskAction
   | LabelAction
-  | NoteAction
   | FilterAction
   | StorageAction
   | MergeAction

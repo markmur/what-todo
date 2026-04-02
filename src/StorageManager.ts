@@ -38,14 +38,13 @@ const defaultData: Data = {
   migrated: true,
   filters: [],
   tasks: {},
-  notes: {},
   labels: defaultLabels,
   sections: {
     completed: {
       collapsed: true
     },
     focus: {},
-    notes: {
+    sidebar: {
       collapsed: false
     }
   }
@@ -235,11 +234,6 @@ class StorageManager {
     // Validate labels
     if (!Array.isArray(data.labels)) {
       returnValue.labels = this.defaultData.labels
-    }
-
-    // Validate notes
-    if (!isObj(data.notes)) {
-      returnValue.notes = this.defaultData.notes
     }
 
     // Validate tasks
@@ -526,33 +520,6 @@ class StorageManager {
     set(newData, `tasks.${todayKey}`, todayTasks)
 
     this.sync(newData, "MOVE_TASK")
-
-    return newData
-  }
-
-  // Notes
-  updateNote = (data: Data, note: string, date: string): Data => {
-    const previousState = data.notes[date]
-
-    // No note content
-    if (note.trim().length === 0 && previousState?.length === 0) {
-      return data
-    }
-
-    if (!data) {
-      return data
-    }
-
-    // Note is the same
-    if (data.notes[date] && data.notes[date] === note) {
-      return data
-    }
-
-    const newData = this.cloneData(data)
-
-    newData.notes[date] = note
-
-    this.sync(newData, "UPDATE_NOTE")
 
     return newData
   }

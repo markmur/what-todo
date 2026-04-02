@@ -237,44 +237,6 @@ button {
   cursor: pointer;
 }
 
-.calendar-day {
-  text-align: center;
-  opacity: 0.4;
-  cursor: pointer;
-  border-top: 2px solid transparent;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &.active {
-    border-top: 2px solid #ff6b81;
-    opacity: 1;
-  }
-
-  &.today small {
-    font-weight: bold;
-  }
-
-  &.hasNote {
-    opacity: 1;
-
-    small {
-      color: #ff6b81;
-      font-weight: bold;
-    }
-  }
-
-  small {
-    font-size: 11px;
-  }
-
-  em {
-    font-weight: bold;
-    font-size: 13px;
-  }
-}
-
 footer {
   padding: 1.5em 0 0;
   border-top: 2px solid #e3e3e3;

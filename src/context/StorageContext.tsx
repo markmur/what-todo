@@ -2,7 +2,6 @@ import {
   Data,
   Filters,
   Label,
-  Note,
   Section,
   SectionData,
   Task
@@ -27,7 +26,6 @@ interface Storage {
   addLabel: (label: Label) => void
   updateLabel: (label: Label) => void
   removeLabel: (label: Label) => void
-  updateNote: (note: Note, date: string) => void
   updateFilters: (filters: Filters) => void
   updateSection: (key: Section, data: SectionData) => void
   uploadData: typeof storage.uploadData
@@ -49,7 +47,6 @@ export const StorageContext = React.createContext<Storage>({
   addLabel: noop,
   updateLabel: noop,
   removeLabel: noop,
-  updateNote: noop,
   updateFilters: noop,
   uploadData: noop,
   updateSection: noop
@@ -103,15 +100,6 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
   // Callbacks for secctions
   const updateSection = useAction<Section, any>(storage.updateSection)
 
-  // Callbacks for notes
-  const updateNote = React.useCallback(
-    (note: Note, date: string) => {
-      const newData = storage.updateNote(data, note, date)
-      setData(newData)
-    },
-    [data]
-  )
-
   const labelsById = storage.getLabelsById(data)
 
   const api: Storage = {
@@ -128,7 +116,6 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     sections: data.sections,
     updateFilters,
     updateLabel,
-    updateNote,
     updateTask,
     updateSection,
     uploadData: storage.uploadData
