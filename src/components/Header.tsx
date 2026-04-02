@@ -1,6 +1,8 @@
 import { useCallback, useRef } from "react"
 import cx from "classnames"
 import MenuIcon from "@meronex/icons/fi/FiMenu"
+import SupabaseConnector from "./SupabaseConnector"
+import { useStorage } from "../context/StorageContext"
 
 async function seedFromFile() {
   try {
@@ -64,6 +66,14 @@ function Header({
     }
   }, [])
 
+  const {
+    isSupabaseConnected,
+    syncStatus,
+    lastSyncedAt,
+    connectSupabase,
+    disconnectSupabase
+  } = useStorage()
+
   return (
     <header
       className={cx(
@@ -96,15 +106,24 @@ function Header({
           </time>
         )}
       </div>
-      {onMenuClick && (
-        <button
-          className="no-style dark:text-navy-100"
-          onClick={onMenuClick}
-          aria-label="Open menu"
-        >
-          <MenuIcon fontSize={22} />
-        </button>
-      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <SupabaseConnector
+          isConnected={isSupabaseConnected}
+          syncStatus={syncStatus}
+          lastSyncedAt={lastSyncedAt}
+          onConnect={connectSupabase}
+          onDisconnect={disconnectSupabase}
+        />
+        {onMenuClick && (
+          <button
+            className="no-style dark:text-navy-100"
+            onClick={onMenuClick}
+            aria-label="Open menu"
+          >
+            <MenuIcon fontSize={22} />
+          </button>
+        )}
+      </div>
     </header>
   )
 }

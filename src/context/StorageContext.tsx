@@ -1,14 +1,37 @@
 import { Data, Filters, Label, Section, SectionData, Task } from "../index.d"
-import React, { PropsWithChildren, useCallback } from "react"
+import React, { PropsWithChildren, useCallback, useRef, useState } from "react"
 
 import StorageManager from "../StorageManager"
+import { StorageAdapter } from "../adapters/StorageAdapter"
+import { LocalStorageAdapter } from "../adapters/LocalStorageAdapter"
+import { SupabaseStorageAdapter } from "../adapters/SupabaseStorageAdapter"
+import { DebouncedAdapter, SyncStatus } from "../adapters/DebouncedAdapter"
+import { migrateData } from "../adapters/migrateData"
+import {
+  getSupabaseConfig,
+  setSupabaseConfig,
+  clearSupabaseConfig
+} from "../adapters/supabaseConfig"
 
-const storage = new StorageManager()
+function createInitialAdapter(): StorageAdapter {
+  const config = getSupabaseConfig()
+  if (config) {
+    try {
+      return new DebouncedAdapter(
+        new SupabaseStorageAdapter(config.url, config.anonKey)
+      )
+    } catch {
+      // Invalid stored config — fall back to localStorage
+      clearSupabaseConfig()
+    }
+  }
+  return new LocalStorageAdapter()
+}
 
 interface Storage {
   data: Data
   labelsById: Record<string, Label>
-  storage: typeof storage
+  storage: StorageManager
   sections?: Record<Section, SectionData>
   fetchData: () => void
   addTask: (task: Task) => void
@@ -22,16 +45,23 @@ interface Storage {
   updateFilters: (filters: Filters) => void
   updateSection: (key: Section, data: SectionData) => void
   updateSections: (updates: Record<string, SectionData>) => void
-  uploadData: typeof storage.uploadData
+  uploadData: (data: Data) => void
+  isSupabaseConnected: boolean
+  syncStatus: SyncStatus
+  lastSyncedAt: Date | null
+  connectSupabase: (url: string, anonKey: string) => Promise<void>
+  disconnectSupabase: () => Promise<void>
 }
 
 const noop = () => undefined
 
+const defaultStorage = new StorageManager(new LocalStorageAdapter())
+
 export const StorageContext = React.createContext<Storage>({
-  data: storage.defaultData,
+  data: defaultStorage.defaultData,
   labelsById: {},
-  sections: storage.defaultData.sections,
-  storage,
+  sections: defaultStorage.defaultData.sections,
+  storage: defaultStorage,
   fetchData: noop,
   addTask: noop,
   updateTask: noop,
@@ -44,11 +74,48 @@ export const StorageContext = React.createContext<Storage>({
   updateFilters: noop,
   uploadData: noop,
   updateSection: noop,
-  updateSections: noop
+  updateSections: noop,
+  isSupabaseConnected: false,
+  syncStatus: "idle",
+  lastSyncedAt: null,
+  connectSupabase: () => Promise.resolve(),
+  disconnectSupabase: () => Promise.resolve()
 })
 
-function StorageProvider({ children }: PropsWithChildren<unknown>): any {
+function StorageProvider({
+  children
+}: PropsWithChildren<unknown>): React.ReactNode {
+  // Lazy-init: create the adapter and StorageManager once on first render
+  const storageRef = useRef<StorageManager | null>(null)
+  const initialAdapterRef = useRef<StorageAdapter | null>(null)
+  if (!storageRef.current) {
+    const adapter = createInitialAdapter()
+    initialAdapterRef.current = adapter
+    storageRef.current = new StorageManager(adapter)
+  }
+  const storage = storageRef.current
+
   const [data, setDataFn] = React.useState<Data>(storage.defaultData)
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState(
+    () => getSupabaseConfig() !== null
+  )
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle")
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null)
+
+  const attachSyncListener = useCallback((adapter: DebouncedAdapter) => {
+    adapter.onSyncChange((status, syncedAt) => {
+      setSyncStatus(status)
+      if (syncedAt) setLastSyncedAt(syncedAt)
+    })
+  }, [])
+
+  // Attach listener to the initial adapter if it's debounced (Supabase)
+  React.useEffect(() => {
+    const adapter = initialAdapterRef.current
+    if (adapter instanceof DebouncedAdapter) {
+      attachSyncListener(adapter)
+    }
+  }, [attachSyncListener])
 
   function setData(data: Data) {
     setDataFn(data)
@@ -62,6 +129,47 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
 
   const dataRef = React.useRef(data)
   dataRef.current = data
+
+  const connectSupabase = async (url: string, anonKey: string) => {
+    // Create and test the new adapter
+    const rawAdapter = new SupabaseStorageAdapter(url, anonKey)
+    if (rawAdapter.testConnection) {
+      await rawAdapter.testConnection()
+    }
+
+    // Migrate from current local data to Supabase
+    const currentAdapter = new LocalStorageAdapter()
+    await migrateData(currentAdapter, rawAdapter)
+
+    // Wrap in debounced adapter to coalesce rapid writes
+    const newAdapter = new DebouncedAdapter(rawAdapter)
+    attachSyncListener(newAdapter)
+
+    // Persist config and swap — only after migration succeeds
+    setSupabaseConfig({ url, anonKey })
+    storage.setAdapter(newAdapter)
+    setIsSupabaseConnected(true)
+
+    // Reload data from the new adapter
+    fetchData()
+  }
+
+  const disconnectSupabase = async () => {
+    const localAdapter = new LocalStorageAdapter()
+
+    // Copy current Supabase data to localStorage before disconnecting
+    const currentData = data
+    await localAdapter.set(currentData)
+
+    clearSupabaseConfig()
+    storage.setAdapter(localAdapter)
+    setIsSupabaseConnected(false)
+    setSyncStatus("idle")
+    setLastSyncedAt(null)
+
+    // Refresh UI from the local adapter
+    fetchData()
+  }
 
   function useAction<A, B = any>(
     fn: (data: Data, dataType: A, otherType?: B) => Data
@@ -121,7 +229,12 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     updateTask,
     updateSection,
     updateSections,
-    uploadData: storage.uploadData
+    uploadData: storage.uploadData,
+    isSupabaseConnected,
+    syncStatus,
+    lastSyncedAt,
+    connectSupabase,
+    disconnectSupabase
   }
 
   return (

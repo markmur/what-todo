@@ -27,6 +27,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.27.19",
     "@meronex/icons": "^4.0.0",
+    "@supabase/supabase-js": "^2.101.1",
     "classnames": "^2.2.6",
     "framer-motion": "^12.38.0",
     "lodash-es": "^4.17.20",

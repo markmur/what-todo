@@ -1,6 +1,7 @@
 // Types
 import { Action, Data, Label, Section, SectionData, Task } from "./index.d"
 
+import { StorageAdapter } from "./adapters/StorageAdapter"
 import colors from "./color-palette"
 import set from "lodash-es/set"
 
@@ -9,7 +10,7 @@ const uuid = () => crypto.randomUUID()
 type Item = Label
 type ItemKey = "labels"
 
-const isObj = (val: any) => {
+const isObj = (val: unknown) => {
   return typeof val === "object" && val !== null && !Array.isArray(val)
 }
 
@@ -17,20 +18,6 @@ const defaultLabels: Label[] = [
   { id: uuid(), title: "Work", color: colors[9].backgroundColor },
   { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
 ]
-
-interface Browser {
-  storage: {
-    sync: {
-      get: () => any
-      clear: () => void
-    }
-    local: {
-      QUOTA_BYTES?: number | null
-      set: (data: any) => void
-      get: () => any
-    }
-  }
-}
 
 const defaultData: Data = {
   migrated: true,
@@ -48,62 +35,47 @@ const defaultData: Data = {
   }
 }
 
-const browser: Browser = {
-  storage: {
-    sync: {
-      get: () => ({}),
-      clear: () => undefined
-    },
-    local: {
-      QUOTA_BYTES: null,
-      set: data => localStorage.setItem("what-todo", JSON.stringify(data)),
-      get: () =>
-        JSON.parse(
-          localStorage.getItem("what-todo") || JSON.stringify(defaultData)
-        )
-    }
-  }
-}
-
 // Class
 class StorageManager {
   public defaultData: Data = defaultData
 
   public busy = false
 
-  public syncQueue: Array<(data: Data, ...args: any[]) => Data> = []
+  public syncQueue: Array<(data: Data, ...args: unknown[]) => Data> = []
 
   private subscriptions: Array<(data: Data) => void> = []
 
+  private adapter: StorageAdapter
+
+  constructor(adapter: StorageAdapter) {
+    this.adapter = adapter
+  }
+
+  /** Swap the storage backend at runtime (e.g. when connecting Supabase). */
+  setAdapter(adapter: StorageAdapter) {
+    this.adapter = adapter
+  }
+
   private async sync(newData: Data, action: Action): Promise<Data> {
-    if (this.busy && this.syncQueue.length) {
-      console.log(`>>> BUSY. Waiting...`, { queue: this.syncQueue })
+    try {
+      await this.adapter.set(newData)
+    } catch (err) {
+      console.error(`[StorageManager] sync failed (${action}):`, err)
+      return newData
     }
 
-    console.groupCollapsed(`Sync (${action})`)
-
-    console.time("sync")
-    console.log({ newData })
-    await browser.storage.local.set(newData)
-    console.timeEnd("sync")
-
-    console.time("emit subscriptions")
     this.subscriptions.forEach(fn => {
       if (typeof fn === "function") {
         fn(newData)
       }
     })
-    console.timeEnd("emit subscriptions")
 
-    console.debug(action, newData)
-    console.groupEnd()
     return newData
   }
 
-  private validateData(data: Record<string, any>): boolean {
-    const hasData = Object.keys(data).length > 0
-
-    return hasData
+  private validateData(data: Data | null): data is Data {
+    if (!data || typeof data !== "object") return false
+    return Object.keys(data).length > 0
   }
 
   private add(
@@ -184,30 +156,19 @@ class StorageManager {
     return JSON.parse(JSON.stringify(data))
   }
 
-  private async clearLegacyData() {
-    console.log("Clearing all legacy sync storage data")
-    try {
-      await browser.storage.sync.clear()
-    } catch {}
-  }
-
   private setBusyState() {
     this.busy = true
   }
 
   private unsetBusyState(data: Data) {
     this.busy = false
-    const unsynced = this.syncQueue.length
 
     while (this.syncQueue.length) {
       this.syncQueue.shift()!(data)
     }
-    if (unsynced) {
-      console.log(`>>> SYNC_QUEUE_CLEARED (${unsynced})`)
-    }
   }
 
-  private validateSyncData(data: any): Data {
+  private validateSyncData(data: Data): Data {
     if (typeof data !== "object" || Array.isArray(data) || !data) {
       return this.defaultData
     }
@@ -216,7 +177,7 @@ class StorageManager {
       return this.defaultData
     }
 
-    const returnValue: Data = data
+    const returnValue: Data = { ...data }
 
     // Validate filters
     if (!Array.isArray(data.filters)) {
@@ -236,46 +197,15 @@ class StorageManager {
     return returnValue
   }
 
-  private async transformSyncDataToLocalStorage(): Promise<Data | undefined> {
-    console.time("transformSyncDataToLocalStorage()")
-
-    try {
-      const oldData = await browser.storage.sync.get()
-
-      console.log({ oldData })
-
-      if (Object.keys(oldData).length < 1) {
-        await browser.storage.local.set({ migrated: false })
-
-        return undefined
-      }
-
-      const validatedData = this.validateSyncData(oldData)
-
-      // Update local storage
-      const newData = {
-        ...validatedData,
-        migrated: true
-      }
-
-      await this.sync(newData, "MIGRATE_DATA_FROM_SYNC")
-
-      // Clear old data
-      this.clearLegacyData()
-
-      return newData
-    } catch (error) {
-      console.error(error)
-      return undefined
-    } finally {
-      console.timeEnd("transformSyncDataToLocalStorage()")
-    }
-  }
-
-  private cleanData(data: Data) {
-    console.time("cleanData()")
+  /**
+   * Remove references to labels that no longer exist from tasks.
+   * Returns the cleaned data without persisting — the caller decides
+   * whether to sync, avoiding unnecessary write-backs on every read.
+   */
+  private cleanData(data: Data): { data: Data; changed: boolean } {
     const labelIds = data.labels?.map(x => x.id)
     const newData = this.cloneData(data)
+    let changed = false
 
     for (const [, tasks] of Object.entries(newData.tasks || {})) {
       for (let i = 0; i < tasks.length; i++) {
@@ -288,13 +218,13 @@ class StorageManager {
               labels: labels.filter(x => x !== label)
             }
             set(newData, `tasks.${this.getTaskKey(task)}.${i}`, newTask)
+            changed = true
           }
         }
       }
     }
 
-    console.timeEnd("cleanData()")
-    return this.sync(newData, "CLEAN_DATA")
+    return { data: newData, changed }
   }
 
   // ======================= PUBLIC API ============================== //
@@ -311,24 +241,20 @@ class StorageManager {
     let parsedData: Data = this.defaultData
 
     this.setBusyState()
-    console.groupCollapsed("GET_STORAGE_DATA")
-    console.time("getData()")
     try {
-      const data = await browser.storage.local.get()
-      console.log({ data })
+      const data = await this.adapter.get()
 
-      const valid = this.validateData(data)
-      parsedData = (valid ? data : this.defaultData) as Data
-      parsedData = await this.cleanData(parsedData)
-
-      if (!Boolean(parsedData.migrated)) {
-        // Migrate data from Release #1 from sync storage to local storage
-        const migratedData = await this.transformSyncDataToLocalStorage()
-
-        if (migratedData) parsedData = migratedData
+      if (this.validateData(data)) {
+        parsedData = this.validateSyncData(data)
       }
 
-      const filteringByMissingLabels = data.filters?.some(
+      const cleaned = this.cleanData(parsedData)
+      parsedData = cleaned.data
+      if (cleaned.changed) {
+        await this.sync(parsedData, "CLEAN_DATA")
+      }
+
+      const filteringByMissingLabels = parsedData.filters?.some(
         (filterId: string) => {
           return (
             (parsedData.labels || []).findIndex(({ id }) => filterId === id) < 0
@@ -346,18 +272,10 @@ class StorageManager {
         data: parsedData
       }
     } catch (error) {
-      console.error(error)
+      console.error("[StorageManager] getData failed:", error)
       return { data: parsedData }
     } finally {
-      console.timeEnd("getData()")
-      console.groupEnd()
-
       this.unsetBusyState(parsedData)
-      // return {
-      //   data: defaultData,
-      //   usage: null,
-      //   quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
-      // }
     }
   }
 
@@ -389,7 +307,6 @@ class StorageManager {
   }
 
   // Tasks
-  // @sync()
   addTask(data: Data, task: Task): Data {
     const newTask: Task = {
       ...task,
@@ -406,7 +323,6 @@ class StorageManager {
     return newData
   }
 
-  // @sync()
   updateTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
@@ -428,7 +344,6 @@ class StorageManager {
     return newData
   }
 
-  // @sync()
   removeTask(data: Data, task: Task): Data {
     const newData = this.cloneData(data)
     const key = this.getTaskKey(task)
@@ -465,7 +380,6 @@ class StorageManager {
     return data
   }
 
-  // @sync()
   moveTaskToToday(data: Data, task: Task): Data {
     const oldKey = this.getTaskKey(task)
     const todayKey = this.getTodayKey()
