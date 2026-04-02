@@ -11,10 +11,12 @@ import PlusIcon from "@meronex/icons/fi/FiPlus"
 import Tooltip from "react-tooltip"
 import cx from "classnames"
 
+export const MAX_LABELS = 15
+
 interface Props {
   labels: LabelType[]
   colors: Color[]
-  limit: number
+  limit?: number
   filters?: string[]
   onAddLabel: (label: IntermediateLabel) => void
   onFilter: (labelIds: string[]) => void
@@ -25,7 +27,7 @@ interface Props {
 const Labels: React.FC<Props> = ({
   labels,
   colors,
-  limit,
+  limit = MAX_LABELS,
   filters = [],
   onFilter,
   onAddLabel,
@@ -61,11 +63,11 @@ const Labels: React.FC<Props> = ({
   }, [newLabel])
 
   const handleSave = React.useCallback(() => {
-    if (newLabel.title.trim().length > 0) {
+    if (newLabel.title.trim().length > 0 && labels.length < limit) {
       onAddLabel(newLabel)
     }
     setNewLabel(undefined)
-  }, [newLabel, onAddLabel])
+  }, [newLabel, onAddLabel, labels.length, limit])
 
   const handleChangeTitle = React.useCallback(
     (id, event) => {

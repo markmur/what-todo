@@ -308,7 +308,6 @@ const Todo: React.FC = ({}) => {
           <div className="flex-1 overflow-y-scroll pb-2">
             <Labels
               labels={data.labels}
-              limit={15}
               colors={colors}
               filters={data.filters}
               onFilter={updateFilters}
