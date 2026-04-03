@@ -1,0 +1,76 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { render, fireEvent, act } from "@testing-library/react"
+import { DarkModeProvider, useDarkMode } from "./DarkModeContext"
+
+function TestConsumer() {
+  const { darkMode, toggleDarkMode } = useDarkMode()
+  return (
+    <div>
+      <span data-testid="mode">{darkMode ? "dark" : "light"}</span>
+      <button onClick={toggleDarkMode}>toggle</button>
+    </div>
+  )
+}
+
+describe("DarkModeContext", () => {
+  beforeEach(() => {
+    localStorage.clear()
+    document.documentElement.classList.remove("dark")
+  })
+
+  afterEach(() => {
+    document.documentElement.classList.remove("dark")
+  })
+
+  it("defaults to light mode when no localStorage value", () => {
+    const { getByTestId } = render(
+      <DarkModeProvider>
+        <TestConsumer />
+      </DarkModeProvider>
+    )
+    expect(getByTestId("mode").textContent).toBe("light")
+    expect(document.documentElement.classList.contains("dark")).toBe(false)
+  })
+
+  it("initializes from localStorage", () => {
+    localStorage.setItem("what-todo-dark-mode", "true")
+    const { getByTestId } = render(
+      <DarkModeProvider>
+        <TestConsumer />
+      </DarkModeProvider>
+    )
+    expect(getByTestId("mode").textContent).toBe("dark")
+    expect(document.documentElement.classList.contains("dark")).toBe(true)
+  })
+
+  it("toggles dark mode on and off", () => {
+    const { getByTestId, getByText } = render(
+      <DarkModeProvider>
+        <TestConsumer />
+      </DarkModeProvider>
+    )
+
+    expect(getByTestId("mode").textContent).toBe("light")
+
+    fireEvent.click(getByText("toggle"))
+    expect(getByTestId("mode").textContent).toBe("dark")
+    expect(document.documentElement.classList.contains("dark")).toBe(true)
+    expect(localStorage.getItem("what-todo-dark-mode")).toBe("true")
+
+    fireEvent.click(getByText("toggle"))
+    expect(getByTestId("mode").textContent).toBe("light")
+    expect(document.documentElement.classList.contains("dark")).toBe(false)
+    expect(localStorage.getItem("what-todo-dark-mode")).toBe("false")
+  })
+
+  it("persists preference to localStorage", () => {
+    const { getByText } = render(
+      <DarkModeProvider>
+        <TestConsumer />
+      </DarkModeProvider>
+    )
+
+    fireEvent.click(getByText("toggle"))
+    expect(localStorage.getItem("what-todo-dark-mode")).toBe("true")
+  })
+})

@@ -15,9 +15,9 @@ const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
     <span className={cx("checkbox", { checked })}>
       <label htmlFor={id}>
         {checked ? (
-          <Checked className="text-slate-500 hover:text-slate-800" />
+          <Checked className="text-slate-500 hover:text-slate-800 dark:text-navy-500 dark:hover:text-navy-300" />
         ) : (
-          <Unchecked className="text-slate-600 hover:text-black" />
+          <Unchecked className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200" />
         )}
       </label>
       <input

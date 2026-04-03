@@ -22,12 +22,12 @@ import ToggleButton from "./ToggleButton"
 
 function Title({ children }: PropsWithChildren) {
   return (
-    <h1 className="text-4xl mt-4 mb-3 text-slate-300 font-bold">{children}</h1>
+    <h1 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">{children}</h1>
   )
 }
 
 function Subtitle({ children }: PropsWithChildren) {
-  return <h2 className="text-sm mb-4 text-slate-500">{children}</h2>
+  return <h2 className="text-sm mb-4 text-slate-500 dark:text-navy-400">{children}</h2>
 }
 
 const getTasksFor =
@@ -139,7 +139,7 @@ const Todo: React.FC = ({}) => {
       p={padding}
       pt={paddingTop}
       flexDirection="column"
-      className="bg-slate-50/60"
+      className="bg-slate-50/60 dark:bg-navy-800"
     >
       <div className="pb-1">
         <Title>Completed</Title>
@@ -212,7 +212,7 @@ const Todo: React.FC = ({}) => {
         <Flex
           width={grid.focus}
           px={[mobilePadding, padding]}
-          pl={[mobilePadding, mobilePadding, 0]}
+          pl={[mobilePadding, mobilePadding, 3]}
           pt={[paddingTop]}
           pb={[mobilePadding, padding]}
           height={fullHeight}
@@ -277,7 +277,7 @@ const Todo: React.FC = ({}) => {
                 p={padding}
                 pt={paddingTop}
                 height={fullHeight}
-                className="bg-slate-50/60"
+                className="bg-slate-50/60 dark:bg-navy-800"
               >
                 <div className="flex flex-col flex-grow justify-start">
                   <div className="pb-1">

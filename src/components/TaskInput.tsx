@@ -105,7 +105,7 @@ const TaskInput: React.FC<Props> = ({
     <div
       ref={ref}
       className={cx(
-        "bg-slate-100 p-4 rounded-lg transition-all border-solid border-slate-200 border-2"
+        "bg-slate-100 dark:bg-navy-800 p-4 rounded-lg transition-all border-solid border-slate-200 dark:border-navy-700 border-2"
       )}
     >
       <div className="flex justify-between items-center">
@@ -134,7 +134,7 @@ const TaskInput: React.FC<Props> = ({
             <textarea
               rows={2}
               value={task.description}
-              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 placeholder-slate-400"
+              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-10 outline-none resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
               placeholder="Add a description or URL..."
               onChange={handleChange("description")}
               onKeyDown={handleKeyDown("description")}

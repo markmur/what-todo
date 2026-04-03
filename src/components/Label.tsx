@@ -23,7 +23,7 @@ const Label: React.FC<Props> = ({
   return (
     <div
       className={cx(
-        "inline-flex py-1 px-2 rounded-lg text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 hover:text-slate-900 text-md cursor-pointer",
+        "inline-flex py-1 px-2 rounded-lg text-xs bg-slate-200 hover:bg-slate-300 dark:bg-navy-700 dark:hover:bg-navy-600 text-slate-700 hover:text-slate-900 dark:text-navy-300 dark:hover:text-navy-100 text-md cursor-pointer",
         className,
         {
           active,

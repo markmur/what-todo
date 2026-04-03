@@ -163,7 +163,7 @@ const List: React.FC<Props> = ({
             })}
             onClick={() => setCollapsed(!collapsed)}
           >
-            <h4 className="text-slate-600 hover:text-black font-bold">
+            <h4 className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200 font-bold">
               {completed.length} Completed
             </h4>
             <div className="align-center">

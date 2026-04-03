@@ -234,7 +234,7 @@ const Task: React.FC<Props> = ({
       <div
         ref={ref}
         className={cx(
-          "flex items-start hover:bg-slate-100 bg-slate-50 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
+          "flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
           {
             ["cursor-pointer"]: !active
           }
@@ -259,9 +259,9 @@ const Task: React.FC<Props> = ({
               value={state?.title}
               spellCheck={active}
               className={cx(
-                "unstyled task-title-input font-semibold text-slate-700 leading-normal bg-transparent pt-0",
+                "unstyled task-title-input font-semibold text-slate-700 dark:text-navy-100 leading-normal bg-transparent pt-0",
                 {
-                  ["text-slate-400"]: state?.completed
+                  ["text-slate-400 dark:text-navy-500"]: state?.completed
                 }
               )}
               onKeyDown={handleKeyDown}
@@ -271,8 +271,8 @@ const Task: React.FC<Props> = ({
             />
           ) : (
             <div
-              className={cx("inline font-semibold text-slate-700", {
-                ["text-slate-400"]: state?.completed
+              className={cx("inline font-semibold text-slate-700 dark:text-navy-100", {
+                ["text-slate-400 dark:text-navy-500"]: state?.completed
               })}
             >
               {state?.completed
@@ -319,7 +319,7 @@ const Task: React.FC<Props> = ({
                 name="description"
                 value={getDescription(active, state?.description)}
                 placeholder="Add description..."
-                className="unstyled text-slate-500 text-sm bg-transparent max-h-[800px]"
+                className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
                 onChange={handleChange("description")}
                 onKeyDown={handleKeyDown}
                 onFocus={selectTask}
