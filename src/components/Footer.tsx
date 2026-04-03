@@ -3,8 +3,11 @@ import React from "react"
 import ReportIcon from "@meronex/icons/fi/FiFrown"
 import RequestIcon from "@meronex/icons/fi/FiSmile"
 import SaveIcon from "@meronex/icons/fi/FiSave"
+import MoonIcon from "@meronex/icons/fi/FiMoon"
+import SunIcon from "@meronex/icons/fi/FiSun"
 import { parseDataStr } from "../utils"
 import { useStorage } from "../context/StorageContext"
+import { useDarkMode } from "../context/DarkModeContext"
 
 const iconProps = {
   fontSize: 22,
@@ -18,6 +21,7 @@ const linkProps = {
 
 const Footer: React.FC = () => {
   const { data, uploadData } = useStorage()
+  const { darkMode, toggleDarkMode } = useDarkMode()
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
   const downloadLinkRef = React.useRef()
@@ -48,6 +52,21 @@ const Footer: React.FC = () => {
         </em>
 
         <div className="flex items-center">
+          <div className="ml-2">
+            <button
+              className="no-style"
+              data-tip={darkMode ? "Light mode" : "Dark mode"}
+              onClick={toggleDarkMode}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {darkMode ? (
+                <SunIcon {...iconProps} />
+              ) : (
+                <MoonIcon {...iconProps} />
+              )}
+            </button>
+          </div>
+
           <div className="ml-2">
             <a
               ref={downloadLinkRef}

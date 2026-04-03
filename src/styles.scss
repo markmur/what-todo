@@ -12,6 +12,12 @@ body {
   text-rendering: optimizeLegibility;
   font-size: 16px;
   line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark body {
+  background-color: #151925;
+  color: #b1b6c5;
 }
 
 hr {
@@ -20,6 +26,10 @@ hr {
   height: 1px;
   border-top: 1px solid #eee;
   width: 100%;
+
+  .dark & {
+    border-top-color: #262c3e;
+  }
 }
 
 p,
@@ -55,9 +65,17 @@ input {
   outline: none;
   background-color: transparent;
 
+  .dark & {
+    color: #b1b6c5;
+  }
+
   &:focus,
   &:active {
     border-bottom-color: black;
+
+    .dark & {
+      border-bottom-color: #515a72;
+    }
   }
 }
 
@@ -67,6 +85,10 @@ label {
   text-transform: uppercase;
   color: #333;
   font-weight: bold;
+
+  .dark & {
+    color: #69718b;
+  }
 }
 
 // textarea
@@ -78,6 +100,10 @@ textarea.unstyled {
   width: 100%;
   padding: 0;
   margin: 0;
+
+  .dark & {
+    color: #b1b6c5;
+  }
 }
 
 .task {
@@ -120,6 +146,10 @@ $strike-delay: 0.1s;
     animation: strike $strike-delay linear forwards;
     animation-delay: $strike-delay * calc($i / 3);
     transform-origin: left;
+
+    .dark & {
+      background: rgba(255, 255, 255, 0.4);
+    }
   }
 }
 
@@ -159,6 +189,10 @@ button {
     padding: 2px 4px;
     font-size: 11px;
     background: #eee;
+
+    .dark & {
+      background: #262c3e;
+    }
   }
 }
 
@@ -201,6 +235,14 @@ button {
   &:hover {
     color: #333;
   }
+
+  .dark & {
+    color: #3a4259;
+
+    &:hover {
+      color: #b1b6c5;
+    }
+  }
 }
 
 .button-link {
@@ -213,6 +255,10 @@ button {
 
 .description {
   color: rgb(123, 130, 150);
+
+  .dark & {
+    color: #69718b;
+  }
 }
 
 .color-picker {
@@ -224,6 +270,12 @@ button {
   position: absolute;
   z-index: 10;
   transform: translateY(-20px);
+
+  .dark & {
+    background-color: #1d2131;
+    border-color: #30374c;
+    box-shadow: 0 10px 22px 0 rgba(0, 0, 0, 0.4);
+  }
 }
 
 .hidden-input {
@@ -249,6 +301,14 @@ footer {
     text-decoration: inherit;
     font-style: normal;
   }
+
+  .dark & {
+    border-top-color: #262c3e;
+
+    a {
+      color: #858ca1;
+    }
+  }
 }
 
 header {
@@ -265,6 +325,14 @@ header {
 
   small {
     color: #333;
+  }
+
+  .dark & {
+    border-bottom-color: #262c3e;
+
+    small {
+      color: #69718b;
+    }
   }
 }
 
@@ -300,5 +368,14 @@ button.auth {
   &:hover {
     background: #f6f6f6;
     border-color: #333;
+  }
+
+  .dark & {
+    border-color: #262c3e;
+
+    &:hover {
+      background: #1d2131;
+      border-color: #515a72;
+    }
   }
 }

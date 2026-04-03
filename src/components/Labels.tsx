@@ -120,7 +120,7 @@ const Labels: React.FC<Props> = ({
 
   return (
     <>
-      <ul className="labels divide-y">
+      <ul className="labels divide-y dark:divide-navy-700">
         {Object.entries(controlledLabels).map(([, label]) => (
           <li className="label-input" key={label.id}>
             <div className="flex items-center py-2">
@@ -212,7 +212,7 @@ const Labels: React.FC<Props> = ({
       {!newLabel && labels.length < limit && (
         <div className="pt-2 pb-1">
           <a
-            className="inline-flex text-slate-500 hover:text-slate-700 whitespace-nowrap items-center text-sm cursor-pointer"
+            className="inline-flex text-slate-500 hover:text-slate-700 dark:text-navy-500 dark:hover:text-navy-300 whitespace-nowrap items-center text-sm cursor-pointer"
             onClick={handleCreate}
           >
             <PlusIcon className="mr-2" />
