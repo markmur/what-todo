@@ -1,5 +1,3 @@
-import { create } from "react-test-renderer"
-
 export interface Color {
   name?: string
   backgroundColor: string

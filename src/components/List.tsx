@@ -91,7 +91,9 @@ const List: React.FC<Props> = ({
 
     const ap = typeof a.pinned === "boolean" && +a.pinned
     const bp = typeof b.pinned === "boolean" && +b.pinned
-    return bp - ap || a.created_at.localeCompare(b.created_at)
+    if (ap !== bp) return bp - ap
+    if (ap && bp) return b.created_at.localeCompare(a.created_at)
+    return a.created_at.localeCompare(b.created_at)
   })
 
   // Sort completed tasks by when they were completed

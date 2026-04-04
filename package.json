@@ -8,7 +8,9 @@
     "clean": "rm -rf dist",
     "dev": "vite",
     "preview": "vite preview",
-    "start": "vite"
+    "start": "vite",
+    "test": "vitest run --exclude src/StorageManager.spec.ts",
+    "test:watch": "vitest --exclude src/StorageManager.spec.ts"
   },
   "engines": {
     "node": ">=22"
