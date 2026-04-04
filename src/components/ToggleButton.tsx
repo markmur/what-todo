@@ -22,7 +22,10 @@ interface ToggleButtonProps {
  * - right side, expanded → points left  (inward, toward content)
  * - right side, collapsed→ points right (outward, away from content)
  */
-export function getPointsRight(side: "left" | "right", collapsed?: boolean): boolean {
+export function getPointsRight(
+  side: "left" | "right",
+  collapsed?: boolean
+): boolean {
   return (side === "left" && !collapsed) || (side === "right" && !!collapsed)
 }
 

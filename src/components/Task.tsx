@@ -80,45 +80,6 @@ function getDescriptionURL(text: string | undefined): string | undefined {
   return matches[0]
 }
 
-function extractURL(text: string | undefined, match: string | undefined) {
-  if (!text) return ""
-  if (!match) return text
-
-  const index = text.indexOf(match)
-
-  if (index === -1) return text
-
-  const before = text.slice(0, index)
-  const after = text.slice(index + match.length)
-
-  return before + after
-}
-
-function urlify(text: string | undefined): string | (string | JSX.Element)[] {
-  if (!text) return ""
-
-  const matches = text.match(URL_RE)
-
-  if (!matches?.length) {
-    return text
-  }
-
-  return text.split(URL_RE).map((str, i) =>
-    URL_RE.test(str) ? (
-      <a
-        key={`${str}-${i}`}
-        rel="noopener noreferrer"
-        href={str}
-        target="_blank"
-      >
-        {shortenURL(str)}
-      </a>
-    ) : (
-      str
-    )
-  )
-}
-
 const getDescription = (truncate: boolean, description: string | undefined) => {
   if (truncate) {
     return description
@@ -148,7 +109,6 @@ const Task: React.FC<Props> = ({
   const ref = useRef<HTMLDivElement>(null)
   const [state, setState] = React.useState<TaskType | undefined>(task)
   const descriptionURL = getDescriptionURL(state?.description)
-  const description = extractURL(state?.description, descriptionURL)
   const [, setHovering] = React.useState<boolean>(false)
 
   const handleChange =
@@ -273,9 +233,12 @@ const Task: React.FC<Props> = ({
             />
           ) : (
             <div
-              className={cx("inline font-semibold text-slate-700 dark:text-navy-100", {
-                ["text-slate-400 dark:text-navy-500"]: state?.completed
-              })}
+              className={cx(
+                "inline font-semibold text-slate-700 dark:text-navy-100",
+                {
+                  ["text-slate-400 dark:text-navy-500"]: state?.completed
+                }
+              )}
             >
               {state?.completed
                 ? state?.title
@@ -292,27 +255,6 @@ const Task: React.FC<Props> = ({
                 : state?.title}
             </div>
           )}
-
-          {/* <Animate active={task.description && !active}>
-            <p
-              className="unstyled text-slate-500 text-sm cursor-text"
-              onClick={preventDefault(event => {
-                onSelect(task.id, event)
-                setTimeout(() => {
-                  const description = ref.current?.querySelector(
-                    "textarea[name='description']"
-                  ) as HTMLTextAreaElement
-                  description?.focus()
-                  description?.setSelectionRange(
-                    description?.value.length,
-                    description?.value.length
-                  )
-                })
-              })}
-            >
-              {urlify(getDescription(false, description))}
-            </p>
-          </Animate> */}
 
           <>
             {state?.description && (
@@ -418,17 +360,19 @@ const Task: React.FC<Props> = ({
           {task.labels
             ?.sort((a, b) => a.localeCompare(b))
             ?.map(id => {
-              const handleLabelClick = preventDefault((event: MouseEvent<any>) => {
-                if (filters.includes(id)) {
-                  onFilter(filters.filter(f => f !== id))
-                } else {
-                  if (event.metaKey) {
-                    onFilter([...filters, id])
+              const handleLabelClick = preventDefault(
+                (event: MouseEvent<any>) => {
+                  if (filters.includes(id)) {
+                    onFilter(filters.filter(f => f !== id))
                   } else {
-                    onFilter([id])
+                    if (event.metaKey) {
+                      onFilter([...filters, id])
+                    } else {
+                      onFilter([id])
+                    }
                   }
                 }
-              })
+              )
 
               if (settings.labelStyle === "pill") {
                 const bg = labels[id]?.color
@@ -436,7 +380,10 @@ const Task: React.FC<Props> = ({
                   <span
                     key={id}
                     className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
-                    style={{ backgroundColor: bg, color: bg ? contrastText(bg) : undefined }}
+                    style={{
+                      backgroundColor: bg,
+                      color: bg ? contrastText(bg) : undefined
+                    }}
                     onClick={handleLabelClick}
                   >
                     {labels[id]?.title}
@@ -459,7 +406,11 @@ const Task: React.FC<Props> = ({
           <span
             className="remove-icon !p-0 max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:!px-[10px] group-hover:opacity-100"
             onClick={() => {
-              if (settings.confirmBeforeDelete && !window.confirm("Delete this task?")) return
+              if (
+                settings.confirmBeforeDelete &&
+                !window.confirm("Delete this task?")
+              )
+                return
               onRemoveTask(task)
             }}
           >

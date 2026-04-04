@@ -1,5 +1,5 @@
 import type { IntermediateLabel, Label as LabelType } from "../index.d"
-import React, { MouseEvent } from "react"
+import React from "react"
 
 import Animate from "./Animate"
 import { Color } from "../color-palette"
@@ -58,7 +58,7 @@ const Labels: React.FC<Props> = ({
       title: "",
       color: colors[0].backgroundColor
     })
-  }, [newLabel])
+  }, [colors])
 
   const handleSave = React.useCallback(() => {
     if (newLabel.title.trim().length > 0) {

@@ -1,7 +1,6 @@
 import "./tailwind.css"
 
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 
 // Context
 import ContextWrapper from "./App"
@@ -22,6 +21,7 @@ const App = () => {
     return () => {
       window.removeEventListener("focus", fetchData)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
       // @ts-ignore
       downloadLinkRef.current.click()
     }
-  }, [data])
+  }, [])
 
   const handleSecretUpload = React.useCallback(() => {
     const value = window.prompt("Insert todo data object")
@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
     if (Object.keys(parsed).length > 0) {
       uploadData(parsed)
     }
-  }, [parseDataStr, uploadData])
+  }, [uploadData])
 
   return (
     <footer>
@@ -57,7 +57,9 @@ const Footer: React.FC = () => {
               className="no-style flex items-center"
               data-tip={darkMode ? "Light mode" : "Dark mode"}
               onClick={toggleDarkMode}
-              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={
+                darkMode ? "Switch to light mode" : "Switch to dark mode"
+              }
             >
               {darkMode ? (
                 <SunIcon {...iconProps} />

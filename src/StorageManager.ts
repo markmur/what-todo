@@ -16,7 +16,7 @@ const isObj = (val: any) => {
 }
 
 const defaultLabels: Label[] = [
-  { id: uuid(), title: "Work", color: colors[0].backgroundColor },
+  { id: uuid(), title: "Work", color: colors[9].backgroundColor },
   { id: uuid(), title: "Personal", color: colors[1].backgroundColor }
 ]
 

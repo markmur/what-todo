@@ -12,7 +12,7 @@ const defaultSettings: Settings = {
   showTaskCount: false,
   compactMode: false,
   autoExpandNewTasks: false,
-  labelStyle: "circle",
+  labelStyle: "circle"
 }
 
 interface SettingsContextValue {
@@ -22,7 +22,7 @@ interface SettingsContextValue {
 
 const SettingsContext = createContext<SettingsContextValue>({
   settings: defaultSettings,
-  updateSetting: () => {},
+  updateSetting: () => {}
 })
 
 function loadSettings(): Settings {
@@ -38,15 +38,18 @@ function loadSettings(): Settings {
 export function SettingsProvider({ children }: React.PropsWithChildren) {
   const [settings, setSettings] = useState<Settings>(loadSettings)
 
-  const updateSetting = useCallback(<K extends keyof Settings>(key: K, value: Settings[K]) => {
-    setSettings(prev => {
-      const next = { ...prev, [key]: value }
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-      } catch {}
-      return next
-    })
-  }, [])
+  const updateSetting = useCallback(
+    <K extends keyof Settings>(key: K, value: Settings[K]) => {
+      setSettings(prev => {
+        const next = { ...prev, [key]: value }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+        } catch {}
+        return next
+      })
+    },
+    []
+  )
 
   return (
     <SettingsContext.Provider value={{ settings, updateSetting }}>

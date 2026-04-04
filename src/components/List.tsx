@@ -63,7 +63,9 @@ const List: React.FC<Props> = ({
   const { settings } = useSettings()
   const selectedRef = useRef<any>()
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
-  const [collapsed, setCollapsed] = React.useState(collapseCompleted && settings.autoCollapseCompleted)
+  const [collapsed, setCollapsed] = React.useState(
+    collapseCompleted && settings.autoCollapseCompleted
+  )
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -86,7 +88,9 @@ const List: React.FC<Props> = ({
     if (settings.sortBy === "label") {
       const aLabel = a.labels?.[0] ?? ""
       const bLabel = b.labels?.[0] ?? ""
-      return aLabel.localeCompare(bLabel) || a.created_at.localeCompare(b.created_at)
+      return (
+        aLabel.localeCompare(bLabel) || a.created_at.localeCompare(b.created_at)
+      )
     }
 
     const ap = typeof a.pinned === "boolean" && +a.pinned
@@ -150,7 +154,10 @@ const List: React.FC<Props> = ({
 
   return (
     <div>
-      <ul className={cx("task-list", { "compact": settings.compactMode })} ref={selectedRef}>
+      <ul
+        className={cx("task-list", { compact: settings.compactMode })}
+        ref={selectedRef}
+      >
         {uncompleted.map(task => {
           if (!task) return null
 

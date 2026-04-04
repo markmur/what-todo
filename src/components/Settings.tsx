@@ -4,7 +4,13 @@ import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import { useSettings } from "../context/SettingsContext"
 import type { Label, LabelStyle, SortBy } from "../index.d"
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  checked,
+  onChange
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+}) {
   return (
     <button
       type="button"
@@ -12,9 +18,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
-        checked
-          ? "bg-blue-500"
-          : "bg-slate-300 dark:bg-navy-600"
+        checked ? "bg-blue-500" : "bg-slate-300 dark:bg-navy-600"
       }`}
     >
       <span
@@ -26,7 +30,13 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   )
 }
 
-function SettingRow({ label, children }: { label: string; children: React.ReactNode }) {
+function SettingRow({
+  label,
+  children
+}: {
+  label: string
+  children: React.ReactNode
+}) {
   return (
     <div className="flex items-center justify-between py-2">
       <span className="text-sm text-slate-600 dark:text-navy-300">{label}</span>
@@ -42,12 +52,12 @@ interface SettingsProps {
 const sortOptions: { value: SortBy; label: string }[] = [
   { value: "pinned", label: "Pinned first" },
   { value: "created", label: "Date created" },
-  { value: "label", label: "Label" },
+  { value: "label", label: "Label" }
 ]
 
 const labelStyleOptions: { value: LabelStyle; label: string }[] = [
   { value: "circle", label: "Circle" },
-  { value: "pill", label: "Pill" },
+  { value: "pill", label: "Pill" }
 ]
 
 export default function Settings({ labels }: SettingsProps) {
@@ -65,9 +75,15 @@ export default function Settings({ labels }: SettingsProps) {
         </h1>
         <div className="align-center ml-1">
           {collapsed ? (
-            <ChevronDown className="text-slate-300 dark:text-navy-500" style={{ verticalAlign: "middle" }} />
+            <ChevronDown
+              className="text-slate-300 dark:text-navy-500"
+              style={{ verticalAlign: "middle" }}
+            />
           ) : (
-            <ChevronUp className="text-slate-300 dark:text-navy-500" style={{ verticalAlign: "middle" }} />
+            <ChevronUp
+              className="text-slate-300 dark:text-navy-500"
+              style={{ verticalAlign: "middle" }}
+            />
           )}
         </div>
       </div>
@@ -123,7 +139,9 @@ export default function Settings({ labels }: SettingsProps) {
               className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded px-2 py-1"
             >
               {sortOptions.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </SettingRow>
@@ -131,11 +149,15 @@ export default function Settings({ labels }: SettingsProps) {
           <SettingRow label="Label style">
             <select
               value={settings.labelStyle}
-              onChange={e => updateSetting("labelStyle", e.target.value as LabelStyle)}
+              onChange={e =>
+                updateSetting("labelStyle", e.target.value as LabelStyle)
+              }
               className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded px-2 py-1"
             >
               {labelStyleOptions.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </SettingRow>
@@ -143,12 +165,16 @@ export default function Settings({ labels }: SettingsProps) {
           <SettingRow label="Default label">
             <select
               value={settings.defaultLabelId ?? ""}
-              onChange={e => updateSetting("defaultLabelId", e.target.value || null)}
+              onChange={e =>
+                updateSetting("defaultLabelId", e.target.value || null)
+              }
               className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded px-2 py-1"
             >
               <option value="">None</option>
               {labels.map(l => (
-                <option key={l.id} value={l.id}>{l.title}</option>
+                <option key={l.id} value={l.id}>
+                  {l.title}
+                </option>
               ))}
             </select>
           </SettingRow>
