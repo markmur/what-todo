@@ -2,6 +2,7 @@ import CrossIcon from "@meronex/icons/fi/FiX"
 import { Label as LabelType } from "../index.d"
 import React from "react"
 import cx from "classnames"
+import { contrastText } from "../utils"
 
 interface Props {
   active: boolean
@@ -28,11 +29,11 @@ const Label: React.FC<Props> = ({
         {
           active,
           small,
-          ["text-white hover:text-white font-bold"]: active
+          ["font-bold"]: active
         }
       )}
       style={
-        active ? { backgroundColor: label.color, borderColor: label.color } : {}
+        active ? { backgroundColor: label.color, borderColor: label.color, color: contrastText(label.color) } : {}
       }
       onClick={onClick}
     >

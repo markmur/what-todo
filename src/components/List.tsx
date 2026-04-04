@@ -8,12 +8,14 @@ import Task from "./Task"
 import Tooltip from "react-tooltip"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
+import { useSettings } from "../context/SettingsContext"
 
 interface Props {
   tasks?: TaskType[]
   filters?: string[]
   labels: Record<string, LabelType>
   collapseCompleted?: boolean
+  hideCompleted?: boolean
   canPinTasks?: boolean
   canCollapse?: boolean
   onFilter: (labelIds: string[]) => void
@@ -50,6 +52,7 @@ const List: React.FC<Props> = ({
   tasks = [],
   labels,
   collapseCompleted = true,
+  hideCompleted = false,
   canPinTasks = true,
   onFilter,
   onUpdateTask,
@@ -57,9 +60,10 @@ const List: React.FC<Props> = ({
   onMarkAsComplete,
   onMoveToToday
 }) => {
+  const { settings } = useSettings()
   const selectedRef = useRef<any>()
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
-  const [collapsed, setCollapsed] = React.useState(collapseCompleted)
+  const [collapsed, setCollapsed] = React.useState(collapseCompleted && settings.autoCollapseCompleted)
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -74,20 +78,27 @@ const List: React.FC<Props> = ({
     [[] as TaskType[], [] as TaskType[]]
   )
 
-  // Sort uncompleted by pinned state
   uncompleted.sort((a, b) => {
+    if (settings.sortBy === "created") {
+      return a.created_at.localeCompare(b.created_at)
+    }
+
+    if (settings.sortBy === "label") {
+      const aLabel = a.labels?.[0] ?? ""
+      const bLabel = b.labels?.[0] ?? ""
+      return aLabel.localeCompare(bLabel) || a.created_at.localeCompare(b.created_at)
+    }
+
     const ap = typeof a.pinned === "boolean" && +a.pinned
     const bp = typeof b.pinned === "boolean" && +b.pinned
-    const createdAt = a.created_at.localeCompare(b.created_at)
-
-    return bp - ap || createdAt
+    return bp - ap || a.created_at.localeCompare(b.created_at)
   })
 
   // Sort completed tasks by when they were completed
   completed.sort(
     (a, b) => Number(b.completed_at?.localeCompare(a.completed_at ?? "")) ?? 0
   )
-  const hasCompletedTasks = completed.length > 0
+  const hasCompletedTasks = !hideCompleted && completed.length > 0
 
   const clickOutsideHandler = () => {
     setTimeout(() => {
@@ -137,7 +148,7 @@ const List: React.FC<Props> = ({
 
   return (
     <div>
-      <ul className="task-list" ref={selectedRef}>
+      <ul className={cx("task-list", { "compact": settings.compactMode })} ref={selectedRef}>
         {uncompleted.map(task => {
           if (!task) return null
 
@@ -150,6 +161,7 @@ const List: React.FC<Props> = ({
                 labels={labels}
                 filters={filters}
                 canPin={canPinTasks}
+                compact={settings.compactMode}
               />
             </li>
           )
@@ -189,6 +201,7 @@ const List: React.FC<Props> = ({
                     canPin={canPinTasks}
                     labels={labels}
                     filters={filters}
+                    compact={settings.compactMode}
                   />
                 </li>
               )
