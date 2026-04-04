@@ -35,7 +35,10 @@ function Title({ children }: PropsWithChildren) {
 
 function Subtitle({ children }: PropsWithChildren) {
   return (
-    <h2 className="text-sm mb-4 text-slate-500 dark:text-navy-400">
+    <h2
+      className="text-sm text-slate-500 dark:text-navy-400"
+      style={{ marginBottom: 24 }}
+    >
       {children}
     </h2>
   )
@@ -318,7 +321,7 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
-            <div className="w-full flex-[2] overflow-y-scroll">
+            <div className="w-full flex-2 overflow-y-scroll">
               <List
                 tasks={todaysTasks}
                 labels={labelsById}
@@ -404,7 +407,7 @@ const Todo: React.FC = ({}) => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 12 }}
                   transition={contentTransition}
-                  className="flex flex-col flex-grow justify-start"
+                  className="flex flex-col grow justify-start"
                   style={{ flex: 1, minHeight: 0, overflow: "hidden" }}
                 >
                   <div className="pb-1">

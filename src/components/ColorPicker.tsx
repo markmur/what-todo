@@ -43,10 +43,10 @@ const ColorPicker: React.FC<Props> = ({
             <div className={"flex flex-wrap"} style={{ width }}>
               {colors.map(color => (
                 <div
-                  className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer color-picker-item"
+                  className="w-[16px] h-[16px] rounded-lg p-0 m-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer color-picker-item"
                   key={color.name}
-                  data-tip={color.name}
-                  data-background-color={color.backgroundColor}
+                  data-tooltip-id="tooltip"
+                  data-tooltip-content={color.name}
                   style={{ backgroundColor: color.backgroundColor }}
                   onClick={() => onChange(color)}
                 />

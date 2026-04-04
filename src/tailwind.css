@@ -1,3 +1,35 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-navy-50: #dfe2e9;
+  --color-navy-100: #b1b6c5;
+  --color-navy-200: #858ca1;
+  --color-navy-300: #69718b;
+  --color-navy-400: #515a72;
+  --color-navy-500: #3a4259;
+  --color-navy-600: #30374c;
+  --color-navy-700: #262c3e;
+  --color-navy-800: #1d2131;
+  --color-navy-900: #151925;
+  --color-navy-950: #0e111a;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}

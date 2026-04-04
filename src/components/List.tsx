@@ -5,7 +5,6 @@ import React, { useCallback, useRef } from "react"
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import Task from "./Task"
-import Tooltip from "react-tooltip"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 import { useSettings } from "../context/SettingsContext"
@@ -113,10 +112,6 @@ const List: React.FC<Props> = ({
   }
 
   useOnClickOutside(selectedRef, clickOutsideHandler)
-
-  React.useEffect(() => {
-    Tooltip.rebuild()
-  })
 
   const handleFocus = useCallback(
     (taskId: string) => {

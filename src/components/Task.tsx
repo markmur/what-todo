@@ -16,7 +16,6 @@ import CrossIcon from "@meronex/icons/fi/FiX"
 import Label from "./Label"
 import Pin from "@meronex/icons/ai/AiOutlinePushpin"
 import PinFilled from "@meronex/icons/ai/AiFillPushpin"
-import ReactTooltip from "react-tooltip"
 import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
 import Textarea from "react-textarea-autosize"
 import cx from "classnames"
@@ -195,7 +194,7 @@ const Task: React.FC<Props> = ({
           "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto border-2",
           compact ? "py-2 mb-1" : "py-4 mb-3",
           state?.pinned
-            ? "border-blue-200/50 dark:border-blue-400/20"
+            ? "border-blue-300 dark:border-blue-500/50"
             : "border-transparent",
           {
             ["cursor-pointer"]: !active
@@ -318,11 +317,11 @@ const Task: React.FC<Props> = ({
         <div id="actions" className="flex mt-1 items-center ml-auto shrink-0">
           {onMoveToToday && (
             <div
-              data-tip="Move to today"
+              data-tooltip-id="tooltip"
+              data-tooltip-content="Move to today"
               className="remove-icon"
               onClick={preventDefault(() => {
                 onMoveToToday(state ?? task)
-                ReactTooltip.hide()
               })}
             >
               <RightArrowIcon />
@@ -331,7 +330,8 @@ const Task: React.FC<Props> = ({
 
           {canPin && (
             <div
-              data-tip={state?.pinned ? "Unpin task" : "Pin task"}
+              data-tooltip-id="tooltip"
+              data-tooltip-content={state?.pinned ? "Unpin task" : "Pin task"}
               className={cx("remove-icon", { active: state?.pinned })}
               style={state?.pinned ? { color: "#93c5fd" } : undefined}
               onClick={preventDefault(() => {
@@ -347,7 +347,8 @@ const Task: React.FC<Props> = ({
 
           {descriptionURL && (
             <div
-              data-tip={shortenURL(descriptionURL)}
+              data-tooltip-id="tooltip"
+              data-tooltip-content={shortenURL(descriptionURL)}
               className={cx("remove-icon", { active: true })}
               onClick={preventDefault(() => {
                 window.open(descriptionURL, "_blank")
@@ -394,9 +395,9 @@ const Task: React.FC<Props> = ({
               return (
                 <span
                   key={id}
-                  className="w-[16px] h-[16px] rounded-lg p-0 ml-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
-                  data-tip={labels[id]?.title}
-                  data-background-color={labels[id]?.color}
+                  className="w-[16px] h-[16px] rounded-lg p-0 ml-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
+                  data-tooltip-id="tooltip"
+                  data-tooltip-content={labels[id]?.title}
                   style={{ backgroundColor: labels[id]?.color }}
                   onClick={handleLabelClick}
                 />
@@ -404,7 +405,7 @@ const Task: React.FC<Props> = ({
             })}
 
           <span
-            className="remove-icon !p-0 max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:!px-[10px] group-hover:opacity-100"
+            className="remove-icon p-0! max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
             onClick={() => {
               if (
                 settings.confirmBeforeDelete &&

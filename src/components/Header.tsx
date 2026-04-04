@@ -15,8 +15,9 @@ function Header({
     <header
       className={cx(
         className,
-        "py-8 px-4 border-b-slate-100 flex items-center justify-between"
+        "py-8 border-b border-slate-100 dark:border-navy-700 flex items-center justify-between"
       )}
+      style={{ paddingLeft: 16, paddingRight: 16 }}
     >
       <div className="flex items-center gap-2">
         <strong className="dark:text-navy-100">What Todo 🤷‍♂️</strong>
