@@ -5,7 +5,7 @@ import "../styles.scss"
 import type { Data, Task, Label as LabelType } from "../index.d"
 import React, { PropsWithChildren, useCallback, useState } from "react"
 // utils
-import { formatDateHeading, today, yesterday } from "../utils"
+import { formatDateHeading, today } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
 
 import Footer from "./Footer"
@@ -304,15 +304,6 @@ const Todo: React.FC = ({}) => {
                       />
                     </div>
                   )}
-                </div>
-
-                <div className="pt-3">
-                  <TaskInput
-                    placeholder="Forget something?"
-                    labels={data.labels}
-                    filters={data.filters}
-                    onAdd={task => handleAddTask(task, yesterday())}
-                  />
                 </div>
               </div>
             </div>

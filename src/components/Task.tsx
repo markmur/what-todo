@@ -395,7 +395,7 @@ const Task: React.FC<Props> = ({
             </button>
           )}
 
-          {task.labels
+          {(state?.labels ?? task.labels)
             ?.sort((a, b) => a.localeCompare(b))
             ?.map(id => {
               const handleLabelClick = preventDefault(
