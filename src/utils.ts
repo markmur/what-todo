@@ -67,7 +67,7 @@ export const bytesToSize = (bytes: number | null | undefined): string => {
 export const parseDataStr = (data: string): Record<string, unknown> => {
   try {
     return JSON.parse(data)
-  } catch (error) {
+  } catch {
     return {}
   }
 }
