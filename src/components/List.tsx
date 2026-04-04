@@ -17,6 +17,7 @@ interface Props {
   labels: Record<string, LabelType>
   collapseCompleted?: boolean
   hideCompleted?: boolean
+  isFiltering?: boolean
   canPinTasks?: boolean
   canCollapse?: boolean
   onFilter: (labelIds: string[]) => void
@@ -55,6 +56,7 @@ const List: React.FC<Props> = ({
   labels,
   collapseCompleted = true,
   hideCompleted = false,
+  isFiltering = false,
   canPinTasks = true,
   onFilter,
   onUpdateTask,
@@ -164,7 +166,7 @@ const List: React.FC<Props> = ({
     <div ref={selectedRef}>
       {uncompleted.length === 0 && !hasCompletedTasks && onReorder && (
         <div className="text-slate-400 dark:text-navy-500 text-sm text-center py-12">
-          Nothing to do — enjoy your day!
+          {isFiltering ? "No tasks found." : "Nothing to do — enjoy your day!"}
         </div>
       )}
 

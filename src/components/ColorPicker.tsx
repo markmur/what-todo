@@ -1,4 +1,4 @@
-import React, { useRef } from "react"
+import React, { useRef, useLayoutEffect, useState } from "react"
 import colors, { Color } from "../color-palette"
 
 import Portal from "./Portal"
@@ -19,15 +19,18 @@ const ColorPicker: React.FC<Props> = ({
 }) => {
   const childRef = useRef<HTMLDivElement>(null)
   const internalRef = useRef<HTMLDivElement>(null)
-  const style = {} as any
   const width = 120
+  const [style, setStyle] = useState<React.CSSProperties>({})
 
-  if (childRef && childRef.current) {
-    const dimensions = childRef.current?.getBoundingClientRect()
-
-    style.left = dimensions.left + dimensions.width / 2 - width / 2
-    style.top = dimensions.top - 128
-  }
+  useLayoutEffect(() => {
+    if (visible && childRef.current) {
+      const dimensions = childRef.current.getBoundingClientRect()
+      setStyle({
+        left: dimensions.left + dimensions.width / 2 - width / 2,
+        top: dimensions.top - 128
+      })
+    }
+  }, [visible, width])
 
   useOnClickOutside(internalRef, onHide, { ignore: "color-picker-item" })
 
