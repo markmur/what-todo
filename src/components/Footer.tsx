@@ -5,9 +5,9 @@ import RequestIcon from "@meronex/icons/fi/FiSmile"
 import SaveIcon from "@meronex/icons/fi/FiSave"
 import MoonIcon from "@meronex/icons/fi/FiMoon"
 import SunIcon from "@meronex/icons/fi/FiSun"
-import { parseDataStr } from "../utils"
 import { useStorage } from "../context/StorageContext"
 import { useDarkMode } from "../context/DarkModeContext"
+import ImportModal from "./ImportModal"
 
 const iconProps = {
   fontSize: 22,
@@ -33,20 +33,13 @@ const Footer: React.FC = () => {
     }
   }, [])
 
-  const handleSecretUpload = React.useCallback(() => {
-    const value = window.prompt("Insert todo data object")
-    const parsed = parseDataStr(value) as any
-
-    if (Object.keys(parsed).length > 0) {
-      uploadData(parsed)
-    }
-  }, [uploadData])
+  const [importOpen, setImportOpen] = React.useState(false)
 
   return (
     <footer>
       <div className="flex justify-between">
         <em data-tooltip-id="tooltip" data-tooltip-content="🤷‍♂️">
-          <a {...linkProps} onDoubleClick={handleSecretUpload}>
+          <a {...linkProps} onDoubleClick={() => setImportOpen(true)}>
             What Todo
           </a>
         </em>
@@ -108,6 +101,11 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
+      <ImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImport={uploadData}
+      />
     </footer>
   )
 }

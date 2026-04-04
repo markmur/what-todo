@@ -8,6 +8,7 @@ import Task from "./Task"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 import { useSettings } from "../context/SettingsContext"
+import { Reorder } from "framer-motion"
 
 interface Props {
   tasks?: TaskType[]
@@ -22,6 +23,7 @@ interface Props {
   onRemoveTask: (task: TaskType) => void
   onMarkAsComplete: (task: TaskType) => void
   onMoveToToday?: (task: TaskType) => void
+  onReorder?: (tasks: TaskType[]) => void
 }
 
 const getFilteredTasks = (tasks: TaskType[], filters: string[]): TaskType[] => {
@@ -57,7 +59,8 @@ const List: React.FC<Props> = ({
   onUpdateTask,
   onRemoveTask,
   onMarkAsComplete,
-  onMoveToToday
+  onMoveToToday,
+  onReorder
 }) => {
   const { settings } = useSettings()
   const selectedRef = useRef<any>()
@@ -95,6 +98,9 @@ const List: React.FC<Props> = ({
     const ap = typeof a.pinned === "boolean" && +a.pinned
     const bp = typeof b.pinned === "boolean" && +b.pinned
     if (ap !== bp) return bp - ap
+    const ao = a.order ?? Infinity
+    const bo = b.order ?? Infinity
+    if (ao !== bo) return ao - bo
     if (ap && bp) return b.created_at.localeCompare(a.created_at)
     return a.created_at.localeCompare(b.created_at)
   })
@@ -147,16 +153,45 @@ const List: React.FC<Props> = ({
     onMoveToToday: onMoveToToday
   }
 
-  return (
-    <div>
-      <ul
-        className={cx("task-list", { compact: settings.compactMode })}
-        ref={selectedRef}
-      >
-        {uncompleted.map(task => {
-          if (!task) return null
+  const handleReorder = (reordered: TaskType[]) => {
+    if (!onReorder) return
+    const withOrder = reordered.map((t, i) => ({ ...t, order: i }))
+    onReorder(withOrder)
+  }
 
-          return (
+  return (
+    <div ref={selectedRef}>
+      {uncompleted.length === 0 && !hasCompletedTasks && (
+        <div className="text-slate-400 dark:text-navy-500 text-sm text-center py-12">
+          Nothing to do — enjoy your day!
+        </div>
+      )}
+
+      {onReorder ? (
+        <Reorder.Group
+          axis="y"
+          values={uncompleted}
+          onReorder={handleReorder}
+          className={cx("task-list", { compact: settings.compactMode })}
+          as="ul"
+        >
+          {uncompleted.map(task => (
+            <Reorder.Item key={task.id} value={task} as="li" className="task">
+              <Task
+                {...callbackHandlers}
+                active={task.id === selected}
+                task={task}
+                labels={labels}
+                filters={filters}
+                canPin={canPinTasks}
+                compact={settings.compactMode}
+              />
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
+      ) : (
+        <ul className={cx("task-list", { compact: settings.compactMode })}>
+          {uncompleted.map(task => (
             <li key={task.id} className="task">
               <Task
                 {...callbackHandlers}
@@ -168,48 +203,46 @@ const List: React.FC<Props> = ({
                 compact={settings.compactMode}
               />
             </li>
-          )
-        })}
+          ))}
+        </ul>
+      )}
 
-        {hasCompletedTasks && (
-          <div
-            className={cx("flex mb-2 items-center cursor-pointer", {
-              "mt-10": uncompleted.length > 0,
-              "mt-4": uncompleted.length === 0
-            })}
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            <h4 className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200 font-bold">
-              {completed.length} Completed
-            </h4>
-            <div className="align-center">
-              {collapsed ? (
-                <ChevronDown style={{ verticalAlign: "middle" }} />
-              ) : (
-                <ChevronUp style={{ verticalAlign: "middle" }} />
-              )}
-            </div>
+      {hasCompletedTasks && (
+        <div
+          className={cx("flex mb-2 items-center cursor-pointer", {
+            "mt-10": uncompleted.length > 0,
+            "mt-4": uncompleted.length === 0
+          })}
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <h4 className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200 font-bold">
+            {completed.length} Completed
+          </h4>
+          <div className="align-center">
+            {collapsed ? (
+              <ChevronDown style={{ verticalAlign: "middle" }} />
+            ) : (
+              <ChevronUp style={{ verticalAlign: "middle" }} />
+            )}
           </div>
-        )}
+        </div>
+      )}
 
+      <ul className={cx("task-list", { compact: settings.compactMode })}>
         {!collapsed && hasCompletedTasks
-          ? completed.map(task => {
-              if (!task) return null
-
-              return (
-                <li key={task.id} className="task">
-                  <Task
-                    {...callbackHandlers}
-                    active={task.id === selected}
-                    task={task}
-                    canPin={canPinTasks}
-                    labels={labels}
-                    filters={filters}
-                    compact={settings.compactMode}
-                  />
-                </li>
-              )
-            })
+          ? completed.map(task => (
+              <li key={task.id} className="task">
+                <Task
+                  {...callbackHandlers}
+                  active={task.id === selected}
+                  task={task}
+                  canPin={canPinTasks}
+                  labels={labels}
+                  filters={filters}
+                  compact={settings.compactMode}
+                />
+              </li>
+            ))
           : null}
       </ul>
     </div>

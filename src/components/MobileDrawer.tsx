@@ -1,7 +1,9 @@
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import Portal from "./Portal"
 import useOnClickOutside from "../hooks/onclickoutside"
+import CrossIcon from "@meronex/icons/fi/FiX"
+import useFocusTrap from "../hooks/useFocusTrap"
 
 interface MobileDrawerProps {
   open: boolean
@@ -18,9 +20,20 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
 }) => {
   const panelRef = useRef<HTMLDivElement>(null)
 
+  useFocusTrap(panelRef, open)
+
   useOnClickOutside(panelRef, () => {
     if (open) onClose()
   })
+
+  useEffect(() => {
+    if (!open) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+    document.addEventListener("keydown", handleKey)
+    return () => document.removeEventListener("keydown", handleKey)
+  }, [open, onClose])
 
   return (
     <Portal>
@@ -44,7 +57,16 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="fixed top-0 right-0 bottom-0 w-4/5 max-w-sm z-50 bg-white dark:bg-navy-900 shadow-xl flex flex-col"
             >
-              <div className="flex-1 overflow-y-auto p-4 pt-6 min-h-0">
+              <div className="flex items-center justify-end p-4 pb-0">
+                <button
+                  className="no-style text-slate-500 dark:text-navy-400"
+                  onClick={onClose}
+                  aria-label="Close menu"
+                >
+                  <CrossIcon fontSize={22} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 pt-2 min-h-0">
                 {children}
               </div>
               {footer && <div className="p-4">{footer}</div>}

@@ -97,13 +97,6 @@ export default function Settings({ labels }: SettingsProps) {
             />
           </SettingRow>
 
-          <SettingRow label="Confirm before delete">
-            <Toggle
-              checked={settings.confirmBeforeDelete}
-              onChange={v => updateSetting("confirmBeforeDelete", v)}
-            />
-          </SettingRow>
-
           <SettingRow label="Move completed to yesterday">
             <Toggle
               checked={settings.moveCompletedToYesterday}
