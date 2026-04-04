@@ -5,7 +5,6 @@ import * as ReactDOM from "react-dom"
 
 // Context
 import ContextWrapper from "./App"
-import Header from "./components/Header"
 // Components
 import Todo from "./components/Todo"
 import Tooltip from "react-tooltip"
@@ -27,7 +26,6 @@ const App = () => {
 
   return (
     <main>
-      <Header />
       <Todo />
       <Tooltip
         multiline={false}
