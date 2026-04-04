@@ -457,7 +457,7 @@ const Task: React.FC<Props> = ({
 
           <button
             type="button"
-            className="no-style remove-icon p-0! max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
+            className="no-style remove-icon p-0! overflow-hidden transition-all duration-200 max-w-[40px] px-[10px]! opacity-100 md:max-w-0 md:px-0! md:opacity-0 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
             data-tooltip-id="tooltip"
             data-tooltip-content="Delete (X)"
             aria-label="Delete task"

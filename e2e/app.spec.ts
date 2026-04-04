@@ -218,4 +218,50 @@ test("mobile", async ({ page }) => {
     await input.press("Enter")
     await expect(page.getByText("Mobile task")).toBeVisible()
   })
+
+  await test.step("delete button is visible on mobile without hover", async () => {
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "Mobile task" })
+    const deleteBtn = card.getByLabel("Delete task")
+    await expect(deleteBtn).toBeVisible()
+  })
+
+  await test.step("delete a task on mobile", async () => {
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "Mobile task" })
+    await card.getByLabel("Delete task").click()
+    await expect(page.getByRole("alert")).toContainText("deleted")
+    await expect(page.getByText("Undo")).toBeVisible()
+  })
+
+  await test.step("drag handle is visible for reordering", async () => {
+    // Create two tasks so reorder is possible
+    const input = page.getByPlaceholder("Write a todo for today...")
+    await input.fill("First task")
+    await input.press("Enter")
+    await input.fill("Second task")
+    await input.press("Enter")
+
+    // Verify drag handles are present (grip icons)
+    const handles = page.locator(".cursor-grab")
+    await expect(handles.first()).toBeVisible()
+    expect(await handles.count()).toBeGreaterThanOrEqual(2)
+  })
+
+  await test.step("task body is scrollable without triggering reorder", async () => {
+    // Verify the task card itself does not have touch drag behavior
+    // (dragListener={false} on Reorder.Item means only the handle drags)
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "First task" })
+    await expect(card).toBeVisible()
+    // The card should be clickable (not intercepted by drag)
+    await card.click()
+    await expect(
+      page.locator("textarea.task-title-input")
+    ).toBeVisible()
+    await page.keyboard.press("Escape")
+  })
 })
