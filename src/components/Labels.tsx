@@ -48,11 +48,14 @@ const Labels: React.FC<Props> = ({
   }, [labels])
 
   const handleCreate = React.useCallback(() => {
+    const usedColors = new Set(labels.map(l => l.color))
+    const nextColor =
+      colors.find(c => !usedColors.has(c.backgroundColor)) ?? colors[0]
     setNewLabel({
       title: "",
-      color: colors[0].backgroundColor
+      color: nextColor.backgroundColor
     })
-  }, [colors])
+  }, [colors, labels])
 
   const handleSave = React.useCallback(() => {
     if (newLabel.title.trim().length > 0) {
