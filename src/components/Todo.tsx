@@ -388,7 +388,7 @@ const Todo: React.FC = ({}) => {
           )}
           {isDesktop && !sidebar.collapsed && (
             <div
-              className="bg-slate-50/60 dark:bg-navy-800"
+              className="bg-slate-50/60 dark:bg-navy-800 flex flex-col"
               style={{
                 width: `${activeSidebarWidth * 100}%`,
                 padding: 32,
@@ -405,12 +405,13 @@ const Todo: React.FC = ({}) => {
                   exit={{ opacity: 0, x: 12 }}
                   transition={contentTransition}
                   className="flex flex-col flex-grow justify-start"
+                  style={{ flex: 1, minHeight: 0, overflow: "hidden" }}
                 >
                   <div className="pb-1">
                     <Title>Labels</Title>
                   </div>
 
-                  <div className="flex-1 overflow-y-scroll pb-2 min-h-0">
+                  <div className="flex-1 overflow-y-auto pb-2 min-h-0 pr-2">
                     <Labels
                       labels={data.labels}
                       limit={15}
