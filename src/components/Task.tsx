@@ -1,12 +1,6 @@
 import type { Label as LabelType, Task as TaskType } from "../index.d"
 // Types
-import React, {
-  FormEvent,
-  MouseEvent,
-  TouchEvent,
-  useCallback,
-  useRef
-} from "react"
+import React, { FormEvent, MouseEvent, useCallback, useRef } from "react"
 
 import Animate from "./Animate"
 // Components
@@ -187,7 +181,7 @@ const Task: React.FC<Props> = ({
   }, [onMarkAsComplete, state])
 
   const handlePress = useCallback(
-    (event: MouseEvent | TouchEvent) => {
+    (event: MouseEvent) => {
       if (active) return
 
       const target = event.target as HTMLElement
@@ -228,7 +222,6 @@ const Task: React.FC<Props> = ({
           }
         )}
         onClick={handlePress}
-        onTouchStart={handlePress}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
