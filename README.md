@@ -1,54 +1,47 @@
 # What Todo
 
-"What Todo" is a Chrome Extension to replace your "New Tab" page with a todo list experience.
-
-
-[Install via Chrome WebStore](https://chrome.google.com/webstore/detail/what-todo/plicihhfbemkmlkclkifeeepocjiogcg)
+A simple, fast todo app with a three-panel layout — completed tasks on the left, today's focus in the center, and labels + settings on the right.
 
 ### Features
 
-- **Privacy**: your data is stored in Chrome local storage _only_. It's never sent over the network.
-- Tasks from today move to yesterday automatically at 12am.
-- Use labels to sort, filter and manage your tasks.
-- Use the notes section to manage your notes for the past 6 days + tomorrow.
-
-![What Todo](https://github.com/markmur/what-todo/blob/master/media/screenshot.png)
-
----
+- **Privacy first** — all data stored in localStorage, never sent over the network
+- **Labels** — create, color-code, and filter tasks by label
+- **Pin tasks** — keep important tasks at the top
+- **Drag to reorder** — manually sort tasks in the focus section
+- **Search** — filter tasks by title or description
+- **Dark mode** — toggle between light and dark themes
+- **Resizable sidebar** — drag to resize the right panel
+- **Keyboard shortcuts** — P (pin), X (delete), M (move to today), Escape (deselect)
+- **Undo delete** — 5-second undo window after deleting a task
+- **Compact mode** — reduce spacing for denser task lists
+- **Mobile support** — responsive layout with slide-out drawer for labels and settings
+- **Accessible** — keyboard navigable, screen reader friendly, reduced motion support
 
 ### Development
 
 ```sh
-# Install dependencies
-yarn install
-
-# Run app in development mode
-yarn dev
+pnpm install
+pnpm dev
 ```
 
-#### Load extension in Chrome
-
-1. Go to chrome://extensions
-2. Click "Load unpacked" (top left of the page)
-3. Choose the `what-todo/dist` folder
-4. Open a new tab
-
----
-
-### Releasing
-
-#### 1. Bump version
-
-Bump the version in the `package.json` file.
-
-#### 2. Create a new release
-
-Run the following script to generate a new release:
+### Scripts
 
 ```sh
-yarn release
+pnpm dev          # Start dev server
+pnpm build        # Production build
+pnpm test         # Run tests
+pnpm test:watch   # Run tests in watch mode
+pnpm lint         # Lint with ESLint + Prettier + jsx-a11y
+pnpm typecheck    # TypeScript type checking
 ```
 
-Releases are created under `releases/what-todo.{version}.zip`.
+![What Todo](https://github.com/markmur/what-todo/blob/master/media/screenshot.png)
 
-New releases should be uploaded to the Chrome Web Store manually.
+### Tech
+
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Framer Motion
+- Vite 8
+- Vitest
