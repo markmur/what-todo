@@ -189,7 +189,19 @@ const List: React.FC<Props> = ({
     onMoveToToday: onMoveToToday
   }
 
+  const [localOrder, setLocalOrder] = React.useState(uncompleted)
+  const prevIdsRef = React.useRef("")
+
+  React.useEffect(() => {
+    const ids = uncompleted.map(t => t.id).join(",")
+    if (ids !== prevIdsRef.current) {
+      prevIdsRef.current = ids
+      setLocalOrder(uncompleted)
+    }
+  }, [uncompleted])
+
   const handleReorder = (reordered: TaskType[]) => {
+    setLocalOrder(reordered)
     if (!onReorder) return
     const withOrder = reordered.map((t, i) => ({ ...t, order: i }))
     onReorder(withOrder)
@@ -206,12 +218,12 @@ const List: React.FC<Props> = ({
       {onReorder ? (
         <Reorder.Group
           axis="y"
-          values={uncompleted}
+          values={localOrder}
           onReorder={handleReorder}
           className={cx("task-list", { compact: settings.compactMode })}
           as="ul"
         >
-          {uncompleted.map(task => (
+          {localOrder.map(task => (
             <ReorderableItem key={task.id} task={task}>
               <Task
                 {...callbackHandlers}

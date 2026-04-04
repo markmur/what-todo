@@ -346,4 +346,20 @@ describe("Task", () => {
       expect(onRemoveTask).not.toHaveBeenCalled()
     })
   })
+
+  describe("Mobile delete button visibility", () => {
+    it("delete button has mobile-visible classes", () => {
+      renderTask()
+      const deleteBtn = document.querySelector(
+        "[aria-label='Delete task']"
+      ) as HTMLElement
+      expect(deleteBtn).toBeTruthy()
+      // Should have mobile-visible classes (no md: prefix hiding)
+      expect(deleteBtn.className).toContain("max-w-[40px]")
+      expect(deleteBtn.className).toContain("opacity-100")
+      // Should have desktop-hidden classes
+      expect(deleteBtn.className).toContain("md:max-w-0")
+      expect(deleteBtn.className).toContain("md:opacity-0")
+    })
+  })
 })

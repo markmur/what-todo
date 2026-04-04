@@ -243,13 +243,14 @@ test("mobile", async ({ page }) => {
     const input = page.getByPlaceholder("Write a todo for today...")
     await input.fill("First task")
     await input.press("Enter")
+    await expect(page.getByText("First task")).toBeVisible()
     await input.fill("Second task")
     await input.press("Enter")
+    await expect(page.getByText("Second task")).toBeVisible()
 
     // Verify drag handles are present (grip icons)
     const handles = page.locator(".cursor-grab")
-    await expect(handles.first()).toBeVisible()
-    expect(await handles.count()).toBeGreaterThanOrEqual(2)
+    await expect(handles.nth(1)).toBeVisible()
   })
 
   await test.step("task body is scrollable without triggering reorder", async () => {
