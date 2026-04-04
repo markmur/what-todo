@@ -194,6 +194,13 @@ const Todo: React.FC = ({}) => {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [labelsCollapsed, setLabelsCollapsed] = useState(false)
 
+  const [mounted, setMounted] = useState(false)
+  React.useEffect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setMounted(true))
+    })
+  }, [])
+
   const focusLeft =
     isDesktop && !completed.collapsed ? `${completedWidth * 100}%` : "0"
   const focusRight =
@@ -391,7 +398,7 @@ const Todo: React.FC = ({}) => {
               paddingRight: 24,
               paddingTop: 8,
               paddingBottom: isDesktop ? 32 : 16,
-              transition: isDesktop ? slideTransition : undefined
+              transition: isDesktop && mounted ? slideTransition : undefined
             }}
           >
             {/* Left toggle */}
