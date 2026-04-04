@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     environment: "happy-dom",
-    globals: true
+    globals: true,
+    exclude: ["e2e/**", "node_modules/**"]
   }
 })
