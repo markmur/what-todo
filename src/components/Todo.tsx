@@ -26,6 +26,7 @@ import useResize from "../hooks/useResize"
 import Collapse from "./Collapse"
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
+import SearchIcon from "@meronex/icons/fi/FiSearch"
 import Toast from "./Toast"
 
 function Title({ children }: PropsWithChildren) {
@@ -197,6 +198,21 @@ const Todo: React.FC = ({}) => {
     isDesktop && !completed.collapsed ? `${completedWidth * 100}%` : "0"
   const focusRight =
     isDesktop && !sidebar.collapsed ? `${activeSidebarWidth * 100}%` : "0"
+
+  const visibleTasks = React.useMemo(() => {
+    let tasks = todaysTasks.filter(t => t.id !== pendingDelete?.id)
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      tasks = tasks.filter(
+        t =>
+          t.title.toLowerCase().includes(q) ||
+          t.description?.toLowerCase().includes(q)
+      )
+    }
+    return tasks
+  }, [todaysTasks, pendingDelete, searchQuery])
+
+  const isFiltering = searchQuery.length > 0 || data.filters.length > 0
 
   return (
     <>
@@ -501,7 +517,11 @@ const Todo: React.FC = ({}) => {
             )}
 
             {todaysTasks.length > 0 && (
-              <div className="mb-3">
+              <div className="mb-3 relative">
+                <SearchIcon
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-navy-500"
+                  fontSize={14}
+                />
                 <input
                   type="text"
                   value={searchQuery}
@@ -510,7 +530,7 @@ const Todo: React.FC = ({}) => {
                     if (e.key === "Escape") setSearchQuery("")
                   }}
                   placeholder="Search tasks..."
-                  className="w-full text-sm border border-slate-200 dark:border-navy-700 rounded-lg px-3 py-2 outline-none placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
+                  className="w-full text-sm border border-slate-200 dark:border-navy-700 rounded-lg pl-8 pr-3 py-2 outline-none placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
                   style={{ background: "transparent" }}
                 />
               </div>
@@ -518,18 +538,10 @@ const Todo: React.FC = ({}) => {
 
             <div className="w-full flex-2 overflow-y-scroll">
               <List
-                tasks={todaysTasks
-                  .filter(t => t.id !== pendingDelete?.id)
-                  .filter(t => {
-                    if (!searchQuery) return true
-                    const q = searchQuery.toLowerCase()
-                    return (
-                      t.title.toLowerCase().includes(q) ||
-                      t.description?.toLowerCase().includes(q)
-                    )
-                  })}
+                tasks={visibleTasks}
                 labels={labelsById}
                 filters={data.filters}
+                isFiltering={isFiltering}
                 hideCompleted={settings.moveCompletedToYesterday}
                 onFilter={updateFilters}
                 onUpdateTask={handleUpdateTask}

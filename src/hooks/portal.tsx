@@ -1,18 +1,15 @@
 import React from "react"
 
 function usePortal(): HTMLDivElement {
-  const rootElemRef = React.useRef(document.createElement("div"))
+  const [el] = React.useState(() => document.createElement("div"))
 
-  React.useEffect(function setupElement() {
+  React.useEffect(() => {
     const parentElem = document.querySelector("#portal")
-    const el = rootElemRef.current
-
     parentElem.appendChild(el)
-
     return () => el.remove()
-  }, [])
+  }, [el])
 
-  return rootElemRef.current
+  return el
 }
 
 export default usePortal
