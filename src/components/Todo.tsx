@@ -8,7 +8,6 @@ import React, { PropsWithChildren, useCallback, useState } from "react"
 import { formatDateHeading, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
 
-import { Flex } from "rebass"
 import Footer from "./Footer"
 import Labels from "./Labels"
 import List from "./List"
@@ -28,12 +27,18 @@ import useResize from "../hooks/useResize"
 
 function Title({ children }: PropsWithChildren) {
   return (
-    <h1 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">{children}</h1>
+    <h1 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">
+      {children}
+    </h1>
   )
 }
 
 function Subtitle({ children }: PropsWithChildren) {
-  return <h2 className="text-sm mb-4 text-slate-500 dark:text-navy-400">{children}</h2>
+  return (
+    <h2 className="text-sm mb-4 text-slate-500 dark:text-navy-400">
+      {children}
+    </h2>
+  )
 }
 
 const getTasksFor =
@@ -54,10 +59,6 @@ const getOlderTasks = (data: Data): Task[] => {
 
   return list
 }
-
-const mobilePadding = 3
-const padding = 4
-const paddingTop = 2
 
 // Content fade/slide animation shared by both sidebars
 const contentTransition = { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
@@ -142,9 +143,9 @@ const Todo: React.FC = ({}) => {
     minWidth: 0.2,
     maxWidth: 0.45,
     onResize: setSidebarWidth,
-    onResizeEnd: (width) => {
+    onResizeEnd: width => {
       updateSection("sidebar", { ...sidebar, width })
-    },
+    }
   })
 
   const activeSidebarWidth = sidebar.collapsed ? 0 : sidebarWidth
@@ -169,14 +170,15 @@ const Todo: React.FC = ({}) => {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const completedContent = !completed.collapsed && (
-    <Flex
-      width={grid.completed}
-      height={fullHeight}
-      p={padding}
-      pt={paddingTop}
-      flexDirection="column"
-      className="bg-slate-50/60 dark:bg-navy-800"
-      style={{ overflow: "hidden" }}
+    <div
+      className="flex-col bg-slate-50/60 dark:bg-navy-800 hidden md:flex"
+      style={{
+        width: `${(isDesktop ? grid.completed[1] : 0) * 100}%`,
+        height: fullHeight,
+        padding: 32,
+        paddingTop: 8,
+        overflow: "hidden"
+      }}
     >
       <AnimatePresence>
         <motion.div
@@ -185,7 +187,13 @@ const Todo: React.FC = ({}) => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -12 }}
           transition={contentTransition}
-          style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            minHeight: 0,
+            overflow: "hidden"
+          }}
         >
           <div className="pb-1">
             <Title>Completed</Title>
@@ -237,183 +245,204 @@ const Todo: React.FC = ({}) => {
           </div>
         </motion.div>
       </AnimatePresence>
-    </Flex>
+    </div>
   )
 
   return (
     <>
       <Header
-        onMenuClick={!isDesktop ? () => setDrawerOpen(prev => !prev) : undefined}
-        taskCount={settings.showTaskCount ? todaysTasks.filter(t => !t.completed).length : undefined}
+        onMenuClick={
+          !isDesktop ? () => setDrawerOpen(prev => !prev) : undefined
+        }
+        taskCount={
+          settings.showTaskCount
+            ? todaysTasks.filter(t => !t.completed).length
+            : undefined
+        }
       />
       <main>
-      <div className="flex">
-        {isDesktop && completedContent}
+        <div className="flex">
+          {isDesktop && completedContent}
 
-        {isDesktop && (
-          <div
-            className={`flex items-center transition-opacity duration-200 ${
-              completed.collapsed
-                ? "opacity-100"
-                : "opacity-0 hover:opacity-100"
-            }`}
-            style={{ height: fullHeight }}
-          >
-            <ToggleButton
-              collapsed={completed.collapsed}
-              side="left"
-              onClick={() =>
-                updateSection("completed", {
-                  collapsed: !completed.collapsed
-                })
-              }
-            />
-          </div>
-        )}
-
-        <Flex
-          width={grid.focus}
-          px={[mobilePadding, mobilePadding, 3]}
-          pl={[mobilePadding, mobilePadding, 3]}
-          pt={[paddingTop]}
-          pb={[mobilePadding, padding]}
-          height={fullHeight}
-          flexDirection="column"
-        >
-          <div className="pb-1">
-            <Title>Focus</Title>
-            <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
-          </div>
-
-          {data.filters.length > 0 && (
-            <div className="my-2">
-              <small>Showing: </small>
-              {data.filters.map(id => (
-                <div className="inline mb-1 mr-1" key={id}>
-                  <Label
-                    active
-                    label={labelsById[id]}
-                    onRemove={() => {
-                      updateFilters(data.filters.filter(x => x !== id))
-                    }}
-                  />
-                </div>
-              ))}
+          {isDesktop && (
+            <div
+              className={`flex items-center transition-opacity duration-200 ${
+                completed.collapsed
+                  ? "opacity-100"
+                  : "opacity-0 hover:opacity-100"
+              }`}
+              style={{ height: fullHeight }}
+            >
+              <ToggleButton
+                collapsed={completed.collapsed}
+                side="left"
+                onClick={() =>
+                  updateSection("completed", {
+                    collapsed: !completed.collapsed
+                  })
+                }
+              />
             </div>
           )}
 
-          <div className="w-full flex-[2] overflow-y-scroll">
-            <List
-              tasks={todaysTasks}
-              labels={labelsById}
-              filters={data.filters}
-              hideCompleted={settings.moveCompletedToYesterday}
-              onFilter={updateFilters}
-              onUpdateTask={handleUpdateTask}
-              onRemoveTask={handleRemoveTask}
-              onMarkAsComplete={markAsComplete}
-            />
-          </div>
-
-          <div className="pt-3 sticky bottom-0 bg-white dark:bg-navy-900 z-10">
-            <TaskInput
-              placeholder="Write a todo for today..."
-              labels={data.labels}
-              filters={data.filters}
-              onAdd={task => handleAddTask(task, today())}
-            />
-          </div>
-        </Flex>
-
-        {isDesktop && (
           <div
-            className={`flex items-center justify-center transition-opacity duration-200 ${
-              sidebar.collapsed
-                ? "opacity-100"
-                : "opacity-0 hover:opacity-100"
-            }`}
+            className="flex flex-col"
             style={{
-              height: fullHeight,
-              cursor: sidebar.collapsed ? undefined : "col-resize",
-              width: sidebar.collapsed ? undefined : 8,
-            }}
-            onMouseDown={sidebar.collapsed ? undefined : handleResizeMouseDown}
-            onDoubleClick={() => {
-              if (!sidebar.collapsed) {
-                setSidebarWidth(defaultSidebarWidth)
-                updateSection("sidebar", { ...sidebar, width: undefined })
-              }
+              width: `${grid.focus[isDesktop ? Math.min(grid.focus.length - 1, breakpoint) : 0] * 100}%`,
+              paddingLeft: isDesktop ? 16 : 16,
+              paddingRight: isDesktop ? 16 : 16,
+              paddingTop: 8,
+              paddingBottom: isDesktop ? 32 : 16,
+              height: fullHeight
             }}
           >
-            <div onMouseDown={e => e.stopPropagation()}>
-              <ToggleButton
-                collapsed={sidebar.collapsed}
-                side="right"
-                onClick={() => {
-                  const expanding = sidebar.collapsed
-                  if (expanding) {
-                    setSidebarWidth(Math.max(MIN_SIDEBAR_WIDTH, sidebar.width ?? defaultSidebarWidth))
-                  }
-                  updateSection("sidebar", {
-                    ...sidebar,
-                    collapsed: !sidebar.collapsed
-                  })
-                }}
+            <div className="pb-1">
+              <Title>Focus</Title>
+              <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
+            </div>
+
+            {data.filters.length > 0 && (
+              <div className="my-2">
+                <small>Showing: </small>
+                {data.filters.map(id => (
+                  <div className="inline mb-1 mr-1" key={id}>
+                    <Label
+                      active
+                      label={labelsById[id]}
+                      onRemove={() => {
+                        updateFilters(data.filters.filter(x => x !== id))
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="w-full flex-[2] overflow-y-scroll">
+              <List
+                tasks={todaysTasks}
+                labels={labelsById}
+                filters={data.filters}
+                hideCompleted={settings.moveCompletedToYesterday}
+                onFilter={updateFilters}
+                onUpdateTask={handleUpdateTask}
+                onRemoveTask={handleRemoveTask}
+                onMarkAsComplete={markAsComplete}
+              />
+            </div>
+
+            <div className="pt-3 sticky bottom-0 bg-white dark:bg-navy-900 z-10">
+              <TaskInput
+                placeholder="Write a todo for today..."
+                labels={data.labels}
+                filters={data.filters}
+                onAdd={task => handleAddTask(task, today())}
               />
             </div>
           </div>
-        )}
-        {isDesktop && !sidebar.collapsed && (
-              <Flex
-                width={grid.sidebar}
-                p={padding}
-                pt={paddingTop}
-                height={fullHeight}
-                className="bg-slate-50/60 dark:bg-navy-800"
-                style={{ overflow: "hidden" }}
-              >
-                <AnimatePresence>
-                  <motion.div
-                    key="sidebar-content"
-                    initial={{ opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 12 }}
-                    transition={contentTransition}
-                    className="flex flex-col flex-grow justify-start"
-                  >
-                    <div className="pb-1">
-                      <Title>Labels</Title>
-                    </div>
 
-                    <div className="flex-1 overflow-y-scroll pb-2 min-h-0">
-                      <Labels
-                        labels={data.labels}
-                        limit={15}
-                        colors={colors}
-                        filters={data.filters}
-                        onFilter={updateFilters}
-                        onAddLabel={handleAddLabel}
-                        onUpdateLabel={handleUpdateLabel}
-                        onRemoveLabel={handleRemoveLabel}
-                      />
+          {isDesktop && (
+            <div
+              className={`flex items-center justify-center transition-opacity duration-200 ${
+                sidebar.collapsed
+                  ? "opacity-100"
+                  : "opacity-0 hover:opacity-100"
+              }`}
+              style={{
+                height: fullHeight,
+                cursor: sidebar.collapsed ? undefined : "col-resize",
+                width: sidebar.collapsed ? undefined : 8
+              }}
+              onMouseDown={
+                sidebar.collapsed ? undefined : handleResizeMouseDown
+              }
+              onDoubleClick={() => {
+                if (!sidebar.collapsed) {
+                  setSidebarWidth(defaultSidebarWidth)
+                  updateSection("sidebar", { ...sidebar, width: undefined })
+                }
+              }}
+            >
+              <div onMouseDown={e => e.stopPropagation()}>
+                <ToggleButton
+                  collapsed={sidebar.collapsed}
+                  side="right"
+                  onClick={() => {
+                    const expanding = sidebar.collapsed
+                    if (expanding) {
+                      setSidebarWidth(
+                        Math.max(
+                          MIN_SIDEBAR_WIDTH,
+                          sidebar.width ?? defaultSidebarWidth
+                        )
+                      )
+                    }
+                    updateSection("sidebar", {
+                      ...sidebar,
+                      collapsed: !sidebar.collapsed
+                    })
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {isDesktop && !sidebar.collapsed && (
+            <div
+              className="bg-slate-50/60 dark:bg-navy-800"
+              style={{
+                width: `${activeSidebarWidth * 100}%`,
+                padding: 32,
+                paddingTop: 8,
+                height: fullHeight,
+                overflow: "hidden"
+              }}
+            >
+              <AnimatePresence>
+                <motion.div
+                  key="sidebar-content"
+                  initial={{ opacity: 0, x: 12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 12 }}
+                  transition={contentTransition}
+                  className="flex flex-col flex-grow justify-start"
+                >
+                  <div className="pb-1">
+                    <Title>Labels</Title>
+                  </div>
 
-                      <div className="mt-4">
-                        <Settings labels={data.labels} />
-                      </div>
-                    </div>
+                  <div className="flex-1 overflow-y-scroll pb-2 min-h-0">
+                    <Labels
+                      labels={data.labels}
+                      limit={15}
+                      colors={colors}
+                      filters={data.filters}
+                      onFilter={updateFilters}
+                      onAddLabel={handleAddLabel}
+                      onUpdateLabel={handleUpdateLabel}
+                      onRemoveLabel={handleRemoveLabel}
+                    />
 
-                    <div className="h-[55px]">
-                      <Footer />
+                    <div className="mt-4">
+                      <Settings labels={data.labels} />
                     </div>
-                  </motion.div>
-                </AnimatePresence>
-              </Flex>
-        )}
-      </div>
-    </main>
+                  </div>
+
+                  <div className="h-[55px]">
+                    <Footer />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
+      </main>
 
       {!isDesktop && (
-        <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} footer={<Footer />}>
+        <MobileDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={<Footer />}
+        >
           <div className="pb-1">
             <Title>Labels</Title>
           </div>

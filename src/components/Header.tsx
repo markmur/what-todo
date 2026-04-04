@@ -2,9 +2,22 @@ import React from "react"
 import cx from "classnames"
 import MenuIcon from "@meronex/icons/fi/FiMenu"
 
-function Header({ className, onMenuClick, taskCount }: { className?: string; onMenuClick?: () => void; taskCount?: number }) {
+function Header({
+  className,
+  onMenuClick,
+  taskCount
+}: {
+  className?: string
+  onMenuClick?: () => void
+  taskCount?: number
+}) {
   return (
-    <header className={cx(className, "py-8 px-4 border-b-slate-100 flex items-center justify-between")}>
+    <header
+      className={cx(
+        className,
+        "py-8 px-4 border-b-slate-100 flex items-center justify-between"
+      )}
+    >
       <div className="flex items-center gap-2">
         <strong className="dark:text-navy-100">What Todo 🤷‍♂️</strong>
         {typeof taskCount === "number" && (

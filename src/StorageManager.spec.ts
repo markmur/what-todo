@@ -3,7 +3,6 @@ import StorageManager from "./StorageManager"
 import { browser } from "webextension-polyfill-ts"
 jest.mock("webextension-polyfill-ts")
 
-
 describe("StorageManager", () => {
   let inst = new StorageManager()
 
@@ -53,7 +52,7 @@ describe("StorageManager", () => {
       tasks: [
         { id: "1", title: "Test", created_at: "03/02", completed: false },
         { id: "2", title: "Test 2", created_at: "02/02", completed: true }
-      ],
+      ]
     }
 
     browser.storage.sync.set(badData)

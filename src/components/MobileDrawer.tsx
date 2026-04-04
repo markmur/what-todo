@@ -10,7 +10,12 @@ interface MobileDrawerProps {
   footer?: React.ReactNode
 }
 
-const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose, children, footer }) => {
+const MobileDrawer: React.FC<MobileDrawerProps> = ({
+  open,
+  onClose,
+  children,
+  footer
+}) => {
   const panelRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(panelRef, () => {
@@ -42,11 +47,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose, children, fo
               <div className="flex-1 overflow-y-auto p-4 pt-6 min-h-0">
                 {children}
               </div>
-              {footer && (
-                <div className="p-4">
-                  {footer}
-                </div>
-              )}
+              {footer && <div className="p-4">{footer}</div>}
             </motion.div>
           </>
         )}

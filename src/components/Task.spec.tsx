@@ -6,7 +6,7 @@ import { SettingsProvider } from "../context/SettingsContext"
 const defaultLabels = {
   "label-1": { id: "label-1", title: "Work", color: "#ff6348" },
   "label-2": { id: "label-2", title: "Personal", color: "#45b975" },
-  "label-3": { id: "label-3", title: "Urgent", color: "#5352ed" },
+  "label-3": { id: "label-3", title: "Urgent", color: "#5352ed" }
 }
 
 function createTask(overrides = {}) {
@@ -18,11 +18,14 @@ function createTask(overrides = {}) {
     created_at: new Date().toISOString(),
     labels: ["label-1", "label-2"],
     pinned: false,
-    ...overrides,
+    ...overrides
   }
 }
 
-function renderTask(taskOverrides = {}, propsOverrides: Record<string, any> = {}) {
+function renderTask(
+  taskOverrides = {},
+  propsOverrides: Record<string, any> = {}
+) {
   const task = createTask(taskOverrides)
   const onUpdate = vi.fn()
   const onRemoveTask = vi.fn()
@@ -51,7 +54,17 @@ function renderTask(taskOverrides = {}, propsOverrides: Record<string, any> = {}
     </SettingsProvider>
   )
 
-  return { ...result, task, onUpdate, onRemoveTask, onFilter, onMarkAsComplete, onSelect, onDeselect, onMoveToToday }
+  return {
+    ...result,
+    task,
+    onUpdate,
+    onRemoveTask,
+    onFilter,
+    onMarkAsComplete,
+    onSelect,
+    onDeselect,
+    onMoveToToday
+  }
 }
 
 describe("Task", () => {
@@ -70,7 +83,9 @@ describe("Task", () => {
 
       const { onRemoveTask, onUpdate } = renderTask()
 
-      const removeButton = document.querySelector(".remove-icon:last-child") as HTMLElement
+      const removeButton = document.querySelector(
+        ".remove-icon:last-child"
+      ) as HTMLElement
       fireEvent.click(removeButton)
 
       expect(window.confirm).toHaveBeenCalledWith("Delete this task?")
@@ -112,7 +127,7 @@ describe("Task", () => {
 
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
-          labels: ["label-1", "label-2", "label-3"],
+          labels: ["label-1", "label-2", "label-3"]
         })
       )
     })
@@ -128,23 +143,20 @@ describe("Task", () => {
 
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
-          labels: ["label-2"],
+          labels: ["label-2"]
         })
       )
     })
 
     it("preserves labels after multiple consecutive clicks", () => {
-      const { onUpdate } = renderTask(
-        { labels: ["label-1"] },
-        { active: true }
-      )
+      const { onUpdate } = renderTask({ labels: ["label-1"] }, { active: true })
 
       const personalLabel = screen.getByText("Personal")
       fireEvent.click(personalLabel)
 
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
-          labels: ["label-1", "label-2"],
+          labels: ["label-1", "label-2"]
         })
       )
     })
@@ -158,10 +170,14 @@ describe("Task", () => {
         { active: true }
       )
 
-      const titleInput = document.querySelector("textarea.task-title-input") as HTMLTextAreaElement
+      const titleInput = document.querySelector(
+        "textarea.task-title-input"
+      ) as HTMLTextAreaElement
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
-      const checkbox = document.querySelector("input[type='checkbox']") as HTMLInputElement
+      const checkbox = document.querySelector(
+        "input[type='checkbox']"
+      ) as HTMLInputElement
       fireEvent.click(checkbox)
 
       vi.advanceTimersByTime(1500)
@@ -170,7 +186,7 @@ describe("Task", () => {
         expect.objectContaining({
           title: "Edited title",
           labels: ["label-1", "label-2"],
-          completed: true,
+          completed: true
         })
       )
       vi.useRealTimers()
@@ -184,17 +200,21 @@ describe("Task", () => {
         { active: true }
       )
 
-      const titleInput = document.querySelector("textarea.task-title-input") as HTMLTextAreaElement
+      const titleInput = document.querySelector(
+        "textarea.task-title-input"
+      ) as HTMLTextAreaElement
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
-      const pinButton = document.querySelector("[data-tip='Pin task']") as HTMLElement
+      const pinButton = document.querySelector(
+        "[data-tip='Pin task']"
+      ) as HTMLElement
       fireEvent.click(pinButton)
 
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Edited title",
           labels: ["label-1", "label-2"],
-          pinned: true,
+          pinned: true
         })
       )
     })
@@ -205,13 +225,15 @@ describe("Task", () => {
         { active: true }
       )
 
-      const unpinButton = document.querySelector("[data-tip='Unpin task']") as HTMLElement
+      const unpinButton = document.querySelector(
+        "[data-tip='Unpin task']"
+      ) as HTMLElement
       fireEvent.click(unpinButton)
 
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           labels: ["label-1", "label-2"],
-          pinned: false,
+          pinned: false
         })
       )
     })
@@ -219,17 +241,20 @@ describe("Task", () => {
 
   describe("Move to today preserves edits", () => {
     it("uses local state when moving to today", () => {
-      const { onMoveToToday } = renderTask(
-        { title: "Test task", labels: ["label-1"] },
-      )
+      const { onMoveToToday } = renderTask({
+        title: "Test task",
+        labels: ["label-1"]
+      })
 
-      const moveButton = document.querySelector("[data-tip='Move to today']") as HTMLElement
+      const moveButton = document.querySelector(
+        "[data-tip='Move to today']"
+      ) as HTMLElement
       fireEvent.click(moveButton)
 
       expect(onMoveToToday).toHaveBeenCalledWith(
         expect.objectContaining({
           title: "Test task",
-          labels: ["label-1"],
+          labels: ["label-1"]
         })
       )
     })
@@ -237,12 +262,11 @@ describe("Task", () => {
 
   describe("handleBlur detects pinned changes", () => {
     it("saves when only pinned field changed", () => {
-      const { onUpdate } = renderTask(
-        { pinned: false },
-        { active: true }
-      )
+      const { onUpdate } = renderTask({ pinned: false }, { active: true })
 
-      const pinButton = document.querySelector("[data-tip='Pin task']") as HTMLElement
+      const pinButton = document.querySelector(
+        "[data-tip='Pin task']"
+      ) as HTMLElement
       fireEvent.click(pinButton)
 
       expect(onUpdate).toHaveBeenCalledWith(

@@ -1,11 +1,4 @@
-import {
-  Data,
-  Filters,
-  Label,
-  Section,
-  SectionData,
-  Task
-} from "../index.d"
+import { Data, Filters, Label, Section, SectionData, Task } from "../index.d"
 import React, { PropsWithChildren, useCallback } from "react"
 
 import StorageManager from "../StorageManager"

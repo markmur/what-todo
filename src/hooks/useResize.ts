@@ -7,7 +7,12 @@ interface UseResizeOptions {
   onResizeEnd: (width: number) => void
 }
 
-export default function useResize({ minWidth, maxWidth, onResize, onResizeEnd }: UseResizeOptions) {
+export default function useResize({
+  minWidth,
+  maxWidth,
+  onResize,
+  onResizeEnd
+}: UseResizeOptions) {
   const [isResizing, setIsResizing] = useState(false)
   const widthRef = useRef(0)
 

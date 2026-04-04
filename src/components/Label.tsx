@@ -36,7 +36,13 @@ const Label: React.FC<Props> = ({
         }
       )}
       style={
-        active ? { backgroundColor: label.color, borderColor: label.color, color: contrastText(label.color) } : {}
+        active
+          ? {
+              backgroundColor: label.color,
+              borderColor: label.color,
+              color: contrastText(label.color)
+            }
+          : {}
       }
       onClick={onClick}
     >
