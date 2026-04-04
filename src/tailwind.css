@@ -162,6 +162,12 @@
     visibility: visible;
   }
 
+  @media (max-width: 768px) {
+    .task .remove-icon[aria-label="Delete task"] {
+      visibility: visible;
+    }
+  }
+
   .remove-icon {
     color: #aaa;
     cursor: pointer;

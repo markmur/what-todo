@@ -8,8 +8,37 @@ import Task from "./Task"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 import { useSettings } from "../context/SettingsContext"
-import { Reorder } from "framer-motion"
+import { Reorder, useDragControls } from "framer-motion"
+import GripIcon from "@meronex/icons/fi/FiMenu"
 import Animate from "./Animate"
+
+function ReorderableItem({
+  task,
+  children
+}: {
+  task: TaskType
+  children: React.ReactNode
+}) {
+  const controls = useDragControls()
+  return (
+    <Reorder.Item
+      key={task.id}
+      value={task}
+      as="li"
+      className="task flex items-start"
+      dragListener={false}
+      dragControls={controls}
+    >
+      <div
+        className="shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
+        onPointerDown={e => controls.start(e)}
+      >
+        <GripIcon fontSize={14} />
+      </div>
+      <div className="flex-1 min-w-0">{children}</div>
+    </Reorder.Item>
+  )
+}
 
 interface Props {
   tasks?: TaskType[]
@@ -179,7 +208,7 @@ const List: React.FC<Props> = ({
           as="ul"
         >
           {uncompleted.map(task => (
-            <Reorder.Item key={task.id} value={task} as="li" className="task">
+            <ReorderableItem key={task.id} task={task}>
               <Task
                 {...callbackHandlers}
                 active={task.id === selected}
@@ -189,7 +218,7 @@ const List: React.FC<Props> = ({
                 canPin={canPinTasks}
                 compact={settings.compactMode}
               />
-            </Reorder.Item>
+            </ReorderableItem>
           ))}
         </Reorder.Group>
       ) : (
