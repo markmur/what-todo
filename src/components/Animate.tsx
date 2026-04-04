@@ -22,6 +22,7 @@ export default function Animate({
           exit="closed"
           variants={variants}
           transition={{ duration, ease }}
+          style={{ overflow: "hidden" }}
         >
           {children}
         </motion.div>

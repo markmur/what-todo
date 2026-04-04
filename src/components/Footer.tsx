@@ -52,9 +52,9 @@ const Footer: React.FC = () => {
         </em>
 
         <div className="flex items-center">
-          <div className="ml-2">
+          <div className="ml-2 flex items-center">
             <button
-              className="no-style"
+              className="no-style flex items-center"
               data-tip={darkMode ? "Light mode" : "Dark mode"}
               onClick={toggleDarkMode}
               aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}

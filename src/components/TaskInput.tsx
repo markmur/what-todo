@@ -76,15 +76,12 @@ const TaskInput: React.FC<Props> = ({
   }, [task, onAdd, clearTask])
 
   const handleLabelClick = (id: string) => {
-    const newTask = { ...task }
+    const currentLabels = task.labels ?? []
+    const nextLabels = currentLabels.includes(id)
+      ? currentLabels.filter(l => l !== id)
+      : [...currentLabels, id]
 
-    if (task.labels?.includes(id)) {
-      newTask.labels = task.labels.filter(l => l !== id)
-    } else {
-      newTask.labels?.push(id)
-    }
-
-    setTask(newTask)
+    setTask({ ...task, labels: nextLabels })
   }
 
   const handleKeyDown =

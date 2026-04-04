@@ -62,7 +62,8 @@ const taskHasChanged = (
   const hasChanged =
     prevTask.title !== newTask.title ||
     prevTask.description !== newTask.description ||
-    prevTask.labels?.join(",") !== newTask.labels?.join(",")
+    prevTask.labels?.join(",") !== newTask.labels?.join(",") ||
+    !!prevTask.pinned !== !!newTask.pinned
 
   return hasChanged
 }
@@ -191,27 +192,19 @@ const Task: React.FC<Props> = ({
 
   const handleSelect = useCallback(() => {
     if (state) {
-      const prevState = state.completed
-      setState({
-        ...task,
-        completed: !state.completed
-      })
+      const wasCompleted = state.completed
+      const updated = { ...state, completed: !state.completed }
+      setState(updated)
 
-      if (prevState) {
-        onMarkAsComplete({
-          ...task,
-          completed: !task.completed
-        })
+      if (wasCompleted) {
+        onMarkAsComplete(updated)
       } else {
         setTimeout(() => {
-          onMarkAsComplete({
-            ...task,
-            completed: !task.completed
-          })
+          onMarkAsComplete(updated)
         }, 1500)
       }
     }
-  }, [onMarkAsComplete, state, task])
+  }, [onMarkAsComplete, state])
 
   const handlePress = useCallback(
     (event: MouseEvent | TouchEvent) => {
@@ -239,8 +232,11 @@ const Task: React.FC<Props> = ({
       <div
         ref={ref}
         className={cx(
-          "flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto",
+          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto border-2",
           compact ? "py-2 mb-1" : "py-4 mb-3",
+          state?.pinned
+            ? "border-blue-200/50 dark:border-blue-400/20"
+            : "border-transparent",
           {
             ["cursor-pointer"]: !active
           }
@@ -319,36 +315,55 @@ const Task: React.FC<Props> = ({
           </Animate> */}
 
           <>
-            <div className="mt-1">
-              <Textarea
-                maxRows={10}
-                name="description"
-                value={getDescription(active, state?.description)}
-                placeholder="Add description..."
-                className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
-                onChange={handleChange("description")}
-                onKeyDown={handleKeyDown}
-                onFocus={selectTask}
-                onBlur={handleBlur}
-              />
-            </div>
+            {state?.description && (
+              <div className="mt-1">
+                <Textarea
+                  maxRows={10}
+                  name="description"
+                  value={getDescription(active, state?.description)}
+                  placeholder=""
+                  className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
+                  onChange={handleChange("description")}
+                  onKeyDown={handleKeyDown}
+                  onFocus={selectTask}
+                  onBlur={handleBlur}
+                />
+              </div>
+            )}
 
             <Animate active={active}>
+              {!state?.description && (
+                <div className="mt-1">
+                  <Textarea
+                    maxRows={10}
+                    name="description"
+                    value=""
+                    placeholder="Add description..."
+                    className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
+                    onChange={handleChange("description")}
+                    onKeyDown={handleKeyDown}
+                    onFocus={selectTask}
+                    onBlur={handleBlur}
+                  />
+                </div>
+              )}
+
               <div className="flex mt-2 flex-wrap">
                 {Object.entries(labels).map(([id, label]) => (
                   <div className="mr-1 mb-1" key={id}>
                     <Label
                       small
-                      active={task.labels?.includes(id) ?? false}
+                      active={state?.labels?.includes(id) ?? false}
                       label={label}
                       onClick={preventDefault(() => {
-                        const nextLabels = task.labels?.includes(id)
-                          ? task.labels.filter(l => l !== id)
-                          : [...(task.labels ?? []), id]
-                        onUpdate({
-                          ...task,
-                          labels: nextLabels
-                        })
+                        if (!state) return
+                        const currentLabels = state.labels ?? []
+                        const nextLabels = currentLabels.includes(id)
+                          ? currentLabels.filter(l => l !== id)
+                          : [...currentLabels, id]
+                        const updated = { ...state, labels: nextLabels }
+                        setState(updated)
+                        onUpdate(updated)
                       })}
                     />
                   </div>
@@ -358,13 +373,13 @@ const Task: React.FC<Props> = ({
           </>
         </div>
 
-        <div id="actions" className="flex mt-1">
+        <div id="actions" className="flex mt-1 items-center ml-auto shrink-0">
           {onMoveToToday && (
             <div
               data-tip="Move to today"
               className="remove-icon"
               onClick={preventDefault(() => {
-                onMoveToToday(task)
+                onMoveToToday(state ?? task)
                 ReactTooltip.hide()
               })}
             >
@@ -374,16 +389,17 @@ const Task: React.FC<Props> = ({
 
           {canPin && (
             <div
-              data-tip={task.pinned ? "Unpin task" : "Pin task"}
-              className={cx("remove-icon", { active: task.pinned })}
+              data-tip={state?.pinned ? "Unpin task" : "Pin task"}
+              className={cx("remove-icon", { active: state?.pinned })}
+              style={state?.pinned ? { color: "#93c5fd" } : undefined}
               onClick={preventDefault(() => {
-                onUpdate({
-                  ...task,
-                  pinned: !Boolean(task.pinned)
-                })
+                if (!state) return
+                const updated = { ...state, pinned: !Boolean(state.pinned) }
+                setState(updated)
+                onUpdate(updated)
               })}
             >
-              {task.pinned ? <PinFilled /> : <Pin />}
+              {state?.pinned ? <PinFilled /> : <Pin />}
             </div>
           )}
 
@@ -419,7 +435,7 @@ const Task: React.FC<Props> = ({
                 return (
                   <span
                     key={id}
-                    className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 mx-0.5 cursor-pointer"
+                    className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
                     style={{ backgroundColor: bg, color: bg ? contrastText(bg) : undefined }}
                     onClick={handleLabelClick}
                   >
@@ -431,19 +447,22 @@ const Task: React.FC<Props> = ({
               return (
                 <span
                   key={id}
-                  className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                  className="w-[16px] h-[16px] rounded-lg p-0 ml-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
                   data-tip={labels[id]?.title}
                   data-background-color={labels[id]?.color}
-                  style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
+                  style={{ backgroundColor: labels[id]?.color }}
                   onClick={handleLabelClick}
                 />
               )
             })}
 
-          <span className="remove-icon" onClick={() => {
-            if (settings.confirmBeforeDelete && !window.confirm("Delete this task?")) return
-            onRemoveTask(task)
-          }}>
+          <span
+            className="remove-icon !p-0 max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:!px-[10px] group-hover:opacity-100"
+            onClick={() => {
+              if (settings.confirmBeforeDelete && !window.confirm("Delete this task?")) return
+              onRemoveTask(task)
+            }}
+          >
             <CrossIcon />
           </span>
         </div>

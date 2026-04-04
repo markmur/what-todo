@@ -125,13 +125,16 @@ const Todo: React.FC = ({}) => {
   const completed = sections?.["completed"] ?? { collapsed: false }
   const sidebar = sections?.["sidebar"] ?? { collapsed: false }
 
+  const MIN_SIDEBAR_WIDTH = 0.2
   const defaultSidebarWidth = completed.collapsed ? 2 / 5 : 1 / 3
   const completedWidth = 1 / 3
-  const [sidebarWidth, setSidebarWidth] = useState(sidebar.width ?? defaultSidebarWidth)
+  const [sidebarWidth, setSidebarWidth] = useState(
+    Math.max(MIN_SIDEBAR_WIDTH, sidebar.width ?? defaultSidebarWidth)
+  )
 
   React.useEffect(() => {
     if (sidebar.width != null) {
-      setSidebarWidth(sidebar.width)
+      setSidebarWidth(Math.max(MIN_SIDEBAR_WIDTH, sidebar.width))
     }
   }, [sidebar.width])
 
@@ -312,7 +315,7 @@ const Todo: React.FC = ({}) => {
             />
           </div>
 
-          <div className="pt-3">
+          <div className="pt-3 sticky bottom-0 bg-white dark:bg-navy-900 z-10">
             <TaskInput
               placeholder="Write a todo for today..."
               labels={data.labels}
@@ -342,15 +345,22 @@ const Todo: React.FC = ({}) => {
               }
             }}
           >
-            <ToggleButton
-              collapsed={sidebar.collapsed}
-              side="right"
-              onClick={() =>
-                updateSection("sidebar", {
-                  collapsed: !sidebar.collapsed
-                })
-              }
-            />
+            <div onMouseDown={e => e.stopPropagation()}>
+              <ToggleButton
+                collapsed={sidebar.collapsed}
+                side="right"
+                onClick={() => {
+                  const expanding = sidebar.collapsed
+                  if (expanding) {
+                    setSidebarWidth(Math.max(MIN_SIDEBAR_WIDTH, sidebar.width ?? defaultSidebarWidth))
+                  }
+                  updateSection("sidebar", {
+                    ...sidebar,
+                    collapsed: !sidebar.collapsed
+                  })
+                }}
+              />
+            </div>
           </div>
         )}
         {isDesktop && !sidebar.collapsed && (
