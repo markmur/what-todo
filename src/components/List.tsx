@@ -25,13 +25,17 @@ function ReorderableItem({
       key={task.id}
       value={task}
       as="li"
-      className="task flex items-start"
+      className="task flex items-start select-none"
+      style={{ position: "relative" }}
       dragListener={false}
       dragControls={controls}
     >
       <div
         className="shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
-        onPointerDown={e => controls.start(e)}
+        onPointerDown={e => {
+          e.preventDefault()
+          controls.start(e)
+        }}
       >
         <GripIcon fontSize={14} />
       </div>
