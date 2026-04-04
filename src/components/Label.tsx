@@ -22,11 +22,12 @@ const Label: React.FC<Props> = ({
   className = ""
 }) => {
   return (
-    <div
+    <button
+      type="button"
       className={cx(
-        "inline-flex py-1 px-2 rounded-lg text-xs text-slate-700 hover:text-slate-900 dark:text-navy-300 dark:hover:text-navy-100 text-md cursor-pointer",
+        "no-style inline-flex items-center py-1 px-2 rounded-lg text-xs text-slate-700 hover:text-slate-900 dark:text-navy-300 dark:hover:text-navy-100 text-md cursor-pointer",
         small
-          ? "bg-slate-300 hover:bg-slate-400 dark:bg-navy-600 dark:hover:bg-navy-500"
+          ? "bg-slate-300 hover:bg-slate-400 dark:bg-navy-500 dark:hover:bg-navy-400"
           : "bg-slate-200 hover:bg-slate-300 dark:bg-navy-700 dark:hover:bg-navy-600",
         className,
         {
@@ -46,21 +47,28 @@ const Label: React.FC<Props> = ({
       }
       onClick={onClick}
     >
-      <div className="flex items-center">
-        <button className="no-style">{label.title}</button>
-        {onRemove && (
-          <div
-            className="label-x block m-3"
-            onClick={event => {
+      {label.title}
+      {onRemove && (
+        <span
+          className="label-x block ml-2"
+          role="button"
+          tabIndex={0}
+          aria-label={`Remove ${label.title}`}
+          onClick={event => {
+            event.stopPropagation()
+            onRemove()
+          }}
+          onKeyDown={event => {
+            if (event.key === "Enter" || event.key === " ") {
               event.stopPropagation()
               onRemove()
-            }}
-          >
-            <CrossIcon />
-          </div>
-        )}
-      </div>
-    </div>
+            }
+          }}
+        >
+          <CrossIcon />
+        </span>
+      )}
+    </button>
   )
 }
 

@@ -116,7 +116,11 @@ const TaskInput: React.FC<Props> = ({
       )}
     >
       <div className="flex justify-between items-center">
+        <label htmlFor="task-title" className="sr-only">
+          Task title
+        </label>
         <input
+          id="task-title"
           type="text"
           className="text-md font-bold"
           value={task.title}
@@ -134,19 +138,25 @@ const TaskInput: React.FC<Props> = ({
           onKeyDown={handleKeyDown("title")}
         />
         {open && (
-          <Icon
+          <button
+            type="button"
+            className="no-style mb-2 text-slate-600 hover:text-slate-800"
             onClick={handleAdd}
-            className="mb-2 text-slate-600 hover:text-slate-800"
-            cursor="pointer"
-            fontSize={24}
-          />
+            aria-label="Add task"
+          >
+            <Icon cursor="pointer" fontSize={24} />
+          </button>
         )}
       </div>
 
       <Animate duration={0.15} active={open}>
         {open && (
           <>
+            <label htmlFor="task-description" className="sr-only">
+              Description
+            </label>
             <textarea
+              id="task-description"
               rows={2}
               value={task.description}
               className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-10 outline-hidden resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
@@ -157,7 +167,7 @@ const TaskInput: React.FC<Props> = ({
 
             <div>
               <div className="mb-2">
-                <label htmlFor="">Labels</label>
+                <span className="text-sm">Labels</span>
               </div>
               <div>
                 {labels.map(label => (

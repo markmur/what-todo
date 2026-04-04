@@ -1,6 +1,7 @@
 import tseslint from "@typescript-eslint/eslint-plugin"
 import tsparser from "@typescript-eslint/parser"
 import reactHooks from "eslint-plugin-react-hooks"
+import jsxA11y from "eslint-plugin-jsx-a11y"
 import prettier from "eslint-plugin-prettier/recommended"
 
 export default [
@@ -18,11 +19,13 @@ export default [
     },
     plugins: {
       "@typescript-eslint": tseslint,
-      "react-hooks": reactHooks
+      "react-hooks": reactHooks,
+      "jsx-a11y": jsxA11y
     },
     rules: {
       ...tseslint.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      ...jsxA11y.configs.recommended.rules,
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/explicit-function-return-type": "off",

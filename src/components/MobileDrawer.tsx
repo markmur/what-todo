@@ -47,10 +47,14 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="fixed inset-0 bg-black/40 z-40"
+              aria-hidden="true"
             />
             <motion.div
               ref={panelRef}
               key="drawer-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}

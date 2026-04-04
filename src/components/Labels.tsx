@@ -124,11 +124,13 @@ const Labels: React.FC<Props> = ({
                   onHide={() => setSelectedLabel(undefined)}
                   onChange={color => handleColorChange(color, label)}
                 >
-                  <div
-                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
+                  <button
+                    type="button"
+                    className="no-style w-[16px] h-[16px] rounded-lg p-0 m-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
                     style={{
                       backgroundColor: label.color
                     }}
+                    aria-label={`Change color for ${label.title}`}
                     onClick={() => setSelectedLabel(label.id)}
                   />
                 </ColorPicker>
@@ -142,10 +144,12 @@ const Labels: React.FC<Props> = ({
                 />
               </div>
 
-              <span
+              <button
+                type="button"
                 data-tooltip-id="tooltip"
                 data-tooltip-content={`Filter by: ${label.title}`}
-                className={cx("remove-icon", {
+                aria-label={`Filter by ${label.title}`}
+                className={cx("no-style remove-icon", {
                   active: filters.includes(label.id)
                 })}
                 onClick={event => {
@@ -161,14 +165,16 @@ const Labels: React.FC<Props> = ({
                 }}
               >
                 <FilterIcon />
-              </span>
+              </button>
 
-              <span
-                className="remove-icon"
+              <button
+                type="button"
+                className="no-style remove-icon"
+                aria-label={`Remove ${label.title}`}
                 onClick={() => onRemoveLabel(label)}
               >
                 <CrossIcon />
-              </span>
+              </button>
             </div>
           </li>
         ))}
@@ -186,7 +192,7 @@ const Labels: React.FC<Props> = ({
                   />
                 </div>
                 <input
-                  autoFocus
+                  autoFocus // eslint-disable-line jsx-a11y/no-autofocus
                   placeholder="Label..."
                   value={newLabel.title}
                   onKeyPress={handleKeyPress}
@@ -206,13 +212,14 @@ const Labels: React.FC<Props> = ({
 
       {!newLabel && labels.length < limit && (
         <div className="pt-2 pb-1">
-          <a
-            className="inline-flex text-slate-500 hover:text-slate-700 dark:text-navy-500 dark:hover:text-navy-300 whitespace-nowrap items-center text-sm cursor-pointer"
+          <button
+            type="button"
+            className="no-style inline-flex text-slate-500 hover:text-slate-700 dark:text-navy-500 dark:hover:text-navy-300 whitespace-nowrap items-center text-sm cursor-pointer"
             onClick={handleCreate}
           >
             <PlusIcon className="mr-2" />
             Create new label
-          </a>
+          </button>
         </div>
       )}
     </>

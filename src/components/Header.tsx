@@ -20,7 +20,7 @@ function Header({
       style={{ paddingLeft: 16, paddingRight: 16 }}
     >
       <div className="flex items-center gap-2">
-        <strong className="dark:text-navy-100">What Todo 🤷‍♂️</strong>
+        <h1 className="text-base font-bold dark:text-navy-100">What Todo 🤷‍♂️</h1>
         {typeof taskCount === "number" && (
           <span className="text-xs font-semibold bg-slate-200 dark:bg-navy-700 text-slate-600 dark:text-navy-300 rounded-full px-2 py-0.5">
             {taskCount}

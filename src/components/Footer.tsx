@@ -63,24 +63,30 @@ const Footer: React.FC = () => {
             </button>
           </div>
 
-          <div className="ml-2">
+          <div className="ml-2 flex items-center">
+            {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
             <a
               ref={downloadLinkRef}
               hidden
               href={dataStr}
               download="what-todo-data.json"
+              aria-hidden="true"
             />
-            <SaveIcon
+            <button
+              className="no-style flex items-center"
+              aria-label="Download your data"
               data-tooltip-id="tooltip"
               data-tooltip-content="Download your data"
-              {...iconProps}
               onClick={downloadJSON}
-            />
+            >
+              <SaveIcon {...iconProps} />
+            </button>
           </div>
 
           <div className="ml-2">
             <a
               {...linkProps}
+              aria-label="Request a feature"
               data-tooltip-id="tooltip"
               data-tooltip-content="Request a feature"
               href="https://github.com/markmur/what-todo/issues/new?title=[Feature Request]"
@@ -92,6 +98,7 @@ const Footer: React.FC = () => {
           <div className="ml-2">
             <a
               {...linkProps}
+              aria-label="Report a bug"
               data-tooltip-id="tooltip"
               data-tooltip-content="Report a bug"
               href="https://github.com/markmur/what-todo/issues/new?title=[Bug Report]"

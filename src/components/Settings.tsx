@@ -3,19 +3,23 @@ import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import { useSettings } from "../context/SettingsContext"
 import type { Label, LabelStyle, SortBy } from "../index.d"
+import Animate from "./Animate"
 
 function Toggle({
   checked,
-  onChange
+  onChange,
+  label
 }: {
   checked: boolean
   onChange: (v: boolean) => void
+  label: string
 }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
+      aria-label={label}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
         checked ? "bg-blue-500" : "bg-slate-300 dark:bg-navy-600"
@@ -66,14 +70,16 @@ export default function Settings({ labels }: SettingsProps) {
 
   return (
     <div>
-      <div
-        className="flex items-center cursor-pointer mb-1"
+      <button
+        type="button"
+        className="no-style flex items-center cursor-pointer mb-1 w-full"
         onClick={() => setCollapsed(!collapsed)}
+        aria-expanded={!collapsed}
       >
-        <h1 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">
+        <h2 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">
           Settings
-        </h1>
-        <div className="align-center ml-1">
+        </h2>
+        <span className="ml-1" aria-hidden="true">
           {collapsed ? (
             <ChevronDown
               className="text-slate-300 dark:text-navy-500"
@@ -85,13 +91,14 @@ export default function Settings({ labels }: SettingsProps) {
               style={{ verticalAlign: "middle" }}
             />
           )}
-        </div>
-      </div>
+        </span>
+      </button>
 
-      {!collapsed && (
+      <Animate active={!collapsed}>
         <div className="divide-y divide-slate-200 dark:divide-navy-700">
           <SettingRow label="Auto-collapse completed">
             <Toggle
+              label="Auto-collapse completed"
               checked={settings.autoCollapseCompleted}
               onChange={v => updateSetting("autoCollapseCompleted", v)}
             />
@@ -99,6 +106,7 @@ export default function Settings({ labels }: SettingsProps) {
 
           <SettingRow label="Move completed to yesterday">
             <Toggle
+              label="Move completed to yesterday"
               checked={settings.moveCompletedToYesterday}
               onChange={v => updateSetting("moveCompletedToYesterday", v)}
             />
@@ -106,6 +114,7 @@ export default function Settings({ labels }: SettingsProps) {
 
           <SettingRow label="Show task count">
             <Toggle
+              label="Show task count"
               checked={settings.showTaskCount}
               onChange={v => updateSetting("showTaskCount", v)}
             />
@@ -113,6 +122,7 @@ export default function Settings({ labels }: SettingsProps) {
 
           <SettingRow label="Compact mode">
             <Toggle
+              label="Compact mode"
               checked={settings.compactMode}
               onChange={v => updateSetting("compactMode", v)}
             />
@@ -120,6 +130,7 @@ export default function Settings({ labels }: SettingsProps) {
 
           <SettingRow label="Auto-expand new tasks">
             <Toggle
+              label="Auto-expand new tasks"
               checked={settings.autoExpandNewTasks}
               onChange={v => updateSetting("autoExpandNewTasks", v)}
             />
@@ -172,7 +183,7 @@ export default function Settings({ labels }: SettingsProps) {
             </select>
           </SettingRow>
         </div>
-      )}
+      </Animate>
     </div>
   )
 }
