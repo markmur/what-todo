@@ -1,6 +1,3 @@
-// Styles
-import "../styles.scss"
-
 // Types
 import type { Data, Task, Label as LabelType } from "../index.d"
 import React, { PropsWithChildren, useCallback, useState } from "react"
