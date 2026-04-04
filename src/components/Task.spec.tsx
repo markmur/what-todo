@@ -73,24 +73,16 @@ describe("Task", () => {
     vi.restoreAllMocks()
   })
 
-  describe("Bug #1: Confirm delete should not drop labels", () => {
-    it("preserves labels when delete is cancelled", () => {
-      window.confirm = vi.fn(() => false)
-      localStorage.setItem(
-        "what-todo-settings",
-        JSON.stringify({ confirmBeforeDelete: true })
-      )
-
-      const { onRemoveTask, onUpdate } = renderTask()
+  describe("Delete calls onRemoveTask", () => {
+    it("calls onRemoveTask when delete icon is clicked", () => {
+      const { onRemoveTask } = renderTask()
 
       const removeButton = document.querySelector(
-        ".remove-icon:last-child"
+        "[data-tooltip-content='Delete (X)']"
       ) as HTMLElement
       fireEvent.click(removeButton)
 
-      expect(window.confirm).toHaveBeenCalledWith("Delete this task?")
-      expect(onRemoveTask).not.toHaveBeenCalled()
-      expect(onUpdate).not.toHaveBeenCalled()
+      expect(onRemoveTask).toHaveBeenCalled()
     })
   })
 
@@ -206,7 +198,7 @@ describe("Task", () => {
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
       const pinButton = document.querySelector(
-        "[data-tooltip-content='Pin task']"
+        "[data-tooltip-content='Pin task (P)']"
       ) as HTMLElement
       fireEvent.click(pinButton)
 
@@ -226,7 +218,7 @@ describe("Task", () => {
       )
 
       const unpinButton = document.querySelector(
-        "[data-tooltip-content='Unpin task']"
+        "[data-tooltip-content='Unpin task (P)']"
       ) as HTMLElement
       fireEvent.click(unpinButton)
 
@@ -247,7 +239,7 @@ describe("Task", () => {
       })
 
       const moveButton = document.querySelector(
-        "[data-tooltip-content='Move to today']"
+        "[data-tooltip-content='Move to today (M)']"
       ) as HTMLElement
       fireEvent.click(moveButton)
 
@@ -265,7 +257,7 @@ describe("Task", () => {
       const { onUpdate } = renderTask({ pinned: false }, { active: true })
 
       const pinButton = document.querySelector(
-        "[data-tooltip-content='Pin task']"
+        "[data-tooltip-content='Pin task (P)']"
       ) as HTMLElement
       fireEvent.click(pinButton)
 

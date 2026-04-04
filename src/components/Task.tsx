@@ -121,9 +121,30 @@ const Task: React.FC<Props> = ({
       }
     }
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement | HTMLDivElement>
+  ) => {
     if (event.key === "Enter" && event.metaKey) {
       onDeselect()
+    }
+    if (event.key === "Escape") {
+      onDeselect()
+    }
+
+    const target = event.target as HTMLElement
+    const isTyping = ["TEXTAREA", "INPUT"].includes(target.tagName)
+    if (isTyping) return
+
+    if (event.key === "p" && state) {
+      const updated = { ...state, pinned: !Boolean(state.pinned) }
+      setState(updated)
+      onUpdate(updated)
+    }
+    if (event.key === "x") {
+      onRemoveTask(state ?? task)
+    }
+    if (event.key === "m" && onMoveToToday) {
+      onMoveToToday(state ?? task)
     }
   }
 
@@ -318,7 +339,7 @@ const Task: React.FC<Props> = ({
           {onMoveToToday && (
             <div
               data-tooltip-id="tooltip"
-              data-tooltip-content="Move to today"
+              data-tooltip-content="Move to today (M)"
               className="remove-icon"
               onClick={preventDefault(() => {
                 onMoveToToday(state ?? task)
@@ -331,7 +352,9 @@ const Task: React.FC<Props> = ({
           {canPin && (
             <div
               data-tooltip-id="tooltip"
-              data-tooltip-content={state?.pinned ? "Unpin task" : "Pin task"}
+              data-tooltip-content={
+                state?.pinned ? "Unpin task (P)" : "Pin task (P)"
+              }
               className={cx("remove-icon", { active: state?.pinned })}
               style={state?.pinned ? { color: "#93c5fd" } : undefined}
               onClick={preventDefault(() => {
@@ -406,14 +429,9 @@ const Task: React.FC<Props> = ({
 
           <span
             className="remove-icon p-0! max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
-            onClick={() => {
-              if (
-                settings.confirmBeforeDelete &&
-                !window.confirm("Delete this task?")
-              )
-                return
-              onRemoveTask(task)
-            }}
+            data-tooltip-id="tooltip"
+            data-tooltip-content="Delete (X)"
+            onClick={() => onRemoveTask(state ?? task)}
           >
             <CrossIcon />
           </span>

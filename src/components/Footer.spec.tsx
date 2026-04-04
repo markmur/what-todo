@@ -23,6 +23,11 @@ describe("Footer", () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.classList.remove("dark")
+    if (!document.getElementById("portal")) {
+      const portal = document.createElement("div")
+      portal.id = "portal"
+      document.body.appendChild(portal)
+    }
   })
 
   afterEach(() => {

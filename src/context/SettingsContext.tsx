@@ -5,7 +5,6 @@ const STORAGE_KEY = "what-todo-settings"
 
 const defaultSettings: Settings = {
   autoCollapseCompleted: true,
-  confirmBeforeDelete: false,
   moveCompletedToYesterday: false,
   defaultLabelId: null,
   sortBy: "pinned",

@@ -23,6 +23,7 @@ export interface Task {
   // Fields after release #1
   pinned?: boolean
   completed_at?: string | undefined
+  order?: number
 }
 
 export type Section = "completed" | "focus" | "sidebar"
@@ -54,7 +55,6 @@ export type LabelStyle = "circle" | "pill"
 
 export interface Settings {
   autoCollapseCompleted: boolean
-  confirmBeforeDelete: boolean
   moveCompletedToYesterday: boolean
   defaultLabelId: string | null
   sortBy: SortBy

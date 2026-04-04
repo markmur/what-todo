@@ -24,6 +24,7 @@ import MobileDrawer from "./MobileDrawer"
 import Settings from "./Settings"
 import { useSettings } from "../context/SettingsContext"
 import useResize from "../hooks/useResize"
+import Toast from "./Toast"
 
 function Title({ children }: PropsWithChildren) {
   return (
@@ -118,8 +119,35 @@ const Todo: React.FC = ({}) => {
   )
 
   const handleUpdateTask = useAction<Task>(updateTask)
-  const handleRemoveTask = useAction<Task>(removeTask)
+  const doRemoveTask = useAction<Task>(removeTask)
   const handleMoveToToday = useAction<Task>(moveToToday)
+
+  const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
+  const deleteTimerRef = React.useRef<ReturnType<typeof setTimeout>>()
+
+  const handleRemoveTask = useCallback(
+    (task: Task) => {
+      setPendingDelete(task)
+      deleteTimerRef.current = setTimeout(() => {
+        doRemoveTask(task)
+        setPendingDelete(null)
+      }, 5000)
+    },
+    [doRemoveTask]
+  )
+
+  const handleUndoDelete = useCallback(() => {
+    clearTimeout(deleteTimerRef.current)
+    setPendingDelete(null)
+  }, [])
+
+  const commitDelete = useCallback(() => {
+    if (pendingDelete) {
+      clearTimeout(deleteTimerRef.current)
+      doRemoveTask(pendingDelete)
+      setPendingDelete(null)
+    }
+  }, [pendingDelete, doRemoveTask])
 
   // Label callbacks
   const handleAddLabel = useAction<LabelType>(addLabel)
@@ -141,6 +169,8 @@ const Todo: React.FC = ({}) => {
       setSidebarWidth(Math.max(MIN_SIDEBAR_WIDTH, sidebar.width))
     }
   }, [sidebar.width])
+
+  const [searchQuery, setSearchQuery] = useState("")
 
   const { handleMouseDown: handleResizeMouseDown } = useResize({
     minWidth: 0.2,
@@ -172,14 +202,21 @@ const Todo: React.FC = ({}) => {
 
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const completedContent = !completed.collapsed && (
-    <div
+  const widthTransition = { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+
+  const completedContent = (
+    <motion.div
       className="flex-col bg-slate-50/60 dark:bg-navy-800 hidden md:flex"
+      animate={{
+        width: completed.collapsed
+          ? "0%"
+          : `${(isDesktop ? grid.completed[1] : 0) * 100}%`,
+        padding: completed.collapsed ? 0 : 32
+      }}
+      transition={widthTransition}
       style={{
-        width: `${(isDesktop ? grid.completed[1] : 0) * 100}%`,
         height: fullHeight,
-        padding: 32,
-        paddingTop: 8,
+        paddingTop: completed.collapsed ? 0 : 8,
         overflow: "hidden"
       }}
     >
@@ -223,7 +260,7 @@ const Todo: React.FC = ({}) => {
           <div className="w-full overflow-y-auto flex-1 min-h-0">
             <div>
               <List
-                tasks={yesterdaysTasks}
+                tasks={yesterdaysTasks.filter(t => t.id !== pendingDelete?.id)}
                 labels={labelsById}
                 filters={data.filters}
                 collapseCompleted={true}
@@ -248,7 +285,7 @@ const Todo: React.FC = ({}) => {
           </div>
         </motion.div>
       </AnimatePresence>
-    </div>
+    </motion.div>
   )
 
   return (
@@ -288,12 +325,15 @@ const Todo: React.FC = ({}) => {
             </div>
           )}
 
-          <div
+          <motion.div
             className="flex flex-col"
+            animate={{
+              width: `${grid.focus[isDesktop ? Math.min(grid.focus.length - 1, breakpoint) : 0] * 100}%`
+            }}
+            transition={widthTransition}
             style={{
-              width: `${grid.focus[isDesktop ? Math.min(grid.focus.length - 1, breakpoint) : 0] * 100}%`,
-              paddingLeft: isDesktop ? 16 : 16,
-              paddingRight: isDesktop ? 16 : 16,
+              paddingLeft: 16,
+              paddingRight: 16,
               paddingTop: 8,
               paddingBottom: isDesktop ? 32 : 16,
               height: fullHeight
@@ -321,9 +361,34 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
+            {todaysTasks.length > 0 && (
+              <div className="mb-3">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Escape") setSearchQuery("")
+                  }}
+                  placeholder="Search tasks..."
+                  className="w-full text-sm border border-slate-200 dark:border-navy-700 rounded-lg px-3 py-2 outline-none placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
+                  style={{ background: "transparent" }}
+                />
+              </div>
+            )}
+
             <div className="w-full flex-2 overflow-y-scroll">
               <List
-                tasks={todaysTasks}
+                tasks={todaysTasks
+                  .filter(t => t.id !== pendingDelete?.id)
+                  .filter(t => {
+                    if (!searchQuery) return true
+                    const q = searchQuery.toLowerCase()
+                    return (
+                      t.title.toLowerCase().includes(q) ||
+                      t.description?.toLowerCase().includes(q)
+                    )
+                  })}
                 labels={labelsById}
                 filters={data.filters}
                 hideCompleted={settings.moveCompletedToYesterday}
@@ -331,6 +396,9 @@ const Todo: React.FC = ({}) => {
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}
                 onMarkAsComplete={markAsComplete}
+                onReorder={reordered => {
+                  reordered.forEach(t => handleUpdateTask(t))
+                }}
               />
             </div>
 
@@ -342,7 +410,7 @@ const Todo: React.FC = ({}) => {
                 onAdd={task => handleAddTask(task, today())}
               />
             </div>
-          </div>
+          </motion.div>
 
           {isDesktop && (
             <div
@@ -389,13 +457,18 @@ const Todo: React.FC = ({}) => {
               </div>
             </div>
           )}
-          {isDesktop && !sidebar.collapsed && (
-            <div
+          {isDesktop && (
+            <motion.div
               className="bg-slate-50/60 dark:bg-navy-800 flex flex-col"
+              animate={{
+                width: sidebar.collapsed
+                  ? "0%"
+                  : `${activeSidebarWidth * 100}%`,
+                padding: sidebar.collapsed ? 0 : 32
+              }}
+              transition={widthTransition}
               style={{
-                width: `${activeSidebarWidth * 100}%`,
-                padding: 32,
-                paddingTop: 8,
+                paddingTop: sidebar.collapsed ? 0 : 8,
                 height: fullHeight,
                 overflow: "hidden"
               }}
@@ -436,7 +509,7 @@ const Todo: React.FC = ({}) => {
                   </div>
                 </motion.div>
               </AnimatePresence>
-            </div>
+            </motion.div>
           )}
         </div>
       </main>
@@ -468,6 +541,14 @@ const Todo: React.FC = ({}) => {
             </div>
           </div>
         </MobileDrawer>
+      )}
+
+      {pendingDelete && (
+        <Toast
+          message={`"${pendingDelete.title}" deleted`}
+          action={{ label: "Undo", onClick: handleUndoDelete }}
+          onDismiss={commitDelete}
+        />
       )}
     </>
   )
