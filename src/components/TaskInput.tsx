@@ -6,6 +6,7 @@ import Label from "./Label"
 import React, { useCallback } from "react"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
+import { useSettings } from "../context/SettingsContext"
 
 const validTask = (task: Partial<Task>): boolean => {
   return (task.title || "").trim().length > 0
@@ -24,20 +25,29 @@ const TaskInput: React.FC<Props> = ({
   labels,
   onAdd
 }) => {
+  const { settings } = useSettings()
   const ref = React.useRef<HTMLDivElement>(null)
+
+  const defaultLabels = React.useMemo(() => {
+    const base = [...filters]
+    if (settings.defaultLabelId && !base.includes(settings.defaultLabelId)) {
+      base.push(settings.defaultLabelId)
+    }
+    return base
+  }, [filters, settings.defaultLabelId])
 
   const [task, setTask] = React.useState<Partial<Task>>({
     title: "",
     description: "",
-    labels: [...filters]
+    labels: defaultLabels
   })
   const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {
-    setTask({ ...task, labels: [...filters] })
+    setTask({ ...task, labels: defaultLabels })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, setTask])
+  }, [defaultLabels, setTask])
 
   const clearTask = useCallback(() => {
     setTask({
@@ -96,7 +106,7 @@ const TaskInput: React.FC<Props> = ({
       setTask({
         title: "",
         description: "",
-        labels: [...filters]
+        labels: defaultLabels
       })
     }
   })
@@ -114,7 +124,15 @@ const TaskInput: React.FC<Props> = ({
           className="text-md font-bold"
           value={task.title}
           placeholder={placeholder}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true)
+            if (settings.autoExpandNewTasks) {
+              setTimeout(() => {
+                const desc = ref.current?.querySelector("textarea")
+                desc?.focus()
+              })
+            }
+          }}
           onChange={handleChange("title")}
           onKeyDown={handleKeyDown("title")}
         />

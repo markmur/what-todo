@@ -21,11 +21,14 @@ import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
 import Textarea from "react-textarea-autosize"
 import cx from "classnames"
 import { FiLink } from "@meronex/icons/fi"
+import { useSettings } from "../context/SettingsContext"
+import { contrastText } from "../utils"
 
 const MAX_DESCRIPTION_LENGTH = 1000
 
 interface Props {
   canPin?: boolean
+  compact?: boolean
   task: TaskType
   active: boolean
   labels: Record<string, LabelType>
@@ -127,6 +130,7 @@ const getDescription = (truncate: boolean, description: string | undefined) => {
 
 const Task: React.FC<Props> = ({
   canPin = true,
+  compact = false,
   task,
   active,
   labels,
@@ -139,6 +143,7 @@ const Task: React.FC<Props> = ({
   onMoveToToday,
   onRemoveTask
 }) => {
+  const { settings } = useSettings()
   const ref = useRef<HTMLDivElement>(null)
   const [state, setState] = React.useState<TaskType | undefined>(task)
   const descriptionURL = getDescriptionURL(state?.description)
@@ -234,7 +239,8 @@ const Task: React.FC<Props> = ({
       <div
         ref={ref}
         className={cx(
-          "flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 py-4 mb-3 overflow-hidden h-auto",
+          "flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto",
+          compact ? "py-2 mb-1" : "py-4 mb-3",
           {
             ["cursor-pointer"]: !active
           }
@@ -395,28 +401,49 @@ const Task: React.FC<Props> = ({
 
           {task.labels
             ?.sort((a, b) => a.localeCompare(b))
-            ?.map(id => (
-              <span
-                key={id}
-                className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
-                data-tip={labels[id]?.title}
-                data-background-color={labels[id]?.color}
-                style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
-                onClick={preventDefault(event => {
-                  if (filters.includes(id)) {
-                    onFilter(filters.filter(f => f !== id))
+            ?.map(id => {
+              const handleLabelClick = preventDefault((event: MouseEvent<any>) => {
+                if (filters.includes(id)) {
+                  onFilter(filters.filter(f => f !== id))
+                } else {
+                  if (event.metaKey) {
+                    onFilter([...filters, id])
                   } else {
-                    if (event.metaKey) {
-                      onFilter([...filters, id])
-                    } else {
-                      onFilter([id])
-                    }
+                    onFilter([id])
                   }
-                })}
-              />
-            ))}
+                }
+              })
 
-          <span className="remove-icon" onClick={() => onRemoveTask(task)}>
+              if (settings.labelStyle === "pill") {
+                const bg = labels[id]?.color
+                return (
+                  <span
+                    key={id}
+                    className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 mx-0.5 cursor-pointer"
+                    style={{ backgroundColor: bg, color: bg ? contrastText(bg) : undefined }}
+                    onClick={handleLabelClick}
+                  >
+                    {labels[id]?.title}
+                  </span>
+                )
+              }
+
+              return (
+                <span
+                  key={id}
+                  className="w-[16px] h-[16px] rounded-lg p-0 mx-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                  data-tip={labels[id]?.title}
+                  data-background-color={labels[id]?.color}
+                  style={{ backgroundColor: labels[id]?.color, marginRight: 2 }}
+                  onClick={handleLabelClick}
+                />
+              )
+            })}
+
+          <span className="remove-icon" onClick={() => {
+            if (settings.confirmBeforeDelete && !window.confirm("Delete this task?")) return
+            onRemoveTask(task)
+          }}>
             <CrossIcon />
           </span>
         </div>

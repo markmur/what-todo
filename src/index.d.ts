@@ -29,6 +29,7 @@ export type Section = "completed" | "focus" | "sidebar"
 
 export interface SectionData {
   collapsed?: boolean
+  width?: number
 }
 
 export type Tasks = Record<string, Task[]>
@@ -46,6 +47,21 @@ export type Data = {
    */
   migrated?: boolean
   lastMerged?: number
+}
+
+export type SortBy = "pinned" | "created" | "label"
+export type LabelStyle = "circle" | "pill"
+
+export interface Settings {
+  autoCollapseCompleted: boolean
+  confirmBeforeDelete: boolean
+  moveCompletedToYesterday: boolean
+  defaultLabelId: string | null
+  sortBy: SortBy
+  showTaskCount: boolean
+  compactMode: boolean
+  autoExpandNewTasks: boolean
+  labelStyle: LabelStyle
 }
 
 export type IntermediateLabel = Partial<Label> & {

@@ -22,6 +22,9 @@ import ToggleButton from "./ToggleButton"
 import { AnimatePresence, motion } from "framer-motion"
 import Header from "./Header"
 import MobileDrawer from "./MobileDrawer"
+import Settings from "./Settings"
+import { useSettings } from "../context/SettingsContext"
+import useResize from "../hooks/useResize"
 
 function Title({ children }: PropsWithChildren) {
   return (
@@ -61,6 +64,7 @@ const contentTransition = { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
 
 const Todo: React.FC = ({}) => {
   const breakpoint = useMedia()
+  const { settings } = useSettings()
   const {
     data,
     sections,
@@ -121,19 +125,37 @@ const Todo: React.FC = ({}) => {
   const completed = sections?.["completed"] ?? { collapsed: false }
   const sidebar = sections?.["sidebar"] ?? { collapsed: false }
 
-  // When a section is collapsed, its content is unmounted and only the toggle
-  // button remains. The grid fractions must account for this: collapsed sections
-  // contribute no width, and the remaining sections fill the space.
+  const defaultSidebarWidth = completed.collapsed ? 2 / 5 : 1 / 3
+  const completedWidth = 1 / 3
+  const [sidebarWidth, setSidebarWidth] = useState(sidebar.width ?? defaultSidebarWidth)
+
+  React.useEffect(() => {
+    if (sidebar.width != null) {
+      setSidebarWidth(sidebar.width)
+    }
+  }, [sidebar.width])
+
+  const { handleMouseDown: handleResizeMouseDown } = useResize({
+    minWidth: 0.2,
+    maxWidth: 0.45,
+    onResize: setSidebarWidth,
+    onResizeEnd: (width) => {
+      updateSection("sidebar", { ...sidebar, width })
+    },
+  })
+
+  const activeSidebarWidth = sidebar.collapsed ? 0 : sidebarWidth
+
   const grid = {
-    completed: [0, 1 / 3],
+    completed: [0, completedWidth],
     focus: completed.collapsed
-      ? [1]                                         // completed collapsed: focus fills
+      ? sidebar.collapsed
+        ? [1]
+        : [1, 1 - activeSidebarWidth]
       : sidebar.collapsed
-        ? [1, 2 / 3]                                // sidebar collapsed: completed 1/3 + focus 2/3
-        : [1, 3 / 5, 1 / 3, 1 / 2],                // both expanded
-    sidebar: completed.collapsed
-      ? [0, 2 / 5, 2 / 5, 4 / 12]                  // completed collapsed
-      : [0, 2 / 5, 1 / 3]                           // completed expanded
+        ? [1, 1 - completedWidth]
+        : [1, 1 - completedWidth - activeSidebarWidth],
+    sidebar: [0, activeSidebarWidth]
   }
 
   const fullHeight = "calc(100dvh - 66px)"
@@ -217,7 +239,10 @@ const Todo: React.FC = ({}) => {
 
   return (
     <>
-      <Header onMenuClick={!isDesktop ? () => setDrawerOpen(prev => !prev) : undefined} />
+      <Header
+        onMenuClick={!isDesktop ? () => setDrawerOpen(prev => !prev) : undefined}
+        taskCount={settings.showTaskCount ? todaysTasks.filter(t => !t.completed).length : undefined}
+      />
       <main>
       <div className="flex">
         {isDesktop && completedContent}
@@ -245,7 +270,7 @@ const Todo: React.FC = ({}) => {
 
         <Flex
           width={grid.focus}
-          px={[mobilePadding, padding]}
+          px={[mobilePadding, mobilePadding, 3]}
           pl={[mobilePadding, mobilePadding, 3]}
           pt={[paddingTop]}
           pb={[mobilePadding, padding]}
@@ -279,6 +304,7 @@ const Todo: React.FC = ({}) => {
               tasks={todaysTasks}
               labels={labelsById}
               filters={data.filters}
+              hideCompleted={settings.moveCompletedToYesterday}
               onFilter={updateFilters}
               onUpdateTask={handleUpdateTask}
               onRemoveTask={handleRemoveTask}
@@ -298,12 +324,23 @@ const Todo: React.FC = ({}) => {
 
         {isDesktop && (
           <div
-            className={`flex items-center transition-opacity duration-200 ${
+            className={`flex items-center justify-center transition-opacity duration-200 ${
               sidebar.collapsed
                 ? "opacity-100"
                 : "opacity-0 hover:opacity-100"
             }`}
-            style={{ height: fullHeight }}
+            style={{
+              height: fullHeight,
+              cursor: sidebar.collapsed ? undefined : "col-resize",
+              width: sidebar.collapsed ? undefined : 8,
+            }}
+            onMouseDown={sidebar.collapsed ? undefined : handleResizeMouseDown}
+            onDoubleClick={() => {
+              if (!sidebar.collapsed) {
+                setSidebarWidth(defaultSidebarWidth)
+                updateSection("sidebar", { ...sidebar, width: undefined })
+              }
+            }}
           >
             <ToggleButton
               collapsed={sidebar.collapsed}
@@ -338,7 +375,7 @@ const Todo: React.FC = ({}) => {
                       <Title>Labels</Title>
                     </div>
 
-                    <div className="flex-1 overflow-y-scroll pb-2">
+                    <div className="flex-1 overflow-y-scroll pb-2 min-h-0">
                       <Labels
                         labels={data.labels}
                         limit={15}
@@ -349,6 +386,10 @@ const Todo: React.FC = ({}) => {
                         onUpdateLabel={handleUpdateLabel}
                         onRemoveLabel={handleRemoveLabel}
                       />
+
+                      <div className="mt-4">
+                        <Settings labels={data.labels} />
+                      </div>
                     </div>
 
                     <div className="h-[55px]">
@@ -378,6 +419,10 @@ const Todo: React.FC = ({}) => {
               onUpdateLabel={handleUpdateLabel}
               onRemoveLabel={handleRemoveLabel}
             />
+
+            <div className="mt-4">
+              <Settings labels={data.labels} />
+            </div>
           </div>
         </MobileDrawer>
       )}
