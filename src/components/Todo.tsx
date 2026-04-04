@@ -387,8 +387,8 @@ const Todo: React.FC = ({}) => {
               right: isDesktop ? focusRight : 0,
               height: fullHeight,
               zIndex: 1,
-              paddingLeft: 16,
-              paddingRight: 16,
+              paddingLeft: 24,
+              paddingRight: 24,
               paddingTop: 8,
               paddingBottom: isDesktop ? 32 : 16,
               transition: isDesktop ? slideTransition : undefined
