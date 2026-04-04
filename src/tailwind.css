@@ -223,4 +223,36 @@
   html.dark footer a {
     color: #858ca1;
   }
+
+  .strike-animated {
+    position: relative;
+  }
+
+  .strike-animated::before {
+    box-sizing: content-box;
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.4);
+    top: 13px;
+    left: 0;
+    transform: translateY(-50%);
+    transform-origin: left;
+    animation: strike 0.1s linear forwards;
+    animation-delay: calc(var(--strike-index, 0) * 0.033s);
+  }
+
+  html.dark .strike-animated::before {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .strike-animated:last-of-type::before {
+    max-width: 100%;
+  }
+
+  @keyframes strike {
+    from { width: 0; }
+    to { width: calc(100% + 10px); }
+  }
 }

@@ -270,10 +270,11 @@ const Task: React.FC<Props> = ({
                 ? state?.title
                     .split(/\s/)
                     .filter(Boolean)
-                    .map(word => (
+                    .map((word, i) => (
                       <span
                         key={word}
                         className="strike-animated inline-flex mr-1"
+                        style={{ "--strike-index": i } as React.CSSProperties}
                       >
                         {word}
                       </span>
