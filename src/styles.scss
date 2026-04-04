@@ -14,8 +14,17 @@
 }
 
 *:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: -2px;
+}
+
+textarea:focus-visible,
+input:focus-visible {
+  outline: none;
+}
+
+.task > div:focus-visible {
+  outline: none;
 }
 
 .sr-only {
@@ -216,11 +225,6 @@ button {
     border: none;
     padding: 2px 4px;
     font-size: 11px;
-    background: #d0d5dc;
-
-    .dark & {
-      background: #414a62;
-    }
   }
 }
 

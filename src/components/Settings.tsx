@@ -3,6 +3,7 @@ import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import { useSettings } from "../context/SettingsContext"
 import type { Label, LabelStyle, SortBy } from "../index.d"
+import Animate from "./Animate"
 
 function Toggle({
   checked,
@@ -93,7 +94,7 @@ export default function Settings({ labels }: SettingsProps) {
         </span>
       </button>
 
-      {!collapsed && (
+      <Animate active={!collapsed}>
         <div className="divide-y divide-slate-200 dark:divide-navy-700">
           <SettingRow label="Auto-collapse completed">
             <Toggle
@@ -182,7 +183,7 @@ export default function Settings({ labels }: SettingsProps) {
             </select>
           </SettingRow>
         </div>
-      )}
+      </Animate>
     </div>
   )
 }

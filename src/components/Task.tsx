@@ -211,14 +211,15 @@ const Task: React.FC<Props> = ({
     <Animate active duration={0.15}>
       <div
         ref={ref}
+        role="button"
         tabIndex={0}
         onKeyDown={handleKeyDown}
         className={cx(
-          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto border-2 outline-none",
+          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 rounded-xl px-3 overflow-hidden h-auto border-2 outline-none",
           compact ? "py-2 mb-1" : "py-4 mb-3",
           active
-            ? "ring-2 ring-blue-400/50 dark:ring-blue-500/40"
-            : "",
+            ? "bg-slate-100 dark:bg-navy-700"
+            : "bg-slate-50 dark:bg-navy-800",
           state?.pinned
             ? "border-blue-300 dark:border-blue-500/50"
             : "border-transparent",
@@ -416,12 +417,18 @@ const Task: React.FC<Props> = ({
                 return (
                   <span
                     key={id}
+                    role="button"
+                    tabIndex={0}
                     className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
                     style={{
                       backgroundColor: bg,
                       color: bg ? contrastText(bg) : undefined
                     }}
                     onClick={handleLabelClick}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" || e.key === " ")
+                        handleLabelClick(e as any)
+                    }}
                   >
                     {labels[id]?.title}
                   </span>
@@ -431,11 +438,18 @@ const Task: React.FC<Props> = ({
               return (
                 <span
                   key={id}
+                  role="button"
+                  tabIndex={0}
                   className="w-[16px] h-[16px] rounded-lg p-0 ml-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
                   data-tooltip-id="tooltip"
                   data-tooltip-content={labels[id]?.title}
+                  aria-label={labels[id]?.title}
                   style={{ backgroundColor: labels[id]?.color }}
                   onClick={handleLabelClick}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" || e.key === " ")
+                      handleLabelClick(e as any)
+                  }}
                 />
               )
             })}

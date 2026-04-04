@@ -24,6 +24,9 @@ import MobileDrawer from "./MobileDrawer"
 import Settings from "./Settings"
 import { useSettings } from "../context/SettingsContext"
 import useResize from "../hooks/useResize"
+import Animate from "./Animate"
+import ChevronDown from "@meronex/icons/fi/FiChevronDown"
+import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import Toast from "./Toast"
 
 function Title({ children }: PropsWithChildren) {
@@ -201,22 +204,16 @@ const Todo: React.FC = ({}) => {
     breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
 
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [labelsCollapsed, setLabelsCollapsed] = useState(false)
 
-  const widthTransition = { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
-
-  const completedContent = (
-    <motion.div
+  const completedContent = !completed.collapsed && (
+    <div
       className="flex-col bg-slate-50/60 dark:bg-navy-800 hidden md:flex"
-      animate={{
-        width: completed.collapsed
-          ? "0%"
-          : `${(isDesktop ? grid.completed[1] : 0) * 100}%`,
-        padding: completed.collapsed ? 0 : 32
-      }}
-      transition={widthTransition}
       style={{
+        width: `${(isDesktop ? grid.completed[1] : 0) * 100}%`,
         height: fullHeight,
-        paddingTop: completed.collapsed ? 0 : 8,
+        padding: 32,
+        paddingTop: 8,
         overflow: "hidden"
       }}
     >
@@ -285,7 +282,7 @@ const Todo: React.FC = ({}) => {
           </div>
         </motion.div>
       </AnimatePresence>
-    </motion.div>
+    </div>
   )
 
   return (
@@ -325,13 +322,10 @@ const Todo: React.FC = ({}) => {
             </div>
           )}
 
-          <motion.div
+          <div
             className="flex flex-col"
-            animate={{
-              width: `${grid.focus[isDesktop ? Math.min(grid.focus.length - 1, breakpoint) : 0] * 100}%`
-            }}
-            transition={widthTransition}
             style={{
+              width: `${grid.focus[isDesktop ? Math.min(grid.focus.length - 1, breakpoint) : 0] * 100}%`,
               paddingLeft: 16,
               paddingRight: 16,
               paddingTop: 8,
@@ -410,10 +404,13 @@ const Todo: React.FC = ({}) => {
                 onAdd={task => handleAddTask(task, today())}
               />
             </div>
-          </motion.div>
+          </div>
 
           {isDesktop && (
             <div
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize sidebar"
               className={`flex items-center justify-center transition-opacity duration-200 ${
                 sidebar.collapsed
                   ? "opacity-100"
@@ -434,6 +431,7 @@ const Todo: React.FC = ({}) => {
                 }
               }}
             >
+              {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
               <div onMouseDown={e => e.stopPropagation()}>
                 <ToggleButton
                   collapsed={sidebar.collapsed}
@@ -457,20 +455,15 @@ const Todo: React.FC = ({}) => {
               </div>
             </div>
           )}
-          {isDesktop && (
-            <motion.div
+          {isDesktop && !sidebar.collapsed && (
+            <div
               className="bg-slate-50/60 dark:bg-navy-800 flex flex-col"
-              animate={{
-                width: sidebar.collapsed
-                  ? "0%"
-                  : `${activeSidebarWidth * 100}%`,
-                padding: sidebar.collapsed ? 0 : 32
-              }}
-              transition={widthTransition}
               style={{
-                paddingTop: sidebar.collapsed ? 0 : 8,
+                width: `${activeSidebarWidth * 100}%`,
                 height: fullHeight,
-                overflow: "hidden"
+                overflow: "hidden",
+                padding: 32,
+                paddingTop: 8
               }}
             >
               <AnimatePresence>
@@ -483,21 +476,41 @@ const Todo: React.FC = ({}) => {
                   className="flex flex-col grow justify-start"
                   style={{ flex: 1, minHeight: 0, overflow: "hidden" }}
                 >
-                  <div className="pb-1">
+                  <button
+                    type="button"
+                    className="no-style flex items-center cursor-pointer pb-1 w-full"
+                    onClick={() => setLabelsCollapsed(!labelsCollapsed)}
+                    aria-expanded={!labelsCollapsed}
+                  >
                     <Title>Labels</Title>
-                  </div>
+                    <span className="ml-1" aria-hidden="true">
+                      {labelsCollapsed ? (
+                        <ChevronDown
+                          className="text-slate-300 dark:text-navy-500"
+                          style={{ verticalAlign: "middle" }}
+                        />
+                      ) : (
+                        <ChevronUp
+                          className="text-slate-300 dark:text-navy-500"
+                          style={{ verticalAlign: "middle" }}
+                        />
+                      )}
+                    </span>
+                  </button>
 
                   <div className="flex-1 overflow-y-auto pb-2 min-h-0 pr-2">
-                    <Labels
-                      labels={data.labels}
-                      limit={15}
-                      colors={colors}
-                      filters={data.filters}
-                      onFilter={updateFilters}
-                      onAddLabel={handleAddLabel}
-                      onUpdateLabel={handleUpdateLabel}
-                      onRemoveLabel={handleRemoveLabel}
-                    />
+                    <Animate active={!labelsCollapsed}>
+                      <Labels
+                        labels={data.labels}
+                        limit={15}
+                        colors={colors}
+                        filters={data.filters}
+                        onFilter={updateFilters}
+                        onAddLabel={handleAddLabel}
+                        onUpdateLabel={handleUpdateLabel}
+                        onRemoveLabel={handleRemoveLabel}
+                      />
+                    </Animate>
 
                     <div className="mt-4">
                       <Settings labels={data.labels} />
@@ -509,7 +522,7 @@ const Todo: React.FC = ({}) => {
                   </div>
                 </motion.div>
               </AnimatePresence>
-            </motion.div>
+            </div>
           )}
         </div>
       </main>

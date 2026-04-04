@@ -9,6 +9,7 @@ import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 import { useSettings } from "../context/SettingsContext"
 import { Reorder } from "framer-motion"
+import Animate from "./Animate"
 
 interface Props {
   tasks?: TaskType[]
@@ -161,7 +162,7 @@ const List: React.FC<Props> = ({
 
   return (
     <div ref={selectedRef}>
-      {uncompleted.length === 0 && !hasCompletedTasks && (
+      {uncompleted.length === 0 && !hasCompletedTasks && onReorder && (
         <div className="text-slate-400 dark:text-navy-500 text-sm text-center py-12">
           Nothing to do — enjoy your day!
         </div>
@@ -233,23 +234,23 @@ const List: React.FC<Props> = ({
         </button>
       )}
 
-      <ul className={cx("task-list", { compact: settings.compactMode })}>
-        {!collapsed && hasCompletedTasks
-          ? completed.map(task => (
-              <li key={task.id} className="task">
-                <Task
-                  {...callbackHandlers}
-                  active={task.id === selected}
-                  task={task}
-                  canPin={canPinTasks}
-                  labels={labels}
-                  filters={filters}
-                  compact={settings.compactMode}
-                />
-              </li>
-            ))
-          : null}
-      </ul>
+      <Animate active={!collapsed && hasCompletedTasks}>
+        <ul className={cx("task-list", { compact: settings.compactMode })}>
+          {completed.map(task => (
+            <li key={task.id} className="task">
+              <Task
+                {...callbackHandlers}
+                active={task.id === selected}
+                task={task}
+                canPin={canPinTasks}
+                labels={labels}
+                filters={filters}
+                compact={settings.compactMode}
+              />
+            </li>
+          ))}
+        </ul>
+      </Animate>
     </div>
   )
 }

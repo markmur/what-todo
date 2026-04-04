@@ -64,11 +64,13 @@ const Footer: React.FC = () => {
           </div>
 
           <div className="ml-2 flex items-center">
+            {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
             <a
               ref={downloadLinkRef}
               hidden
               href={dataStr}
               download="what-todo-data.json"
+              aria-hidden="true"
             />
             <button
               className="no-style flex items-center"
