@@ -7,6 +7,7 @@ import React, { useCallback } from "react"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 import { useSettings } from "../context/SettingsContext"
+import Textarea from "react-textarea-autosize"
 
 const validTask = (task: Partial<Task>): boolean => {
   return (task.title || "").trim().length > 0
@@ -155,11 +156,12 @@ const TaskInput: React.FC<Props> = ({
             <label htmlFor="task-description" className="sr-only">
               Description
             </label>
-            <textarea
+            <Textarea
               id="task-description"
-              rows={2}
+              minRows={1}
+              maxRows={6}
               value={task.description}
-              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-10 outline-hidden resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
+              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-3 outline-hidden resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
               placeholder="Add a description or URL..."
               onChange={handleChange("description")}
               onKeyDown={handleKeyDown("description")}
