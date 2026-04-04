@@ -59,9 +59,9 @@ describe("ToggleButton", () => {
     expect(spans).toHaveLength(2)
 
     // Top bar should have positive rotation on hover (points right)
-    expect(spans[0].className).toContain("group-hover:rotate-[12deg]")
+    expect(spans[0].className).toContain("group-hover:rotate-12")
     // Bottom bar should have negative rotation on hover
-    expect(spans[1].className).toContain("group-hover:-rotate-[12deg]")
+    expect(spans[1].className).toContain("group-hover:-rotate-12")
   })
 
   it("applies left-pointing hover classes when pointsRight is false", () => {
@@ -72,8 +72,8 @@ describe("ToggleButton", () => {
     expect(spans).toHaveLength(2)
 
     // Top bar should have negative rotation on hover (points left)
-    expect(spans[0].className).toContain("group-hover:-rotate-[12deg]")
+    expect(spans[0].className).toContain("group-hover:-rotate-12")
     // Bottom bar should have positive rotation on hover
-    expect(spans[1].className).toContain("group-hover:rotate-[12deg]")
+    expect(spans[1].className).toContain("group-hover:rotate-12")
   })
 })

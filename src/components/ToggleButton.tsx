@@ -51,18 +51,14 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
         className={cx(
           "block w-1 h-5 bg-slate-300 dark:bg-navy-600 rounded-t transition-all duration-200 origin-bottom",
           "group-hover:bg-slate-500 dark:group-hover:bg-navy-400",
-          pointsRight
-            ? "group-hover:rotate-[12deg]"
-            : "group-hover:-rotate-[12deg]"
+          pointsRight ? "group-hover:rotate-12" : "group-hover:-rotate-12"
         )}
       />
       <span
         className={cx(
           "block w-1 h-5 bg-slate-300 dark:bg-navy-600 rounded-b transition-all duration-200 origin-top",
           "group-hover:bg-slate-500 dark:group-hover:bg-navy-400",
-          pointsRight
-            ? "group-hover:-rotate-[12deg]"
-            : "group-hover:rotate-[12deg]"
+          pointsRight ? "group-hover:-rotate-12" : "group-hover:rotate-12"
         )}
       />
     </button>

@@ -6,7 +6,7 @@ import * as React from "react"
 import ContextWrapper from "./App"
 // Components
 import Todo from "./components/Todo"
-import Tooltip from "react-tooltip"
+import { Tooltip } from "react-tooltip"
 import { createRoot } from "react-dom/client"
 import { useStorage } from "./context/StorageContext"
 
@@ -27,13 +27,7 @@ const App = () => {
   return (
     <main>
       <Todo />
-      <Tooltip
-        multiline={false}
-        place="top"
-        effect="solid"
-        type="dark"
-        backgroundColor="black"
-      />
+      <Tooltip id="tooltip" place="top" style={{ backgroundColor: "black" }} />
     </main>
   )
 }

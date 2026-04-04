@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
   return (
     <footer>
       <div className="flex justify-between">
-        <em data-tip="🤷‍♂️">
+        <em data-tooltip-id="tooltip" data-tooltip-content="🤷‍♂️">
           <a {...linkProps} onDoubleClick={handleSecretUpload}>
             What Todo
           </a>
@@ -55,7 +55,8 @@ const Footer: React.FC = () => {
           <div className="ml-2 flex items-center">
             <button
               className="no-style flex items-center"
-              data-tip={darkMode ? "Light mode" : "Dark mode"}
+              data-tooltip-id="tooltip"
+              data-tooltip-content={darkMode ? "Light mode" : "Dark mode"}
               onClick={toggleDarkMode}
               aria-label={
                 darkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -77,7 +78,8 @@ const Footer: React.FC = () => {
               download="what-todo-data.json"
             />
             <SaveIcon
-              data-tip="Download your data"
+              data-tooltip-id="tooltip"
+              data-tooltip-content="Download your data"
               {...iconProps}
               onClick={downloadJSON}
             />
@@ -86,7 +88,8 @@ const Footer: React.FC = () => {
           <div className="ml-2">
             <a
               {...linkProps}
-              data-tip="Request a feature"
+              data-tooltip-id="tooltip"
+              data-tooltip-content="Request a feature"
               href="https://github.com/markmur/what-todo/issues/new?title=[Feature Request]"
             >
               <RequestIcon {...iconProps} />
@@ -96,7 +99,8 @@ const Footer: React.FC = () => {
           <div className="ml-2">
             <a
               {...linkProps}
-              data-tip="Report a bug"
+              data-tooltip-id="tooltip"
+              data-tooltip-content="Report a bug"
               href="https://github.com/markmur/what-todo/issues/new?title=[Bug Report]"
             >
               <ReportIcon {...iconProps} />

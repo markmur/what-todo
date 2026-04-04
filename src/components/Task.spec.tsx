@@ -206,7 +206,7 @@ describe("Task", () => {
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
       const pinButton = document.querySelector(
-        "[data-tip='Pin task']"
+        "[data-tooltip-content='Pin task']"
       ) as HTMLElement
       fireEvent.click(pinButton)
 
@@ -226,7 +226,7 @@ describe("Task", () => {
       )
 
       const unpinButton = document.querySelector(
-        "[data-tip='Unpin task']"
+        "[data-tooltip-content='Unpin task']"
       ) as HTMLElement
       fireEvent.click(unpinButton)
 
@@ -247,7 +247,7 @@ describe("Task", () => {
       })
 
       const moveButton = document.querySelector(
-        "[data-tip='Move to today']"
+        "[data-tooltip-content='Move to today']"
       ) as HTMLElement
       fireEvent.click(moveButton)
 
@@ -265,7 +265,7 @@ describe("Task", () => {
       const { onUpdate } = renderTask({ pinned: false }, { active: true })
 
       const pinButton = document.querySelector(
-        "[data-tip='Pin task']"
+        "[data-tooltip-content='Pin task']"
       ) as HTMLElement
       fireEvent.click(pinButton)
 

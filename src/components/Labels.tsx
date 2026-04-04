@@ -8,7 +8,6 @@ import ColorPicker from "./ColorPicker"
 import CrossIcon from "@meronex/icons/fi/FiX"
 import FilterIcon from "@meronex/icons/fi/FiFilter"
 import PlusIcon from "@meronex/icons/fi/FiPlus"
-import Tooltip from "react-tooltip"
 import cx from "classnames"
 
 interface Props {
@@ -38,11 +37,6 @@ const Labels: React.FC<Props> = ({
   >({})
 
   const [newLabel, setNewLabel] = React.useState<IntermediateLabel>()
-
-  React.useEffect(() => {
-    // Rebuild tooltip on every render
-    Tooltip.rebuild()
-  })
 
   React.useEffect(() => {
     const labelsById = labels.reduce((state, label) => {
@@ -131,7 +125,7 @@ const Labels: React.FC<Props> = ({
                   onChange={color => handleColorChange(color, label)}
                 >
                   <div
-                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
                     style={{
                       backgroundColor: label.color
                     }}
@@ -149,7 +143,8 @@ const Labels: React.FC<Props> = ({
               </div>
 
               <span
-                data-tip={`Filter by: ${label.title}`}
+                data-tooltip-id="tooltip"
+                data-tooltip-content={`Filter by: ${label.title}`}
                 className={cx("remove-icon", {
                   active: filters.includes(label.id)
                 })}
@@ -184,7 +179,7 @@ const Labels: React.FC<Props> = ({
               <div className="flex items-center py-2">
                 <div className="mr-2">
                   <div
-                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 flex-grow-0 flex-shrink-0 flex-basis-[16px] cursor-pointer"
+                    className="w-[16px] h-[16px] rounded-lg p-0 m-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
                     style={{
                       backgroundColor: newLabel.color
                     }}

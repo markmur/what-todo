@@ -22,7 +22,7 @@ function Toggle({
       }`}
     >
       <span
-        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transform transition-transform duration-200 mt-0.5 ${
+        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 mt-0.5 ${
           checked ? "translate-x-[18px]" : "translate-x-0.5"
         }`}
       />
@@ -136,7 +136,7 @@ export default function Settings({ labels }: SettingsProps) {
             <select
               value={settings.sortBy}
               onChange={e => updateSetting("sortBy", e.target.value as SortBy)}
-              className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded px-2 py-1"
+              className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded-sm px-2 py-1"
             >
               {sortOptions.map(o => (
                 <option key={o.value} value={o.value}>
@@ -152,7 +152,7 @@ export default function Settings({ labels }: SettingsProps) {
               onChange={e =>
                 updateSetting("labelStyle", e.target.value as LabelStyle)
               }
-              className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded px-2 py-1"
+              className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded-sm px-2 py-1"
             >
               {labelStyleOptions.map(o => (
                 <option key={o.value} value={o.value}>
@@ -168,7 +168,7 @@ export default function Settings({ labels }: SettingsProps) {
               onChange={e =>
                 updateSetting("defaultLabelId", e.target.value || null)
               }
-              className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded px-2 py-1"
+              className="text-sm bg-slate-100 dark:bg-navy-700 dark:text-navy-200 border border-slate-200 dark:border-navy-600 rounded-sm px-2 py-1"
             >
               <option value="">None</option>
               {labels.map(l => (
