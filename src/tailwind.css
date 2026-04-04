@@ -16,14 +16,6 @@
   --color-navy-950: #0e111a;
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -31,5 +23,204 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  *:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: -2px;
+  }
+
+  textarea:focus-visible,
+  input:focus-visible {
+    outline: none;
+  }
+
+  .task > div:focus-visible {
+    outline: none;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    padding: 0;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark body {
+    background-color: #151925;
+    color: #b1b6c5;
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5 {
+    margin: 0;
+  }
+
+  h1 {
+    margin-bottom: 6px;
+  }
+
+  input {
+    display: block;
+    position: relative;
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: transparent;
+  }
+
+  html.dark input {
+    color: #b1b6c5;
+  }
+
+  textarea.unstyled {
+    resize: none;
+    outline: none;
+    border: none;
+    font-family: inherit;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  html.dark textarea.unstyled {
+    color: #b1b6c5;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button.no-style {
+    background: transparent;
+    border: none;
+    color: inherit;
+  }
+}
+
+@layer components {
+  .hidden-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .task .task-title-input {
+    font-size: 16px;
+    line-height: 1.25;
+    position: relative;
+  }
+
+  .task a,
+  .task a:visited {
+    color: rgb(56, 173, 169);
+    font-weight: bold;
+    font-style: inherit;
+    word-break: break-all;
+  }
+
+  .label-input .remove-icon,
+  .task .remove-icon {
+    visibility: hidden;
+  }
+
+  .label-input .remove-icon.active,
+  .task .remove-icon.active {
+    visibility: visible;
+  }
+
+  .label-input:hover .remove-icon,
+  .task:hover .remove-icon {
+    visibility: visible;
+  }
+
+  .remove-icon {
+    color: #aaa;
+    cursor: pointer;
+    padding: 0 10px;
+    margin: 0;
+  }
+
+  .remove-icon:hover {
+    color: #333;
+  }
+
+  html.dark .remove-icon {
+    color: #3a4259;
+  }
+
+  html.dark .remove-icon:hover {
+    color: #b1b6c5;
+  }
+
+  .checkbox label {
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .color-picker {
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 10px 22px 0 rgba(0, 0, 0, 0.06);
+    padding: 1em;
+    border: 1px solid #f1f2f6;
+    position: absolute;
+    z-index: 10;
+    transform: translateY(-20px);
+  }
+
+  html.dark .color-picker {
+    background-color: #1d2131;
+    border-color: #30374c;
+    box-shadow: 0 10px 22px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  footer {
+    padding: 1.5em 0 0;
+    border-top: 2px solid black;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  footer a {
+    color: black;
+    text-decoration: inherit;
+    font-style: normal;
+  }
+
+  html.dark footer {
+    border-top-color: #262c3e;
+  }
+
+  html.dark footer a {
+    color: #858ca1;
   }
 }
