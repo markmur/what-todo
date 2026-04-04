@@ -11,10 +11,11 @@ export default function Animate({
   children,
   active,
   duration = 0.2,
-  ease = [0.645, 0.045, 0.355, 1]
+  ease = [0.645, 0.045, 0.355, 1],
+  skipInitial = false
 }) {
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={!skipInitial}>
       {active && (
         <motion.div
           initial="closed"
