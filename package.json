@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "type": "module",
-  "description": "A Chrome Extension for managing your todos",
+  "description": "A simple todo app for managing your tasks",
   "scripts": {
     "build": "pnpm clean && vite build",
     "clean": "rm -rf dist",
@@ -11,8 +11,8 @@
     "preview": "vite preview",
     "start": "vite",
     "lint": "eslint src",
-    "test": "vitest run --exclude src/StorageManager.spec.ts",
-    "test:watch": "vitest --exclude src/StorageManager.spec.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

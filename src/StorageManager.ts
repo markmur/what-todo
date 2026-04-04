@@ -5,7 +5,6 @@ import { bytesToSize } from "./utils"
 import colors from "./color-palette"
 import set from "lodash-es/set"
 import sizeOf from "object-sizeof"
-// import { browser } from "webextension-polyfill-ts"
 import { v4 as uuid } from "uuid"
 
 type Item = Label
