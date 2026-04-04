@@ -127,13 +127,17 @@ const Todo: React.FC = ({}) => {
 
   const handleRemoveTask = useCallback(
     (task: Task) => {
+      if (!settings.undoOnDelete) {
+        doRemoveTask(task)
+        return
+      }
       setPendingDelete(task)
       deleteTimerRef.current = setTimeout(() => {
         doRemoveTask(task)
         setPendingDelete(null)
       }, 5000)
     },
-    [doRemoveTask]
+    [doRemoveTask, settings.undoOnDelete]
   )
 
   const handleUndoDelete = useCallback(() => {
@@ -383,7 +387,7 @@ const Todo: React.FC = ({}) => {
 
           {/* Focus section — slides over sidebars */}
           <div
-            className="flex flex-col bg-white dark:bg-navy-900"
+            className="flex flex-col bg-white dark:bg-navy-900 overflow-y-auto"
             style={{
               position: isDesktop ? "absolute" : "relative",
               top: 0,
@@ -531,7 +535,7 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
-            <div className="w-full flex-2 overflow-y-scroll">
+            <div className="w-full">
               <List
                 tasks={visibleTasks}
                 labels={labelsById}

@@ -98,7 +98,9 @@ const TaskInput: React.FC<Props> = ({
     }
 
   useOnClickOutside(ref, () => {
-    setOpen(false)
+    if (!settings.keepInputOpen) {
+      setOpen(false)
+    }
 
     if (!task.title && !task.description) {
       setTask({

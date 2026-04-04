@@ -136,6 +136,22 @@ export default function Settings({ labels }: SettingsProps) {
             />
           </SettingRow>
 
+          <SettingRow label="Keep input open after adding">
+            <Toggle
+              label="Keep input open after adding"
+              checked={settings.keepInputOpen}
+              onChange={v => updateSetting("keepInputOpen", v)}
+            />
+          </SettingRow>
+
+          <SettingRow label="Allow undo on delete">
+            <Toggle
+              label="Allow undo on delete"
+              checked={settings.undoOnDelete}
+              onChange={v => updateSetting("undoOnDelete", v)}
+            />
+          </SettingRow>
+
           <SettingRow label="Sort tasks by">
             <select
               value={settings.sortBy}

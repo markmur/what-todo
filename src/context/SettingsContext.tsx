@@ -11,6 +11,8 @@ const defaultSettings: Settings = {
   showTaskCount: false,
   compactMode: false,
   autoExpandNewTasks: false,
+  keepInputOpen: false,
+  undoOnDelete: true,
   labelStyle: "circle"
 }
 
