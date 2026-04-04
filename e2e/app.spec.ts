@@ -105,11 +105,13 @@ test("full app workflow", async ({ page }) => {
     await expect(page.getByRole("alert")).toContainText(
       '"Clean kitchen" deleted'
     )
-    await page.getByText("Undo").click()
+    await page.getByRole("button", { name: "Undo" }).click()
     await expect(page.getByText("Clean kitchen")).toBeVisible()
   })
 
   await test.step("keyboard shortcut X deletes task", async () => {
+    // Wait for previous toast to fully dismiss
+    await page.getByRole("alert").waitFor({ state: "hidden", timeout: 6000 }).catch(() => {})
     await page.getByText("Clean kitchen").click()
     const card = page
       .locator("[role='button']")
@@ -233,7 +235,7 @@ test("mobile", async ({ page }) => {
       .filter({ hasText: "Mobile task" })
     await card.getByLabel("Delete task").click()
     await expect(page.getByRole("alert")).toContainText("deleted")
-    await expect(page.getByText("Undo")).toBeVisible()
+    await expect(page.getByRole("button", { name: "Undo" })).toBeVisible()
   })
 
   await test.step("drag handle is visible for reordering", async () => {

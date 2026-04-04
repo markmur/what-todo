@@ -61,6 +61,8 @@ export interface Settings {
   showTaskCount: boolean
   compactMode: boolean
   autoExpandNewTasks: boolean
+  keepInputOpen: boolean
+  undoOnDelete: boolean
   labelStyle: LabelStyle
 }
 
