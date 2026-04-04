@@ -15,9 +15,9 @@ function Header({
     <header
       className={cx(
         className,
-        "py-8 border-b border-slate-100 dark:border-navy-700 flex items-center justify-between"
+        "border-b border-slate-100 dark:border-navy-700 flex items-center justify-between"
       )}
-      style={{ paddingLeft: 16, paddingRight: 16 }}
+      style={{ padding: "2em 16px", maxHeight: 66, borderBottomWidth: 2 }}
     >
       <div className="flex items-center gap-2">
         <h1 className="text-base font-bold dark:text-navy-100">What Todo 🤷‍♂️</h1>

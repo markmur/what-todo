@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en" dir="ltr">
   <head>
+    <script>
+      try {
+        if (localStorage.getItem("what-todo-dark-mode") === "true")
+          document.documentElement.classList.add("dark")
+      } catch (e) {}
+    </script>
     <title>What Todo - Task Manager</title>
     <link rel="shortcut icon" href="/icon-128.png" type="image/x-icon" />
     <meta charset="UTF-8" />

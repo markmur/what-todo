@@ -135,7 +135,7 @@ describe("Todo — curtain sidebar animation", () => {
     expect(section.style.right).not.toBe("0")
   })
 
-  it("focus section has CSS transition for the curtain effect", () => {
+  it("focus section has no transition on initial render (prevents flash)", () => {
     renderTodo()
     const focusHeading = Array.from(document.querySelectorAll("h1")).find(
       el => el.textContent === "Focus"
@@ -144,9 +144,7 @@ describe("Todo — curtain sidebar animation", () => {
       "[style*='z-index: 1']"
     ) as HTMLElement
     expect(section).toBeTruthy()
-    expect(section.style.transition).toContain("left")
-    expect(section.style.transition).toContain("right")
-    expect(section.style.transition).toContain("0.3s")
+    expect(section.style.transition).toBe("")
   })
 
   it("focus section renders above sidebars (z-index)", () => {

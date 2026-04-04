@@ -349,30 +349,6 @@ footer {
   }
 }
 
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-height: 40px;
-  padding: 2em 0;
-  border-bottom-width: 2px;
-
-  p {
-    margin: 0;
-  }
-
-  small {
-    color: #333;
-  }
-
-  .dark & {
-    border-bottom-color: #262c3e;
-
-    small {
-      color: #69718b;
-    }
-  }
-}
 
 button.no-style {
   background: transparent;
