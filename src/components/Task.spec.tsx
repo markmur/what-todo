@@ -285,10 +285,7 @@ describe("Task", () => {
     })
 
     it("P key toggles pin when not typing", () => {
-      const { onUpdate } = renderTask(
-        { pinned: false },
-        { active: true }
-      )
+      const { onUpdate } = renderTask({ pinned: false }, { active: true })
       const card = document.querySelector("[role='button']") as HTMLElement
       fireEvent.keyDown(card, { key: "p" })
       expect(onUpdate).toHaveBeenCalledWith(

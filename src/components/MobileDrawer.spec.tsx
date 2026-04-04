@@ -35,9 +35,7 @@ describe("MobileDrawer", () => {
         <span>Content</span>
       </MobileDrawer>
     )
-    const closeButton = document.querySelector(
-      "[aria-label='Close menu']"
-    )
+    const closeButton = document.querySelector("[aria-label='Close menu']")
     expect(closeButton).toBeTruthy()
   })
 

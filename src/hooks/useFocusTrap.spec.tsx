@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect } from "vitest"
 import { render, fireEvent } from "@testing-library/react"
 import React, { useRef } from "react"
 import useFocusTrap from "./useFocusTrap"
