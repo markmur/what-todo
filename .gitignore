@@ -137,3 +137,7 @@ dist-web
 .yarn/install-state.gz
 .pnp.*
 dist
+
+# Playwright
+test-results/
+playwright-report/
