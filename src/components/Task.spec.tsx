@@ -266,4 +266,62 @@ describe("Task", () => {
       )
     })
   })
+
+  describe("Keyboard shortcuts", () => {
+    it("Escape calls onDeselect", () => {
+      const { onDeselect } = renderTask({}, { active: true })
+      const card = document.querySelector("[role='button']") as HTMLElement
+      fireEvent.keyDown(card, { key: "Escape" })
+      expect(onDeselect).toHaveBeenCalled()
+    })
+
+    it("Cmd+Enter calls onDeselect", () => {
+      const { onDeselect } = renderTask({}, { active: true })
+      const textarea = document.querySelector(
+        "textarea.task-title-input"
+      ) as HTMLElement
+      fireEvent.keyDown(textarea, { key: "Enter", metaKey: true })
+      expect(onDeselect).toHaveBeenCalled()
+    })
+
+    it("P key toggles pin when not typing", () => {
+      const { onUpdate } = renderTask(
+        { pinned: false },
+        { active: true }
+      )
+      const card = document.querySelector("[role='button']") as HTMLElement
+      fireEvent.keyDown(card, { key: "p" })
+      expect(onUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ pinned: true })
+      )
+    })
+
+    it("X key calls onRemoveTask when not typing", () => {
+      const { onRemoveTask } = renderTask({}, { active: true })
+      const card = document.querySelector("[role='button']") as HTMLElement
+      fireEvent.keyDown(card, { key: "x" })
+      expect(onRemoveTask).toHaveBeenCalled()
+    })
+
+    it("M key calls onMoveToToday when not typing", () => {
+      const { onMoveToToday } = renderTask({})
+      const card = document.querySelector("[role='button']") as HTMLElement
+      fireEvent.keyDown(card, { key: "m" })
+      expect(onMoveToToday).toHaveBeenCalled()
+    })
+
+    it("does not trigger shortcuts when typing in textarea", () => {
+      const { onUpdate, onRemoveTask } = renderTask(
+        { pinned: false },
+        { active: true }
+      )
+      const textarea = document.querySelector(
+        "textarea.task-title-input"
+      ) as HTMLElement
+      fireEvent.keyDown(textarea, { key: "p" })
+      fireEvent.keyDown(textarea, { key: "x" })
+      expect(onUpdate).not.toHaveBeenCalled()
+      expect(onRemoveTask).not.toHaveBeenCalled()
+    })
+  })
 })
