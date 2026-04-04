@@ -3,7 +3,7 @@ import "../styles.scss"
 
 // Types
 import type { Data, Task, Label as LabelType } from "../index.d"
-import React, { PropsWithChildren, useCallback } from "react"
+import React, { PropsWithChildren, useCallback, useState } from "react"
 // utils
 import { formatDateHeading, today, yesterday } from "../utils"
 import useMedia, { Breakpoints } from "../hooks/media"
@@ -20,6 +20,8 @@ import { useStorage } from "../context/StorageContext"
 import Label from "./Label"
 import ToggleButton from "./ToggleButton"
 import { AnimatePresence, motion } from "framer-motion"
+import Header from "./Header"
+import MobileDrawer from "./MobileDrawer"
 
 function Title({ children }: PropsWithChildren) {
   return (
@@ -139,6 +141,8 @@ const Todo: React.FC = ({}) => {
   const isDesktop =
     breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
 
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
   const completedContent = !completed.collapsed && (
     <Flex
       width={grid.completed}
@@ -156,7 +160,7 @@ const Todo: React.FC = ({}) => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -12 }}
           transition={contentTransition}
-          style={{ display: "flex", flexDirection: "column", flex: 1 }}
+          style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}
         >
           <div className="pb-1">
             <Title>Completed</Title>
@@ -180,7 +184,7 @@ const Todo: React.FC = ({}) => {
             </div>
           )}
 
-          <div className="w-full overflow-y-auto flex-[2]">
+          <div className="w-full overflow-y-auto flex-1 min-h-0">
             <div>
               <List
                 tasks={yesterdaysTasks}
@@ -212,7 +216,9 @@ const Todo: React.FC = ({}) => {
   )
 
   return (
-    <main>
+    <>
+      <Header onMenuClick={!isDesktop ? () => setDrawerOpen(prev => !prev) : undefined} />
+      <main>
       <div className="flex">
         {isDesktop && completedContent}
 
@@ -354,6 +360,28 @@ const Todo: React.FC = ({}) => {
         )}
       </div>
     </main>
+
+      {!isDesktop && (
+        <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} footer={<Footer />}>
+          <div className="pb-1">
+            <Title>Labels</Title>
+          </div>
+
+          <div className="flex-1 overflow-y-auto pb-2">
+            <Labels
+              labels={data.labels}
+              limit={15}
+              colors={colors}
+              filters={data.filters}
+              onFilter={updateFilters}
+              onAddLabel={handleAddLabel}
+              onUpdateLabel={handleUpdateLabel}
+              onRemoveLabel={handleRemoveLabel}
+            />
+          </div>
+        </MobileDrawer>
+      )}
+    </>
   )
 }
 
