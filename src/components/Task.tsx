@@ -211,9 +211,14 @@ const Task: React.FC<Props> = ({
     <Animate active duration={0.15}>
       <div
         ref={ref}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
         className={cx(
-          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto border-2",
+          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 bg-slate-50 dark:bg-navy-800 rounded-xl px-3 overflow-hidden h-auto border-2 outline-none",
           compact ? "py-2 mb-1" : "py-4 mb-3",
+          active
+            ? "ring-2 ring-blue-400/50 dark:ring-blue-500/40"
+            : "",
           state?.pinned
             ? "border-blue-300 dark:border-blue-500/50"
             : "border-transparent",
@@ -337,25 +342,31 @@ const Task: React.FC<Props> = ({
 
         <div id="actions" className="flex mt-1 items-center ml-auto shrink-0">
           {onMoveToToday && (
-            <div
+            <button
+              type="button"
               data-tooltip-id="tooltip"
               data-tooltip-content="Move to today (M)"
-              className="remove-icon"
+              aria-label="Move to today"
+              className="no-style remove-icon"
               onClick={preventDefault(() => {
                 onMoveToToday(state ?? task)
               })}
             >
               <RightArrowIcon />
-            </div>
+            </button>
           )}
 
           {canPin && (
-            <div
+            <button
+              type="button"
               data-tooltip-id="tooltip"
               data-tooltip-content={
                 state?.pinned ? "Unpin task (P)" : "Pin task (P)"
               }
-              className={cx("remove-icon", { active: state?.pinned })}
+              aria-label={state?.pinned ? "Unpin task" : "Pin task"}
+              className={cx("no-style remove-icon", {
+                active: state?.pinned
+              })}
               style={state?.pinned ? { color: "#93c5fd" } : undefined}
               onClick={preventDefault(() => {
                 if (!state) return
@@ -365,20 +376,22 @@ const Task: React.FC<Props> = ({
               })}
             >
               {state?.pinned ? <PinFilled /> : <Pin />}
-            </div>
+            </button>
           )}
 
           {descriptionURL && (
-            <div
+            <button
+              type="button"
               data-tooltip-id="tooltip"
               data-tooltip-content={shortenURL(descriptionURL)}
-              className={cx("remove-icon", { active: true })}
+              aria-label="Open link"
+              className={cx("no-style remove-icon", { active: true })}
               onClick={preventDefault(() => {
                 window.open(descriptionURL, "_blank")
               })}
             >
               <FiLink />
-            </div>
+            </button>
           )}
 
           {task.labels
@@ -427,14 +440,16 @@ const Task: React.FC<Props> = ({
               )
             })}
 
-          <span
-            className="remove-icon p-0! max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
+          <button
+            type="button"
+            className="no-style remove-icon p-0! max-w-0 opacity-0 overflow-hidden transition-all duration-200 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
             data-tooltip-id="tooltip"
             data-tooltip-content="Delete (X)"
+            aria-label="Delete task"
             onClick={() => onRemoveTask(state ?? task)}
           >
             <CrossIcon />
-          </span>
+          </button>
         </div>
       </div>
     </Animate>

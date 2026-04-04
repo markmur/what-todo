@@ -208,24 +208,29 @@ const List: React.FC<Props> = ({
       )}
 
       {hasCompletedTasks && (
-        <div
-          className={cx("flex mb-2 items-center cursor-pointer", {
-            "mt-10": uncompleted.length > 0,
-            "mt-4": uncompleted.length === 0
-          })}
+        <button
+          type="button"
+          className={cx(
+            "no-style flex mb-2 items-center cursor-pointer w-full",
+            {
+              "mt-10": uncompleted.length > 0,
+              "mt-4": uncompleted.length === 0
+            }
+          )}
           onClick={() => setCollapsed(!collapsed)}
+          aria-expanded={!collapsed}
         >
           <h4 className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200 font-bold">
             {completed.length} Completed
           </h4>
-          <div className="align-center">
+          <span className="align-center" aria-hidden="true">
             {collapsed ? (
               <ChevronDown style={{ verticalAlign: "middle" }} />
             ) : (
               <ChevronUp style={{ verticalAlign: "middle" }} />
             )}
-          </div>
-        </div>
+          </span>
+        </button>
       )}
 
       <ul className={cx("task-list", { compact: settings.compactMode })}>

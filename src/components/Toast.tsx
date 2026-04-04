@@ -25,6 +25,7 @@ const Toast: React.FC<ToastProps> = ({
       <AnimatePresence>
         <motion.div
           key="toast"
+          role="alert"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
