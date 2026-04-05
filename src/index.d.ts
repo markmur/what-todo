@@ -54,14 +54,10 @@ export type SortBy = "pinned" | "created" | "label"
 export type LabelStyle = "circle" | "pill"
 
 export interface Settings {
-  autoCollapseCompleted: boolean
-  moveCompletedToYesterday: boolean
   defaultLabelId: string | null
   sortBy: SortBy
   showTaskCount: boolean
   compactMode: boolean
-  autoExpandNewTasks: boolean
-  keepInputOpen: boolean
   undoOnDelete: boolean
   labelStyle: LabelStyle
 }

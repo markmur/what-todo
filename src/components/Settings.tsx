@@ -96,22 +96,6 @@ export default function Settings({ labels }: SettingsProps) {
 
       <Collapse open={!collapsed}>
         <div className="divide-y divide-slate-200 dark:divide-navy-700">
-          <SettingRow label="Auto-collapse completed">
-            <Toggle
-              label="Auto-collapse completed"
-              checked={settings.autoCollapseCompleted}
-              onChange={v => updateSetting("autoCollapseCompleted", v)}
-            />
-          </SettingRow>
-
-          <SettingRow label="Move completed to yesterday">
-            <Toggle
-              label="Move completed to yesterday"
-              checked={settings.moveCompletedToYesterday}
-              onChange={v => updateSetting("moveCompletedToYesterday", v)}
-            />
-          </SettingRow>
-
           <SettingRow label="Show task count">
             <Toggle
               label="Show task count"
@@ -125,22 +109,6 @@ export default function Settings({ labels }: SettingsProps) {
               label="Compact mode"
               checked={settings.compactMode}
               onChange={v => updateSetting("compactMode", v)}
-            />
-          </SettingRow>
-
-          <SettingRow label="Auto-expand new tasks">
-            <Toggle
-              label="Auto-expand new tasks"
-              checked={settings.autoExpandNewTasks}
-              onChange={v => updateSetting("autoExpandNewTasks", v)}
-            />
-          </SettingRow>
-
-          <SettingRow label="Keep input open after adding">
-            <Toggle
-              label="Keep input open after adding"
-              checked={settings.keepInputOpen}
-              onChange={v => updateSetting("keepInputOpen", v)}
             />
           </SettingRow>
 

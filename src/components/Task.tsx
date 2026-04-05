@@ -166,13 +166,14 @@ const Task: React.FC<Props> = ({
 
   const handleSelect = useCallback(() => {
     if (state) {
-      const wasCompleted = state.completed
       const updated = { ...state, completed: !state.completed }
       setState(updated)
 
-      if (wasCompleted) {
+      if (state.completed) {
+        // Uncompleting — move immediately
         onMarkAsComplete(updated)
       } else {
+        // Completing — let strikethrough animation play first
         setTimeout(() => {
           onMarkAsComplete(updated)
         }, 1500)

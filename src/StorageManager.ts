@@ -181,7 +181,7 @@ class StorageManager {
   }
 
   private cloneData(data: Data): Data {
-    return { ...data }
+    return JSON.parse(JSON.stringify(data))
   }
 
   private clearAllData(): Data {
@@ -526,6 +526,22 @@ class StorageManager {
     }
 
     set(newData, `sections.${key}`, section)
+
+    this.sync(newData, "UPDATE_SECTION")
+
+    return newData
+  }
+
+  updateSections = (data: Data, updates: Record<string, SectionData>) => {
+    const newData = this.cloneData(data)
+
+    if (typeof newData.sections !== "object") {
+      newData.sections = defaultData.sections
+    }
+
+    for (const [key, section] of Object.entries(updates)) {
+      set(newData, `sections.${key}`, section)
+    }
 
     this.sync(newData, "UPDATE_SECTION")
 

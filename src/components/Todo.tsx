@@ -24,6 +24,7 @@ import Collapse from "./Collapse"
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import SearchIcon from "@meronex/icons/fi/FiSearch"
+import CheckIcon from "@meronex/icons/fi/FiCheckCircle"
 import Toast from "./Toast"
 
 function Title({ children }: PropsWithChildren) {
@@ -72,16 +73,17 @@ const Todo: React.FC = ({}) => {
     updateLabel,
     removeLabel,
     updateFilters,
-    updateSection
+    updateSection,
+    updateSections
   } = useStorage()
 
   const todayDateStr = today().toDateString()
 
   const todaysTasks = getTasksFor(todayDateStr)(data)
-  const yesterdaysTasks = getOlderTasks(data)
+  const olderTasks = getOlderTasks(data)
 
   // Move any pinned tasks to today
-  yesterdaysTasks.map(task => {
+  olderTasks.map(task => {
     if (task.pinned) {
       moveToToday(task)
     }
@@ -152,7 +154,7 @@ const Todo: React.FC = ({}) => {
 
   const MIN_SIDEBAR_WIDTH = 0.2
   const defaultSidebarWidth = completed.collapsed ? 2 / 5 : 1 / 3
-  const completedWidth = 1 / 3
+  const completedWidth = 1 / 2
   const [sidebarWidth, setSidebarWidth] = useState(
     Math.max(MIN_SIDEBAR_WIDTH, sidebar.width ?? defaultSidebarWidth)
   )
@@ -235,14 +237,14 @@ const Todo: React.FC = ({}) => {
           {/* Completed section — fixed at left edge */}
           {isDesktop && (
             <div
-              className="flex-col bg-slate-50/60 dark:bg-navy-800 flex"
+              className="flex-col bg-slate-100 dark:bg-navy-950 flex"
               style={{
                 position: "absolute",
                 left: 0,
                 top: 0,
                 width: `${completedWidth * 100}%`,
                 height: fullHeight,
-                padding: 32,
+                padding: 16,
                 paddingTop: 8,
                 overflow: "hidden",
                 pointerEvents: completed.collapsed ? "none" : "auto"
@@ -279,26 +281,40 @@ const Todo: React.FC = ({}) => {
                 )}
 
                 <div className="w-full overflow-y-auto flex-1 min-h-0">
-                  {yesterdaysTasks.length === 0 ? (
-                    <div className="text-slate-400 dark:text-navy-500 text-sm text-center flex items-center justify-center h-full">
-                      Completed tasks will appear here the day after completion.
+                  {olderTasks.length === 0 ? (
+                    <div className="text-slate-400 dark:text-navy-500 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
+                      <CheckIcon
+                        fontSize={32}
+                        className="text-slate-300 dark:text-navy-600"
+                      />
+                      Completed tasks will show up here a day after completion.
                     </div>
                   ) : (
                     <div>
                       <List
-                        tasks={yesterdaysTasks.filter(
+                        tasks={olderTasks.filter(
                           t => t.id !== pendingDelete?.id
                         )}
                         labels={labelsById}
                         filters={data.filters}
                         collapseCompleted={true}
+                        forceCompact={true}
                         canPinTasks={false}
                         canCollapse={false}
                         onFilter={updateFilters}
                         onUpdateTask={handleUpdateTask}
                         onRemoveTask={handleRemoveTask}
-                        onMarkAsComplete={markAsComplete}
-                        onMoveToToday={handleMoveToToday}
+                        onMarkAsComplete={(task: Task) => {
+                          if (task.completed) {
+                            // Unchecking a completed task — move to today first, then toggle
+                            handleMoveToToday({
+                              ...task,
+                              completed: false
+                            })
+                          } else {
+                            markAsComplete(task)
+                          }
+                        }}
                       />
                     </div>
                   )}
@@ -413,14 +429,13 @@ const Todo: React.FC = ({}) => {
                   side="left"
                   onClick={() => {
                     const expanding = completed.collapsed
-                    updateSection("completed", {
-                      collapsed: !completed.collapsed
-                    })
                     if (expanding) {
-                      updateSection("sidebar", {
-                        ...sidebar,
-                        collapsed: true
+                      updateSections({
+                        completed: { collapsed: false },
+                        sidebar: { ...sidebar, collapsed: true }
                       })
+                    } else {
+                      updateSection("completed", { collapsed: true })
                     }
                   }}
                 />
@@ -477,14 +492,16 @@ const Todo: React.FC = ({}) => {
                             sidebar.width ?? defaultSidebarWidth
                           )
                         )
-                        updateSection("completed", {
+                        updateSections({
+                          sidebar: { ...sidebar, collapsed: false },
+                          completed: { collapsed: true }
+                        })
+                      } else {
+                        updateSection("sidebar", {
+                          ...sidebar,
                           collapsed: true
                         })
                       }
-                      updateSection("sidebar", {
-                        ...sidebar,
-                        collapsed: !sidebar.collapsed
-                      })
                     }}
                   />
                 </div>
@@ -534,7 +551,6 @@ const Todo: React.FC = ({}) => {
                 labels={labelsById}
                 filters={data.filters}
                 isFiltering={isFiltering}
-                hideCompleted={settings.moveCompletedToYesterday}
                 onFilter={updateFilters}
                 onUpdateTask={handleUpdateTask}
                 onRemoveTask={handleRemoveTask}

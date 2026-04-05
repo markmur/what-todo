@@ -70,21 +70,24 @@ function Header({
       )}
       style={{ padding: "2em 16px", maxHeight: 66, borderBottomWidth: 2 }}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-baseline gap-3">
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
         <h1
-          className="text-base font-bold dark:text-navy-100 cursor-default select-none"
+          className="text-base font-bold dark:text-navy-100 cursor-default select-none leading-none"
           onClick={handleLogoTap}
         >
           What Todo 🤷‍♂️
         </h1>
         {typeof taskCount === "number" && (
-          <span className="text-xs font-semibold bg-slate-200 dark:bg-navy-700 text-slate-600 dark:text-navy-300 rounded-full px-2 py-0.5">
+          <span
+            className="text-xs font-semibold bg-slate-200 dark:bg-navy-700 text-slate-600 dark:text-navy-300 rounded-full px-2 py-0.5 leading-none"
+            style={{ verticalAlign: "baseline" }}
+          >
             {taskCount}
           </span>
         )}
         {date && (
-          <span className="text-xs text-slate-400 dark:text-navy-500">
+          <span className="text-xs text-slate-400 dark:text-navy-500 leading-none">
             {date}
           </span>
         )}
