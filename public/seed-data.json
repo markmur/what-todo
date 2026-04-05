@@ -1,0 +1,17 @@
+{
+  "labels": [
+    { "id": "label-1", "title": "Work", "color": "#5352ed" },
+    { "id": "label-2", "title": "Personal", "color": "#ff7f50" },
+    { "id": "label-3", "title": "Urgent", "color": "#ff4757" }
+  ],
+  "tasks": [
+    { "title": "Review pull requests", "labels": ["label-1"], "pinned": true },
+    { "title": "Buy groceries", "labels": ["label-2"], "description": "Milk, eggs, bread" },
+    { "title": "Write documentation", "labels": ["label-1"] },
+    { "title": "Call dentist", "labels": ["label-2", "label-3"] },
+    { "title": "Fix login bug", "labels": ["label-1", "label-3"], "pinned": true },
+    { "title": "Clean kitchen", "labels": ["label-2"] },
+    { "title": "Prepare presentation", "labels": ["label-1"], "description": "Q2 roadmap review for Monday" },
+    { "title": "Reply to emails", "labels": ["label-1"] }
+  ]
+}

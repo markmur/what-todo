@@ -55,7 +55,10 @@ export async function seed(
       if (settings && !localStorage.getItem("what-todo-settings")) {
         localStorage.setItem("what-todo-settings", JSON.stringify(settings))
       }
-      if (darkMode !== undefined && !localStorage.getItem("what-todo-dark-mode")) {
+      if (
+        darkMode !== undefined &&
+        !localStorage.getItem("what-todo-dark-mode")
+      ) {
         localStorage.setItem("what-todo-dark-mode", String(darkMode))
       }
     },
