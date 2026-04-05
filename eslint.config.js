@@ -3,6 +3,7 @@ import tsparser from "@typescript-eslint/parser"
 import reactHooks from "eslint-plugin-react-hooks"
 import jsxA11y from "eslint-plugin-jsx-a11y"
 import prettier from "eslint-plugin-prettier/recommended"
+import playwright from "eslint-plugin-playwright"
 
 export default [
   { ignores: ["dist/", "node_modules/"] },
@@ -32,6 +33,17 @@ export default [
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
       "react-hooks/refs": "warn"
+    }
+  },
+  {
+    ...playwright.configs["flat/recommended"],
+    files: ["e2e/**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module"
+      }
     }
   }
 ]
