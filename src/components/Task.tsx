@@ -13,7 +13,7 @@ import PinFilled from "@meronex/icons/ai/AiFillPushpin"
 import RightArrowIcon from "@meronex/icons/fi/FiArrowRight"
 import Textarea from "react-textarea-autosize"
 import cx from "classnames"
-import { FiLink } from "@meronex/icons/fi"
+import FiLink from "@meronex/icons/fi/FiLink"
 import { useSettings } from "../context/SettingsContext"
 import { contrastText } from "../utils"
 

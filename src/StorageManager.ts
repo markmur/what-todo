@@ -1,11 +1,10 @@
 // Types
 import { Action, Data, Label, Section, SectionData, Task } from "./index.d"
 
-import { bytesToSize } from "./utils"
 import colors from "./color-palette"
 import set from "lodash-es/set"
-import sizeOf from "object-sizeof"
-import { v4 as uuid } from "uuid"
+
+const uuid = () => crypto.randomUUID()
 
 type Item = Label
 type ItemKey = "labels"
@@ -353,14 +352,8 @@ class StorageManager {
 
       this.moveUncompletedTasksToToday(parsedData)
 
-      // Usage
-      const usage = await this.getStorageUsagePercent(parsedData)
-      const usagePct = Number(usage * 100).toFixed(1) + "%"
-
       return {
-        data: parsedData,
-        usage: usagePct,
-        quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
+        data: parsedData
       }
     } catch (error) {
       console.error(error)
@@ -375,17 +368,6 @@ class StorageManager {
       //   quota: bytesToSize(browser.storage.local.QUOTA_BYTES)
       // }
     }
-  }
-
-  getStorageUsagePercent = async (data: Data): Promise<number> => {
-    const inUse = sizeOf(data)
-    const total = browser.storage.local.QUOTA_BYTES
-
-    if (!total) {
-      return 0
-    }
-
-    return inUse / browser.storage.local.QUOTA_BYTES
   }
 
   uploadData = (data: Data): void => {
