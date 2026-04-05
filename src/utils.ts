@@ -51,19 +51,6 @@ export const formatDateHeading = (
   return new Date(date).toLocaleDateString(window.navigator.language, options)
 }
 
-export const bytesToSize = (bytes: number | null | undefined): string => {
-  if (bytes == null) {
-    return ""
-  }
-
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
-  if (bytes == 0) return "0 Byte"
-
-  const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))))
-
-  return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i]
-}
-
 export const parseDataStr = (data: string): Record<string, unknown> => {
   try {
     return JSON.parse(data)
