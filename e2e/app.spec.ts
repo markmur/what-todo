@@ -380,4 +380,85 @@ test("mobile", async ({ page }) => {
     ).toBeVisible()
     await page.keyboard.press("Escape")
   })
+
+  await test.step("create more tasks for remaining mobile tests", async () => {
+    const input = page.getByPlaceholder("What needs to be done?")
+    await input.fill("Mobile groceries")
+    await input.press("Enter")
+    await input.fill("Mobile laundry")
+    await input.press("Enter")
+    await expect(page.getByText("Mobile groceries")).toBeVisible()
+    await expect(page.getByText("Mobile laundry")).toBeVisible()
+  })
+
+  await test.step("edit a task on mobile", async () => {
+    await page.getByText("Mobile groceries").click()
+    const textarea = page.locator("textarea.task-title-input")
+    await textarea.fill("Buy milk")
+    await page.keyboard.press("Escape")
+    await expect(page.getByText("Buy milk")).toBeVisible()
+  })
+
+  await test.step("complete a task on mobile", async () => {
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "Buy milk" })
+    await card.locator(".checkbox label").click()
+    await expect(page.locator(".strike-animated").first()).toBeVisible({
+      timeout: 3000
+    })
+  })
+
+  await test.step("search on mobile", async () => {
+    const search = page.getByPlaceholder("Search tasks...")
+    await search.fill("laundry")
+    await expect(page.getByText("Mobile laundry")).toBeVisible()
+    await expect(page.getByText("Buy milk")).not.toBeVisible()
+    await search.press("Escape")
+    await expect(page.getByText("Buy milk")).toBeVisible()
+  })
+
+  await test.step("undo delete on mobile", async () => {
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "Mobile laundry" })
+    await card.getByLabel("Delete task").click()
+    await expect(page.getByRole("alert")).toContainText("deleted")
+    await page.getByRole("button", { name: "Undo" }).click()
+    await expect(page.getByText("Mobile laundry")).toBeVisible()
+  })
+
+  await test.step("drawer contains labels and settings", async () => {
+    await page.getByLabel("Open menu").click()
+    await expect(page.getByRole("dialog")).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "Labels" })
+    ).toBeVisible()
+    await expect(page.getByText("Settings")).toBeVisible()
+    await expect(page.getByLabel("Show task count")).toBeVisible()
+  })
+
+  await test.step("toggle setting in drawer persists", async () => {
+    await page.getByLabel("Show task count").click()
+    await page.getByLabel("Close menu").click()
+    await expect(page.locator("header span.rounded-full")).toBeVisible()
+  })
+
+  await test.step("dark mode toggle accessible via drawer", async () => {
+    await page.getByLabel("Open menu").click()
+    // Default is dark mode — switch to light
+    await page.getByLabel("Switch to light mode").click()
+    await expect(page.locator("html")).not.toHaveClass(/dark/)
+    // Switch back
+    await page.getByLabel("Switch to dark mode").click()
+    await expect(page.locator("html")).toHaveClass(/dark/)
+    await page.getByLabel("Close menu").click()
+  })
+
+  await test.step("drawer closes on Escape key", async () => {
+    await page.getByLabel("Open menu").click()
+    await expect(page.getByRole("dialog")).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("dialog")).not.toBeVisible()
+  })
 })
