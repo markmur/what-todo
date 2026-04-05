@@ -111,10 +111,7 @@ describe("Todo — curtain sidebar animation", () => {
 
   it("focus section has left offset when completed is expanded", () => {
     renderTodo()
-    const focusHeading = Array.from(document.querySelectorAll("h1")).find(
-      el => el.textContent === "Focus"
-    )
-    const section = focusHeading?.closest(
+    const section = document.querySelector(
       "[style*='z-index: 1']"
     ) as HTMLElement
     expect(section).toBeTruthy()
@@ -124,10 +121,7 @@ describe("Todo — curtain sidebar animation", () => {
 
   it("focus section has right offset when sidebar is expanded", () => {
     renderTodo()
-    const focusHeading = Array.from(document.querySelectorAll("h1")).find(
-      el => el.textContent === "Focus"
-    )
-    const section = focusHeading?.closest(
+    const section = document.querySelector(
       "[style*='z-index: 1']"
     ) as HTMLElement
     expect(section).toBeTruthy()
@@ -137,10 +131,7 @@ describe("Todo — curtain sidebar animation", () => {
 
   it("focus section has no transition on initial render (prevents flash)", () => {
     renderTodo()
-    const focusHeading = Array.from(document.querySelectorAll("h1")).find(
-      el => el.textContent === "Focus"
-    )
-    const section = focusHeading?.closest(
+    const section = document.querySelector(
       "[style*='z-index: 1']"
     ) as HTMLElement
     expect(section).toBeTruthy()
@@ -149,10 +140,9 @@ describe("Todo — curtain sidebar animation", () => {
 
   it("focus section renders above sidebars (z-index)", () => {
     renderTodo()
-    const focusHeading = Array.from(document.querySelectorAll("h1")).find(
-      el => el.textContent === "Focus"
-    )
-    const section = focusHeading?.closest("[style*='z-index']") as HTMLElement
+    const section = document.querySelector(
+      "[style*='z-index: 1']"
+    ) as HTMLElement
     expect(section).toBeTruthy()
     expect(section.style.zIndex).toBe("1")
   })

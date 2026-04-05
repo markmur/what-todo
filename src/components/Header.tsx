@@ -38,11 +38,13 @@ async function seedFromFile() {
 function Header({
   className,
   onMenuClick,
-  taskCount
+  taskCount,
+  date
 }: {
   className?: string
   onMenuClick?: () => void
   taskCount?: number
+  date?: string
 }) {
   const tapCount = useRef(0)
   const tapTimer = useRef<ReturnType<typeof setTimeout>>()
@@ -68,7 +70,7 @@ function Header({
       )}
       style={{ padding: "2em 16px", maxHeight: 66, borderBottomWidth: 2 }}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
         <h1
           className="text-base font-bold dark:text-navy-100 cursor-default select-none"
@@ -79,6 +81,11 @@ function Header({
         {typeof taskCount === "number" && (
           <span className="text-xs font-semibold bg-slate-200 dark:bg-navy-700 text-slate-600 dark:text-navy-300 rounded-full px-2 py-0.5">
             {taskCount}
+          </span>
+        )}
+        {date && (
+          <span className="text-xs text-slate-400 dark:text-navy-500">
+            {date}
           </span>
         )}
       </div>

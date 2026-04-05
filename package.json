@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "ci": "pnpm lint && pnpm test && pnpm test:e2e",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

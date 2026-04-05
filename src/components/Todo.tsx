@@ -34,17 +34,6 @@ function Title({ children }: PropsWithChildren) {
   )
 }
 
-function Subtitle({ children }: PropsWithChildren) {
-  return (
-    <h2
-      className="text-sm text-slate-500 dark:text-navy-400"
-      style={{ marginBottom: 24 }}
-    >
-      {children}
-    </h2>
-  )
-}
-
 const getTasksFor =
   (date: string) =>
   (data: Data): Task[] => {
@@ -233,6 +222,7 @@ const Todo: React.FC = ({}) => {
             ? todaysTasks.filter(t => !t.completed).length
             : undefined
         }
+        date={formatDateHeading(todayDateStr)}
       />
       <main>
         <div
@@ -421,11 +411,18 @@ const Todo: React.FC = ({}) => {
                 <ToggleButton
                   collapsed={completed.collapsed}
                   side="left"
-                  onClick={() =>
+                  onClick={() => {
+                    const expanding = completed.collapsed
                     updateSection("completed", {
                       collapsed: !completed.collapsed
                     })
-                  }
+                    if (expanding) {
+                      updateSection("sidebar", {
+                        ...sidebar,
+                        collapsed: true
+                      })
+                    }
+                  }}
                 />
               </div>
             )}
@@ -480,6 +477,9 @@ const Todo: React.FC = ({}) => {
                             sidebar.width ?? defaultSidebarWidth
                           )
                         )
+                        updateSection("completed", {
+                          collapsed: true
+                        })
                       }
                       updateSection("sidebar", {
                         ...sidebar,
@@ -491,12 +491,7 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto min-h-0 px-6">
-              <div className="pb-1">
-                <Title>Focus</Title>
-                <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
-              </div>
-
+            <div className="flex-1 overflow-y-auto min-h-0 px-6 pt-4">
               {data.filters.length > 0 && (
                 <div className="my-2">
                   <small>Showing: </small>
@@ -555,7 +550,7 @@ const Todo: React.FC = ({}) => {
               style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
               <TaskInput
-                placeholder="Write a todo for today..."
+                placeholder="What needs to be done?"
                 labels={data.labels}
                 filters={data.filters}
                 onAdd={task => handleAddTask(task, today())}

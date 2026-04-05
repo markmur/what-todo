@@ -11,7 +11,7 @@ test("full app workflow", async ({ page }) => {
     ).toBeVisible()
   })
 
-  const input = page.getByPlaceholder("Write a todo for today...")
+  const input = page.getByPlaceholder("What needs to be done?")
 
   await test.step("create tasks", async () => {
     await input.fill("Buy groceries")
@@ -131,6 +131,32 @@ test("full app workflow", async ({ page }) => {
     ).toBeVisible()
   })
 
+  await test.step("opening completed section closes sidebar", async () => {
+    await page.getByLabel("Expand section").first().click()
+    await expect(
+      page.getByRole("heading", { name: "Completed" })
+    ).toBeVisible()
+    // Wait for curtain transition then check sidebar is collapsed
+    await page.waitForTimeout(400)
+    await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
+      "right",
+      "0px"
+    )
+  })
+
+  await test.step("opening sidebar closes completed section", async () => {
+    await page.getByLabel("Expand section").last().click()
+    await expect(
+      page.getByRole("heading", { name: "Labels" })
+    ).toBeVisible()
+    // Wait for curtain transition then check completed is collapsed
+    await page.waitForTimeout(400)
+    await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
+      "left",
+      "0px"
+    )
+  })
+
   await test.step("toggle show task count setting", async () => {
     await page.getByLabel("Show task count").click()
     await expect(page.locator("header span.rounded-full")).toBeVisible()
@@ -219,7 +245,7 @@ test("mobile", async ({ page }) => {
   })
 
   await test.step("create a task on mobile", async () => {
-    const input = page.getByPlaceholder("Write a todo for today...")
+    const input = page.getByPlaceholder("What needs to be done?")
     await input.fill("Mobile task")
     await input.press("Enter")
     await expect(page.getByText("Mobile task")).toBeVisible()
@@ -244,7 +270,7 @@ test("mobile", async ({ page }) => {
 
   await test.step("drag handle is visible for reordering", async () => {
     // Create two tasks so reorder is possible
-    const input = page.getByPlaceholder("Write a todo for today...")
+    const input = page.getByPlaceholder("What needs to be done?")
     await input.fill("First task")
     await input.press("Enter")
     await expect(page.getByText("First task")).toBeVisible()
