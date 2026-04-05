@@ -56,7 +56,6 @@ export type LabelStyle = "circle" | "pill"
 export interface Settings {
   defaultLabelId: string | null
   sortBy: SortBy
-  showTaskCount: boolean
   compactMode: boolean
   undoOnDelete: boolean
   labelStyle: LabelStyle
