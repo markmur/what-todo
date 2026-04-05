@@ -184,12 +184,6 @@ class StorageManager {
     return JSON.parse(JSON.stringify(data))
   }
 
-  private clearAllData(): Data {
-    this.sync(this.defaultData, "CLEAR_DATA")
-
-    return this.defaultData
-  }
-
   private async clearLegacyData() {
     console.log("Clearing all legacy sync storage data")
     try {
@@ -206,7 +200,7 @@ class StorageManager {
     const unsynced = this.syncQueue.length
 
     while (this.syncQueue.length) {
-      this.syncQueue.shift()(data)
+      this.syncQueue.shift()!(data)
     }
     if (unsynced) {
       console.log(`>>> SYNC_QUEUE_CLEARED (${unsynced})`)
@@ -313,12 +307,8 @@ class StorageManager {
     this.subscriptions = this.subscriptions.filter(x => x !== fn)
   }
 
-  async getData(): Promise<{
-    data: Data
-    usage: string
-    quota: string
-  }> {
-    let parsedData: Data
+  async getData(): Promise<{ data: Data }> {
+    let parsedData: Data = this.defaultData
 
     this.setBusyState()
     console.groupCollapsed("GET_STORAGE_DATA")
@@ -357,6 +347,7 @@ class StorageManager {
       }
     } catch (error) {
       console.error(error)
+      return { data: parsedData }
     } finally {
       console.timeEnd("getData()")
       console.groupEnd()

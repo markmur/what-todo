@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react"
+import { useCallback, useRef } from "react"
 import cx from "classnames"
 import MenuIcon from "@meronex/icons/fi/FiMenu"
 
@@ -47,7 +47,7 @@ function Header({
   date?: string
 }) {
   const tapCount = useRef(0)
-  const tapTimer = useRef<ReturnType<typeof setTimeout>>()
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const handleLogoTap = useCallback(() => {
     tapCount.current++

@@ -39,10 +39,13 @@ const Labels: React.FC<Props> = ({
   const [newLabel, setNewLabel] = React.useState<IntermediateLabel>()
 
   React.useEffect(() => {
-    const labelsById = labels.reduce((state, label) => {
-      state[label.id] = label
-      return state
-    }, {})
+    const labelsById = labels.reduce(
+      (state, label) => {
+        state[label.id] = label
+        return state
+      },
+      {} as Record<string, LabelType>
+    )
 
     setControlledLabels(labelsById)
   }, [labels])
@@ -58,14 +61,14 @@ const Labels: React.FC<Props> = ({
   }, [colors, labels])
 
   const handleSave = React.useCallback(() => {
-    if (newLabel.title.trim().length > 0) {
+    if (newLabel && newLabel.title.trim().length > 0) {
       onAddLabel(newLabel)
     }
     setNewLabel(undefined)
   }, [newLabel, onAddLabel])
 
   const handleChangeTitle = React.useCallback(
-    (id, event) => {
+    (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
       const newLabel = {
         ...controlledLabels[id],
         title: event.target.value
@@ -81,7 +84,7 @@ const Labels: React.FC<Props> = ({
   )
 
   const handleKeyPress = React.useCallback(
-    event => {
+    (event: React.KeyboardEvent) => {
       if (event.key === "Enter") {
         handleSave()
       }
@@ -90,7 +93,7 @@ const Labels: React.FC<Props> = ({
   )
 
   const handleColorChange = React.useCallback(
-    (color: Color, label) => {
+    (color: Color, label: LabelType) => {
       // do something
       const newLabel = {
         ...label,
@@ -109,7 +112,7 @@ const Labels: React.FC<Props> = ({
   )
 
   const handleBlur = React.useCallback(
-    id => {
+    (id: string) => {
       onUpdateLabel(controlledLabels[id])
     },
     [controlledLabels, onUpdateLabel]

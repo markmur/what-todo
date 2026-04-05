@@ -36,9 +36,7 @@ const ColorPicker: React.FC<Props> = ({
 
   return (
     <div>
-      {React.cloneElement(children, {
-        ref: childRef
-      })}
+      <div ref={childRef}>{children}</div>
 
       {visible && (
         <Portal>

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { render, fireEvent } from "@testing-library/react"
-import React, { useRef } from "react"
+import { useRef } from "react"
 import useFocusTrap from "./useFocusTrap"
 
 function TrapTest({ active }: { active: boolean }) {

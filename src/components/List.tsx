@@ -101,7 +101,7 @@ const List: React.FC<Props> = ({
   onReorder
 }) => {
   const { settings } = useSettings()
-  const selectedRef = useRef<any>()
+  const selectedRef = useRef<HTMLDivElement>(null)
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
   const [collapsed, setCollapsed] = React.useState(collapseCompleted)
   const filteredTasks = getFilteredTasks(tasks, filters)
@@ -131,8 +131,8 @@ const List: React.FC<Props> = ({
       )
     }
 
-    const ap = typeof a.pinned === "boolean" && +a.pinned
-    const bp = typeof b.pinned === "boolean" && +b.pinned
+    const ap = typeof a.pinned === "boolean" ? +a.pinned : 0
+    const bp = typeof b.pinned === "boolean" ? +b.pinned : 0
     if (ap !== bp) return bp - ap
     const ao = a.order ?? Infinity
     const bo = b.order ?? Infinity

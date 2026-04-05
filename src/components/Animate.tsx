@@ -1,6 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion"
-
-import React from "react"
+import { AnimatePresence, motion, type Easing } from "framer-motion"
 
 const variants = {
   open: { height: "auto", opacity: 1 },
@@ -11,12 +9,18 @@ export default function Animate({
   children,
   active,
   duration = 0.2,
-  ease = [0.645, 0.045, 0.355, 1],
+  ease = [0.645, 0.045, 0.355, 1] as Easing,
   skipInitial = false
+}: {
+  children: React.ReactNode
+  active: unknown
+  duration?: number
+  ease?: Easing
+  skipInitial?: boolean
 }) {
   return (
     <AnimatePresence initial={!skipInitial}>
-      {active && (
+      {active ? (
         <motion.div
           initial="closed"
           animate="open"
@@ -27,7 +31,7 @@ export default function Animate({
         >
           {children}
         </motion.div>
-      )}
+      ) : null}
     </AnimatePresence>
   )
 }
