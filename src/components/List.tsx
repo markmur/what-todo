@@ -51,6 +51,7 @@ interface Props {
   collapseCompleted?: boolean
   hideCompleted?: boolean
   isFiltering?: boolean
+  forceCompact?: boolean
   canPinTasks?: boolean
   canCollapse?: boolean
   onFilter: (labelIds: string[]) => void
@@ -90,6 +91,7 @@ const List: React.FC<Props> = ({
   collapseCompleted = true,
   hideCompleted = false,
   isFiltering = false,
+  forceCompact = false,
   canPinTasks = true,
   onFilter,
   onUpdateTask,
@@ -101,9 +103,7 @@ const List: React.FC<Props> = ({
   const { settings } = useSettings()
   const selectedRef = useRef<any>()
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
-  const [collapsed, setCollapsed] = React.useState(
-    collapseCompleted && settings.autoCollapseCompleted
-  )
+  const [collapsed, setCollapsed] = React.useState(collapseCompleted)
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -190,15 +190,12 @@ const List: React.FC<Props> = ({
   }
 
   const [localOrder, setLocalOrder] = React.useState(uncompleted)
-  const prevIdsRef = React.useRef("")
 
+  const uncompletedIds = uncompleted.map(t => t.id).join(",")
   React.useEffect(() => {
-    const ids = uncompleted.map(t => t.id).join(",")
-    if (ids !== prevIdsRef.current) {
-      prevIdsRef.current = ids
-      setLocalOrder(uncompleted)
-    }
-  }, [uncompleted])
+    setLocalOrder(uncompleted)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uncompletedIds])
 
   const handleReorder = (reordered: TaskType[]) => {
     setLocalOrder(reordered)
@@ -220,7 +217,9 @@ const List: React.FC<Props> = ({
           axis="y"
           values={localOrder}
           onReorder={handleReorder}
-          className={cx("task-list", { compact: settings.compactMode })}
+          className={cx("task-list", {
+            compact: forceCompact || settings.compactMode
+          })}
           as="ul"
         >
           {localOrder.map(task => (
@@ -232,13 +231,17 @@ const List: React.FC<Props> = ({
                 labels={labels}
                 filters={filters}
                 canPin={canPinTasks}
-                compact={settings.compactMode}
+                compact={forceCompact || settings.compactMode}
               />
             </ReorderableItem>
           ))}
         </Reorder.Group>
       ) : (
-        <ul className={cx("task-list", { compact: settings.compactMode })}>
+        <ul
+          className={cx("task-list", {
+            compact: forceCompact || settings.compactMode
+          })}
+        >
           {uncompleted.map(task => (
             <li key={task.id} className="task">
               <Task
@@ -248,7 +251,7 @@ const List: React.FC<Props> = ({
                 labels={labels}
                 filters={filters}
                 canPin={canPinTasks}
-                compact={settings.compactMode}
+                compact={forceCompact || settings.compactMode}
               />
             </li>
           ))}
@@ -282,7 +285,11 @@ const List: React.FC<Props> = ({
       )}
 
       <Animate active={!collapsed && hasCompletedTasks}>
-        <ul className={cx("task-list", { compact: settings.compactMode })}>
+        <ul
+          className={cx("task-list", {
+            compact: forceCompact || settings.compactMode
+          })}
+        >
           {completed.map(task => (
             <li key={task.id} className="task">
               <Task
@@ -292,7 +299,7 @@ const List: React.FC<Props> = ({
                 canPin={canPinTasks}
                 labels={labels}
                 filters={filters}
-                compact={settings.compactMode}
+                compact={forceCompact || settings.compactMode}
               />
             </li>
           ))}

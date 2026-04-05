@@ -96,6 +96,52 @@ test("full app workflow", async ({ page }) => {
     })
   })
 
+  await test.step("completed task is persisted in storage", async () => {
+    // Wait for the 1.5s completion delay
+    await page.waitForTimeout(2000)
+    // Verify localStorage has the task marked as completed
+    const data = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("what-todo") ?? "{}")
+    )
+    const allTasks = Object.values(data.tasks).flat() as any[]
+    const completedTask = allTasks.find(
+      (t: any) => t.title === "Buy organic groceries"
+    )
+    expect(completedTask?.completed).toBe(true)
+  })
+
+  await test.step("input closes after adding a task", async () => {
+    const taskInput = page.getByPlaceholder("What needs to be done?")
+    await taskInput.focus()
+    await expect(page.locator("#task-description")).toBeVisible()
+    await taskInput.fill("Temp task")
+    await taskInput.press("Enter")
+    await expect(page.locator("#task-description")).not.toBeVisible()
+  })
+
+  await test.step("input keeps focus on title when clicked", async () => {
+    await input.focus()
+    await page.waitForTimeout(200)
+    await expect(input).toBeFocused()
+    // Click outside to close
+    await page.locator("h1").first().click()
+  })
+
+  await test.step("clicking outside input closes expanded section", async () => {
+    await input.focus()
+    await page.waitForTimeout(300)
+    await expect(page.locator("#task-description")).toBeVisible()
+    await page.locator("h1").first().click()
+    await expect(page.locator("#task-description")).not.toBeVisible()
+  })
+
+  await test.step("removed settings are not in the UI", async () => {
+    await expect(page.getByText("Auto-collapse completed")).not.toBeVisible()
+    await expect(page.getByText("Move completed to yesterday")).not.toBeVisible()
+    await expect(page.getByText("Auto-expand new tasks")).not.toBeVisible()
+    await expect(page.getByText("Keep input open")).not.toBeVisible()
+  })
+
   await test.step("delete a task with undo", async () => {
     const kitchenCard = page
       .locator("[role='button']")
@@ -131,30 +177,68 @@ test("full app workflow", async ({ page }) => {
     ).toBeVisible()
   })
 
-  await test.step("opening completed section closes sidebar", async () => {
-    await page.getByLabel("Expand section").first().click()
+  await test.step("opening completed panel closes settings panel", async () => {
+    // Sidebar (settings) is currently open
     await expect(
-      page.getByRole("heading", { name: "Completed" })
+      page.getByRole("heading", { name: "Labels" })
     ).toBeVisible()
-    // Wait for curtain transition then check sidebar is collapsed
+    // Open the completed panel
+    await page.getByLabel("Expand section").first().click()
+    await page.waitForTimeout(400)
+    // Completed panel heading should be visible
+    await expect(
+      page.getByRole("heading", { name: "Completed" }).first()
+    ).toBeVisible()
+    // Settings panel should be closed — pointer-events: none means it's behind the focus panel
+    const settingsPanel = page
+      .locator("[style*='position: absolute'][style*='right: 0']")
+      .first()
+    await expect(settingsPanel).toHaveCSS("pointer-events", "none")
+  })
+
+  await test.step("opening settings panel closes completed panel", async () => {
+    // Completed panel is open
+    await page.getByLabel("Expand section").last().click()
+    await page.waitForTimeout(400)
+    // Settings panel should be visible
+    await expect(
+      page.getByRole("heading", { name: "Labels" })
+    ).toBeVisible()
+    // Completed panel should be closed
+    const completedPanel = page
+      .locator("[style*='position: absolute'][style*='left: 0']")
+      .first()
+    await expect(completedPanel).toHaveCSS("pointer-events", "none")
+  })
+
+  await test.step("both panels can be individually closed", async () => {
+    // Settings is open, close it
+    await page.getByLabel("Collapse section").last().click()
     await page.waitForTimeout(400)
     await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
       "right",
       "0px"
     )
-  })
-
-  await test.step("opening sidebar closes completed section", async () => {
-    await page.getByLabel("Expand section").last().click()
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
-    // Wait for curtain transition then check completed is collapsed
-    await page.waitForTimeout(400)
     await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
       "left",
       "0px"
     )
+  })
+
+  await test.step("state updates are independent (no stale data)", async () => {
+    const taskCount = await page.locator("[role='button']").count()
+    // Pin then unpin — verify all tasks survive the state changes
+    const writeCard = page
+      .locator("[role='button']")
+      .filter({ hasText: "Write tests" })
+    await writeCard.hover()
+    await writeCard.getByLabel("Pin task").click()
+    await page.waitForTimeout(500)
+    await expect(page.locator("[role='button']")).toHaveCount(taskCount)
+    // Unpin via keyboard to avoid hover issues
+    await writeCard.click()
+    await writeCard.press("p")
+    await page.keyboard.press("Escape")
   })
 
   await test.step("toggle show task count setting", async () => {
@@ -216,12 +300,11 @@ test("full app workflow", async ({ page }) => {
     expect(taskData).toContain("Write tests")
   })
 
-  await test.step("completed section empty state", async () => {
+  await test.step("completed sidebar shows empty state when no older tasks", async () => {
     await page.getByLabel("Expand section").first().click()
+    await page.waitForTimeout(400)
     await expect(
-      page.getByText(
-        "Completed tasks will appear here the day after completion."
-      )
+      page.getByText("Completed tasks will show up here a day after completion.")
     ).toBeVisible()
   })
 })

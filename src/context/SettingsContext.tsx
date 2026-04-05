@@ -4,14 +4,10 @@ import type { Settings } from "../index.d"
 const STORAGE_KEY = "what-todo-settings"
 
 const defaultSettings: Settings = {
-  autoCollapseCompleted: true,
-  moveCompletedToYesterday: false,
   defaultLabelId: null,
   sortBy: "pinned",
   showTaskCount: false,
   compactMode: false,
-  autoExpandNewTasks: false,
-  keepInputOpen: false,
   undoOnDelete: true,
   labelStyle: "circle"
 }

@@ -71,8 +71,7 @@ const TaskInput: React.FC<Props> = ({
     if (validTask(task)) {
       onAdd(task as Task)
       clearTask()
-    } else {
-      console.error("Invalid task")
+      setOpen(false)
     }
   }, [task, onAdd, clearTask])
 
@@ -98,9 +97,7 @@ const TaskInput: React.FC<Props> = ({
     }
 
   useOnClickOutside(ref, () => {
-    if (!settings.keepInputOpen) {
-      setOpen(false)
-    }
+    setOpen(false)
 
     if (!task.title && !task.description) {
       setTask({
@@ -130,12 +127,6 @@ const TaskInput: React.FC<Props> = ({
           placeholder={placeholder}
           onFocus={() => {
             setOpen(true)
-            if (settings.autoExpandNewTasks) {
-              setTimeout(() => {
-                const desc = ref.current?.querySelector("textarea")
-                desc?.focus()
-              })
-            }
           }}
           onChange={handleChange("title")}
           onKeyDown={handleKeyDown("title")}
