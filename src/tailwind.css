@@ -284,4 +284,14 @@
     from { width: 0; }
     to { width: calc(100% + 10px); }
   }
+
+  .animate-glow {
+    animation: glow 1.5s ease-out forwards;
+  }
+
+  @keyframes glow {
+    0% { box-shadow: -8px 0 16px -4px rgba(59, 130, 246, 0.4), 8px 0 16px -4px rgba(139, 92, 246, 0.4); }
+    20% { box-shadow: -8px 0 20px 0px rgba(59, 130, 246, 0.3), 8px 0 20px 0px rgba(139, 92, 246, 0.3); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 0 0 0 rgba(139, 92, 246, 0); }
+  }
 }
