@@ -61,7 +61,10 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="fixed top-0 right-0 bottom-0 w-4/5 max-w-sm z-50 bg-white dark:bg-navy-900 shadow-xl flex flex-col"
             >
-              <div className="flex items-center justify-end p-4 pb-0">
+              <div
+                className="flex items-center justify-end p-4 pb-0"
+                style={{ paddingTop: "max(16px, env(safe-area-inset-top))" }}
+              >
                 <button
                   className="no-style text-slate-500 dark:text-navy-400"
                   onClick={onClose}
