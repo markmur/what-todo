@@ -68,6 +68,16 @@
     color: #b1b6c5;
   }
 
+  html {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  html.dark {
+    background-color: #151925;
+  }
+
   ul {
     list-style-type: none;
     padding: 0;

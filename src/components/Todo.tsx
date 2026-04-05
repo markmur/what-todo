@@ -552,7 +552,10 @@ const Todo: React.FC = ({}) => {
               />
             </div>
 
-            <div className="pt-3 bg-white dark:bg-navy-900">
+            <div
+              className="pt-3 bg-white dark:bg-navy-900"
+              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
               <TaskInput
                 placeholder="Write a todo for today..."
                 labels={data.labels}
