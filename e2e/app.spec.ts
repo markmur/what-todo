@@ -58,7 +58,6 @@ test("full app workflow", async ({ page }) => {
       .filter({ hasText: "Write tests" })
     await card.hover()
     await card.getByLabel("Pin task").click()
-    await page.waitForTimeout(300)
     await card.click()
     // P to unpin
     await card.press("p")
@@ -71,7 +70,7 @@ test("full app workflow", async ({ page }) => {
     const search = page.getByPlaceholder("Search tasks...")
     await search.fill("organic")
     await expect(page.getByText("Buy organic groceries")).toBeVisible()
-    await expect(page.getByText("Write tests")).not.toBeVisible()
+    await expect(page.getByText("Write tests")).toBeHidden()
   })
 
   await test.step("search with no results shows empty state", async () => {
@@ -97,17 +96,18 @@ test("full app workflow", async ({ page }) => {
   })
 
   await test.step("completed task is persisted in storage", async () => {
-    // Wait for the 1.5s completion delay
-    await page.waitForTimeout(2000)
-    // Verify localStorage has the task marked as completed
-    const data = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("what-todo") ?? "{}")
-    )
-    const allTasks = Object.values(data.tasks).flat() as any[]
-    const completedTask = allTasks.find(
-      (t: any) => t.title === "Buy organic groceries"
-    )
-    expect(completedTask?.completed).toBe(true)
+    await expect
+      .poll(async () => {
+        const data = await page.evaluate(() =>
+          JSON.parse(localStorage.getItem("what-todo") ?? "{}")
+        )
+        const allTasks = Object.values(data.tasks).flat() as any[]
+        const completedTask = allTasks.find(
+          (t: any) => t.title === "Buy organic groceries"
+        )
+        return completedTask?.completed
+      })
+      .toBe(true)
   })
 
   await test.step("input closes after adding a task", async () => {
@@ -116,12 +116,11 @@ test("full app workflow", async ({ page }) => {
     await expect(page.locator("#task-description")).toBeVisible()
     await taskInput.fill("Temp task")
     await taskInput.press("Enter")
-    await expect(page.locator("#task-description")).not.toBeVisible()
+    await expect(page.locator("#task-description")).toBeHidden()
   })
 
   await test.step("input keeps focus on title when clicked", async () => {
     await input.focus()
-    await page.waitForTimeout(200)
     await expect(input).toBeFocused()
     // Click outside to close
     await page.locator("h1").first().click()
@@ -129,17 +128,16 @@ test("full app workflow", async ({ page }) => {
 
   await test.step("clicking outside input closes expanded section", async () => {
     await input.focus()
-    await page.waitForTimeout(300)
     await expect(page.locator("#task-description")).toBeVisible()
     await page.locator("h1").first().click()
-    await expect(page.locator("#task-description")).not.toBeVisible()
+    await expect(page.locator("#task-description")).toBeHidden()
   })
 
   await test.step("removed settings are not in the UI", async () => {
-    await expect(page.getByText("Auto-collapse completed")).not.toBeVisible()
-    await expect(page.getByText("Move completed to yesterday")).not.toBeVisible()
-    await expect(page.getByText("Auto-expand new tasks")).not.toBeVisible()
-    await expect(page.getByText("Keep input open")).not.toBeVisible()
+    await expect(page.getByText("Auto-collapse completed")).toBeHidden()
+    await expect(page.getByText("Move completed to yesterday")).toBeHidden()
+    await expect(page.getByText("Auto-expand new tasks")).toBeHidden()
+    await expect(page.getByText("Keep input open")).toBeHidden()
   })
 
   await test.step("delete a task with undo", async () => {
@@ -157,7 +155,10 @@ test("full app workflow", async ({ page }) => {
 
   await test.step("keyboard shortcut X deletes task", async () => {
     // Wait for previous toast to fully dismiss
-    await page.getByRole("alert").waitFor({ state: "hidden", timeout: 6000 }).catch(() => {})
+    await page
+      .getByRole("alert")
+      .waitFor({ state: "hidden", timeout: 6000 })
+      .catch(() => {})
     await page.getByText("Clean kitchen").click()
     const card = page
       .locator("[role='button']")
@@ -167,25 +168,17 @@ test("full app workflow", async ({ page }) => {
   })
 
   await test.step("sidebar collapse and expand", async () => {
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
     await page.getByLabel("Collapse section").last().click()
     await page.getByLabel("Expand section").last().click()
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
   })
 
   await test.step("opening completed panel closes settings panel", async () => {
     // Sidebar (settings) is currently open
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
     // Open the completed panel
     await page.getByLabel("Expand section").first().click()
-    await page.waitForTimeout(400)
-    // Completed panel heading should be visible
     await expect(
       page.getByRole("heading", { name: "Completed" }).first()
     ).toBeVisible()
@@ -199,11 +192,7 @@ test("full app workflow", async ({ page }) => {
   await test.step("opening settings panel closes completed panel", async () => {
     // Completed panel is open
     await page.getByLabel("Expand section").last().click()
-    await page.waitForTimeout(400)
-    // Settings panel should be visible
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
     // Completed panel should be closed
     const completedPanel = page
       .locator("[style*='position: absolute'][style*='left: 0']")
@@ -214,15 +203,11 @@ test("full app workflow", async ({ page }) => {
   await test.step("both panels can be individually closed", async () => {
     // Settings is open, close it
     await page.getByLabel("Collapse section").last().click()
-    await page.waitForTimeout(400)
     await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
       "right",
       "0px"
     )
-    await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
-      "left",
-      "0px"
-    )
+    await expect(page.locator("[style*='z-index: 1']")).toHaveCSS("left", "0px")
   })
 
   await test.step("state updates are independent (no stale data)", async () => {
@@ -233,7 +218,6 @@ test("full app workflow", async ({ page }) => {
       .filter({ hasText: "Write tests" })
     await writeCard.hover()
     await writeCard.getByLabel("Pin task").click()
-    await page.waitForTimeout(500)
     await expect(page.locator("[role='button']")).toHaveCount(taskCount)
     // Unpin via keyboard to avoid hover issues
     await writeCard.click()
@@ -302,9 +286,10 @@ test("full app workflow", async ({ page }) => {
 
   await test.step("completed sidebar shows empty state when no older tasks", async () => {
     await page.getByLabel("Expand section").first().click()
-    await page.waitForTimeout(400)
     await expect(
-      page.getByText("Completed tasks will show up here a day after completion.")
+      page.getByText(
+        "Completed tasks will show up here a day after completion."
+      )
     ).toBeVisible()
   })
 })
@@ -317,14 +302,12 @@ test("mobile", async ({ page }) => {
   await test.step("open drawer via hamburger menu", async () => {
     await page.getByLabel("Open menu").click()
     await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
   })
 
   await test.step("close drawer via X button", async () => {
     await page.getByLabel("Close menu").click()
-    await expect(page.getByRole("dialog")).not.toBeVisible()
+    await expect(page.getByRole("dialog")).toBeHidden()
   })
 
   await test.step("create a task on mobile", async () => {
@@ -375,9 +358,7 @@ test("mobile", async ({ page }) => {
     await expect(card).toBeVisible()
     // The card should be clickable (not intercepted by drag)
     await card.click()
-    await expect(
-      page.locator("textarea.task-title-input")
-    ).toBeVisible()
+    await expect(page.locator("textarea.task-title-input")).toBeVisible()
     await page.keyboard.press("Escape")
   })
 
@@ -400,9 +381,7 @@ test("mobile", async ({ page }) => {
   })
 
   await test.step("complete a task on mobile", async () => {
-    const card = page
-      .locator("[role='button']")
-      .filter({ hasText: "Buy milk" })
+    const card = page.locator("[role='button']").filter({ hasText: "Buy milk" })
     await card.locator(".checkbox label").click()
     await expect(page.locator(".strike-animated").first()).toBeVisible({
       timeout: 3000
@@ -413,7 +392,7 @@ test("mobile", async ({ page }) => {
     const search = page.getByPlaceholder("Search tasks...")
     await search.fill("laundry")
     await expect(page.getByText("Mobile laundry")).toBeVisible()
-    await expect(page.getByText("Buy milk")).not.toBeVisible()
+    await expect(page.getByText("Buy milk")).toBeHidden()
     await search.press("Escape")
     await expect(page.getByText("Buy milk")).toBeVisible()
   })
@@ -431,9 +410,7 @@ test("mobile", async ({ page }) => {
   await test.step("drawer contains labels and settings", async () => {
     await page.getByLabel("Open menu").click()
     await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(
-      page.getByRole("heading", { name: "Labels" })
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
     await expect(page.getByText("Settings")).toBeVisible()
     await expect(page.getByLabel("Show task count")).toBeVisible()
   })
@@ -459,6 +436,6 @@ test("mobile", async ({ page }) => {
     await page.getByLabel("Open menu").click()
     await expect(page.getByRole("dialog")).toBeVisible()
     await page.keyboard.press("Escape")
-    await expect(page.getByRole("dialog")).not.toBeVisible()
+    await expect(page.getByRole("dialog")).toBeHidden()
   })
 })
