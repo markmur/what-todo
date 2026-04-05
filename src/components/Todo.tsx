@@ -122,13 +122,17 @@ const Todo: React.FC = ({}) => {
         doRemoveTask(task)
         return
       }
+      if (pendingDelete) {
+        clearTimeout(deleteTimerRef.current)
+        doRemoveTask(pendingDelete)
+      }
       setPendingDelete(task)
       deleteTimerRef.current = setTimeout(() => {
         doRemoveTask(task)
         setPendingDelete(null)
       }, 5000)
     },
-    [doRemoveTask, settings.undoOnDelete]
+    [doRemoveTask, settings.undoOnDelete, pendingDelete]
   )
 
   const handleUndoDelete = useCallback(() => {
@@ -219,11 +223,7 @@ const Todo: React.FC = ({}) => {
         onMenuClick={
           !isDesktop ? () => setDrawerOpen(prev => !prev) : undefined
         }
-        taskCount={
-          settings.showTaskCount
-            ? todaysTasks.filter(t => !t.completed).length
-            : undefined
-        }
+        taskCount={todaysTasks.filter(t => !t.completed).length}
         date={formatDateHeading(todayDateStr)}
       />
       <main>

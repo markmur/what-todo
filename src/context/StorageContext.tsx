@@ -60,21 +60,25 @@ function StorageProvider({ children }: PropsWithChildren<unknown>): any {
     })
   }
 
+  const dataRef = React.useRef(data)
+  dataRef.current = data
+
   function useAction<A, B = any>(
     fn: (data: Data, dataType: A, otherType?: B) => Data
   ) {
     return useCallback(
       (dataType: A, otherType?: B) => {
-        const newData = fn.call(storage, data, dataType, otherType)
+        const newData = fn.call(storage, dataRef.current, dataType, otherType)
 
         if (typeof newData === "undefined") {
           throw new Error("Trying to update storage data with undefined")
         }
 
+        dataRef.current = newData
         setData(newData)
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [fn, data]
+
+      [fn]
     )
   }
 

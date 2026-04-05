@@ -129,7 +129,7 @@ const Task: React.FC<Props> = ({
     const isTyping = ["TEXTAREA", "INPUT"].includes(target.tagName)
     if (isTyping) return
 
-    if (event.key === "p" && state) {
+    if (event.key === "p" && state && !state.completed) {
       const updated = { ...state, pinned: !Boolean(state.pinned) }
       setState(updated)
       onUpdate(updated)
@@ -166,7 +166,11 @@ const Task: React.FC<Props> = ({
 
   const handleSelect = useCallback(() => {
     if (state) {
-      const updated = { ...state, completed: !state.completed }
+      const updated = {
+        ...state,
+        completed: !state.completed,
+        pinned: state.completed ? state.pinned : false
+      }
       setState(updated)
 
       if (state.completed) {
@@ -215,7 +219,7 @@ const Task: React.FC<Props> = ({
           active
             ? "bg-slate-100 dark:bg-navy-700"
             : "bg-slate-50 dark:bg-navy-800",
-          state?.pinned
+          state?.pinned && !state?.completed
             ? "border-blue-300 dark:border-blue-500/50"
             : "border-transparent",
           {
@@ -352,7 +356,7 @@ const Task: React.FC<Props> = ({
             </button>
           )}
 
-          {canPin && (
+          {canPin && !state?.completed && (
             <button
               type="button"
               data-tooltip-id="tooltip"

@@ -6,7 +6,6 @@ const STORAGE_KEY = "what-todo-settings"
 const defaultSettings: Settings = {
   defaultLabelId: null,
   sortBy: "pinned",
-  showTaskCount: false,
   compactMode: false,
   undoOnDelete: true,
   labelStyle: "circle"

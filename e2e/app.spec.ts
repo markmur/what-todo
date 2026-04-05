@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { seed, makeData } from "./helpers"
+import { seed, makeData, dataWithTasks } from "./helpers"
 
 test("full app workflow", async ({ page }) => {
   await seed(page, makeData())
@@ -225,12 +225,12 @@ test("full app workflow", async ({ page }) => {
     await page.keyboard.press("Escape")
   })
 
-  await test.step("toggle show task count setting", async () => {
-    await page.getByLabel("Show task count").click()
+  await test.step("task count is always visible", async () => {
     await expect(page.locator("header span.rounded-full")).toBeVisible()
   })
 
   await test.step("toggle compact mode", async () => {
+    await page.getByLabel("Expand section").last().click()
     await page.getByLabel("Compact mode").click()
     // Verify reduced spacing on task cards
     const card = page
@@ -412,11 +412,10 @@ test("mobile", async ({ page }) => {
     await expect(page.getByRole("dialog")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
     await expect(page.getByText("Settings")).toBeVisible()
-    await expect(page.getByLabel("Show task count")).toBeVisible()
+    await expect(page.getByLabel("Compact mode")).toBeVisible()
   })
 
-  await test.step("toggle setting in drawer persists", async () => {
-    await page.getByLabel("Show task count").click()
+  await test.step("task count is always visible in mobile", async () => {
     await page.getByLabel("Close menu").click()
     await expect(page.locator("header span.rounded-full")).toBeVisible()
   })
@@ -437,5 +436,72 @@ test("mobile", async ({ page }) => {
     await expect(page.getByRole("dialog")).toBeVisible()
     await page.keyboard.press("Escape")
     await expect(page.getByRole("dialog")).toBeHidden()
+  })
+})
+
+test("sequential deletes and completes", async ({ page }) => {
+  const tasks = [
+    { title: "Task A" },
+    { title: "Task B" },
+    { title: "Task C" },
+    { title: "Task D" },
+    { title: "Task E" }
+  ]
+  await seed(page, dataWithTasks(tasks))
+  await page.goto("/")
+
+  const card = (name: string) =>
+    page.locator("[role='button']").filter({ hasText: name })
+
+  await test.step("all seeded tasks are visible", async () => {
+    for (const t of tasks) {
+      await expect(page.getByText(t.title)).toBeVisible()
+    }
+  })
+
+  await test.step("deleting multiple tasks in sequence removes them all", async () => {
+    await card("Task A").hover()
+    await card("Task A").getByLabel("Delete task").click()
+    await card("Task B").hover()
+    await card("Task B").getByLabel("Delete task").click()
+    await card("Task C").hover()
+    await card("Task C").getByLabel("Delete task").click()
+
+    await expect(card("Task A")).toBeHidden()
+    await expect(card("Task B")).toBeHidden()
+    await expect(card("Task C")).toBeHidden()
+    await expect(card("Task D")).toBeVisible()
+    await expect(card("Task E")).toBeVisible()
+  })
+
+  await test.step("deleted tasks are committed to storage after undo window", async () => {
+    await page.getByRole("alert").waitFor({ state: "hidden", timeout: 7000 })
+    await expect
+      .poll(async () => {
+        const data = await page.evaluate(() =>
+          JSON.parse(localStorage.getItem("what-todo") ?? "{}")
+        )
+        const allTasks = Object.values(data.tasks).flat() as any[]
+        return allTasks.map((t: any) => t.title).sort()
+      })
+      .toEqual(["Task D", "Task E"])
+  })
+
+  await test.step("completing multiple tasks in sequence persists them all", async () => {
+    await card("Task D").locator(".checkbox label").click()
+    await card("Task E").locator(".checkbox label").click()
+
+    await expect
+      .poll(
+        async () => {
+          const data = await page.evaluate(() =>
+            JSON.parse(localStorage.getItem("what-todo") ?? "{}")
+          )
+          const allTasks = Object.values(data.tasks).flat() as any[]
+          return allTasks.every((t: any) => t.completed)
+        },
+        { timeout: 10000 }
+      )
+      .toBe(true)
   })
 })

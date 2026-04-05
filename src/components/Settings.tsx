@@ -96,14 +96,6 @@ export default function Settings({ labels }: SettingsProps) {
 
       <Collapse open={!collapsed}>
         <div className="divide-y divide-slate-200 dark:divide-navy-700">
-          <SettingRow label="Show task count">
-            <Toggle
-              label="Show task count"
-              checked={settings.showTaskCount}
-              onChange={v => updateSetting("showTaskCount", v)}
-            />
-          </SettingRow>
-
           <SettingRow label="Compact mode">
             <Toggle
               label="Compact mode"
