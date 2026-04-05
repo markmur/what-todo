@@ -220,7 +220,7 @@
   }
 
   footer {
-    padding: 1.5em 0 0;
+    padding: 1.5em 0 env(safe-area-inset-bottom, 0px);
     border-top: 2px solid black;
     font-size: 14px;
     font-weight: bold;

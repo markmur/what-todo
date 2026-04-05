@@ -3,7 +3,7 @@
   <head>
     <script>
       try {
-        if (localStorage.getItem("what-todo-dark-mode") === "true")
+        if (localStorage.getItem("what-todo-dark-mode") !== "false")
           document.documentElement.classList.add("dark")
       } catch (e) {}
     </script>

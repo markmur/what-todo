@@ -36,26 +36,25 @@ describe("Footer", () => {
 
   it("renders the dark mode toggle button", () => {
     const { getByRole } = renderFooter()
-    const toggle = getByRole("button", { name: /switch to dark mode/i })
+    const toggle = getByRole("button", { name: /switch to light mode/i })
     expect(toggle).toBeTruthy()
   })
 
-  it("toggles to dark mode when clicked", () => {
+  it("toggles to light mode when clicked", () => {
     const { getByRole } = renderFooter()
-    const toggle = getByRole("button", { name: /switch to dark mode/i })
+    const toggle = getByRole("button", { name: /switch to light mode/i })
     fireEvent.click(toggle)
 
-    expect(document.documentElement.classList.contains("dark")).toBe(true)
-    // After toggling, the label changes to "Switch to light mode"
-    const lightToggle = getByRole("button", { name: /switch to light mode/i })
-    expect(lightToggle).toBeTruthy()
+    expect(document.documentElement.classList.contains("dark")).toBe(false)
+    const darkToggle = getByRole("button", { name: /switch to dark mode/i })
+    expect(darkToggle).toBeTruthy()
   })
 
-  it("toggles back to light mode on second click", () => {
+  it("toggles back to dark mode on second click", () => {
     const { getByRole } = renderFooter()
-    fireEvent.click(getByRole("button", { name: /switch to dark mode/i }))
     fireEvent.click(getByRole("button", { name: /switch to light mode/i }))
+    fireEvent.click(getByRole("button", { name: /switch to dark mode/i }))
 
-    expect(document.documentElement.classList.contains("dark")).toBe(false)
+    expect(document.documentElement.classList.contains("dark")).toBe(true)
   })
 })

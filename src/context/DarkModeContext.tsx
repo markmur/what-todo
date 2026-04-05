@@ -24,7 +24,7 @@ export function DarkModeProvider({ children }: React.PropsWithChildren) {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored !== null) return stored === "true"
     } catch {}
-    return false
+    return true
   })
 
   useEffect(() => {
