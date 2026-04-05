@@ -162,19 +162,23 @@ test("full app workflow", async ({ page }) => {
     await expect(page.locator("header span.rounded-full")).toBeVisible()
   })
 
-  await test.step("toggle dark mode on", async () => {
-    await page.getByLabel("Switch to dark mode").click()
+  await test.step("defaults to dark mode", async () => {
     await expect(page.locator("html")).toHaveClass(/dark/)
   })
 
-  await test.step("dark mode persists after reload", async () => {
-    await page.reload()
-    await expect(page.locator("html")).toHaveClass(/dark/)
-  })
-
-  await test.step("toggle dark mode back to light", async () => {
+  await test.step("toggle to light mode", async () => {
     await page.getByLabel("Switch to light mode").click()
     await expect(page.locator("html")).not.toHaveClass(/dark/)
+  })
+
+  await test.step("light mode persists after reload", async () => {
+    await page.reload()
+    await expect(page.locator("html")).not.toHaveClass(/dark/)
+  })
+
+  await test.step("toggle back to dark mode", async () => {
+    await page.getByLabel("Switch to dark mode").click()
+    await expect(page.locator("html")).toHaveClass(/dark/)
   })
 
   await test.step("data persists across session", async () => {
