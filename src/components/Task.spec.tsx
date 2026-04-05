@@ -355,7 +355,8 @@ describe("Task", () => {
       ) as HTMLElement
       expect(deleteBtn).toBeTruthy()
       // Should have mobile-visible classes (no md: prefix hiding)
-      expect(deleteBtn.className).toContain("max-w-[40px]")
+      expect(deleteBtn.className).toContain("touch-target")
+      expect(deleteBtn.className).toContain("max-w-[44px]")
       expect(deleteBtn.className).toContain("opacity-100")
       // Should have desktop-hidden classes
       expect(deleteBtn.className).toContain("md:max-w-0")

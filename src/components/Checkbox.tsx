@@ -13,7 +13,10 @@ interface Props {
 const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
   return (
     <span className={cx("checkbox", { checked })}>
-      <label htmlFor={id}>
+      <label
+        htmlFor={id}
+        className="inline-flex items-center justify-center p-3 -m-3"
+      >
         {checked ? (
           <Checked className="text-slate-500 hover:text-slate-800 dark:text-navy-500 dark:hover:text-navy-300" />
         ) : (

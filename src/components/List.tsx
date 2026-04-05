@@ -31,7 +31,7 @@ function ReorderableItem({
       dragControls={controls}
     >
       <div
-        className="shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
+        className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
         onPointerDown={e => {
           e.preventDefault()
           controls.start(e)

@@ -340,14 +340,14 @@ const Task: React.FC<Props> = ({
           </>
         </div>
 
-        <div id="actions" className="flex mt-1 items-center ml-auto shrink-0">
+        <div id="actions" className="flex items-center ml-auto shrink-0">
           {onMoveToToday && (
             <button
               type="button"
               data-tooltip-id="tooltip"
               data-tooltip-content="Move to today (M)"
               aria-label="Move to today"
-              className="no-style remove-icon"
+              className="no-style remove-icon touch-target"
               onClick={preventDefault(() => {
                 onMoveToToday(state ?? task)
               })}
@@ -364,7 +364,7 @@ const Task: React.FC<Props> = ({
                 state?.pinned ? "Unpin task (P)" : "Pin task (P)"
               }
               aria-label={state?.pinned ? "Unpin task" : "Pin task"}
-              className={cx("no-style remove-icon", {
+              className={cx("no-style remove-icon touch-target", {
                 active: state?.pinned
               })}
               style={state?.pinned ? { color: "#93c5fd" } : undefined}
@@ -385,7 +385,9 @@ const Task: React.FC<Props> = ({
               data-tooltip-id="tooltip"
               data-tooltip-content={shortenURL(descriptionURL)}
               aria-label="Open link"
-              className={cx("no-style remove-icon", { active: true })}
+              className={cx("no-style remove-icon touch-target", {
+                active: true
+              })}
               onClick={preventDefault(() => {
                 window.open(descriptionURL, "_blank")
               })}
@@ -439,7 +441,7 @@ const Task: React.FC<Props> = ({
                   key={id}
                   role="button"
                   tabIndex={0}
-                  className="w-[16px] h-[16px] rounded-lg p-0 ml-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
+                  className="w-[16px] h-[16px] rounded-lg p-0 ml-1 grow-0 shrink-0 cursor-pointer"
                   data-tooltip-id="tooltip"
                   data-tooltip-content={labels[id]?.title}
                   aria-label={labels[id]?.title}
@@ -455,7 +457,7 @@ const Task: React.FC<Props> = ({
 
           <button
             type="button"
-            className="no-style remove-icon p-0! overflow-hidden transition-all duration-200 max-w-[40px] px-[10px]! opacity-100 md:max-w-0 md:px-0! md:opacity-0 group-hover:max-w-[40px] group-hover:px-[10px]! group-hover:opacity-100"
+            className="no-style remove-icon touch-target overflow-hidden transition-all duration-200 max-w-[44px] opacity-100 md:max-w-0 md:opacity-0 group-hover:max-w-[44px] group-hover:opacity-100"
             data-tooltip-id="tooltip"
             data-tooltip-content="Delete (X)"
             aria-label="Delete task"
