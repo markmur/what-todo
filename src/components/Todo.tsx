@@ -569,23 +569,46 @@ const Todo: React.FC = ({}) => {
         <MobileDrawer
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
+          title={
+            <button
+              type="button"
+              className="no-style flex items-center cursor-pointer"
+              onClick={() => setLabelsCollapsed(!labelsCollapsed)}
+              aria-expanded={!labelsCollapsed}
+            >
+              <h1 className="text-4xl text-slate-300 dark:text-navy-500 font-bold">
+                Labels
+              </h1>
+              <span className="ml-1" aria-hidden="true">
+                {labelsCollapsed ? (
+                  <ChevronDown
+                    className="text-slate-300 dark:text-navy-500"
+                    style={{ verticalAlign: "middle" }}
+                  />
+                ) : (
+                  <ChevronUp
+                    className="text-slate-300 dark:text-navy-500"
+                    style={{ verticalAlign: "middle" }}
+                  />
+                )}
+              </span>
+            </button>
+          }
           footer={<Footer />}
         >
-          <div className="pb-1">
-            <Title>Labels</Title>
-          </div>
-
           <div className="flex-1 overflow-y-auto pb-2">
-            <Labels
-              labels={data.labels}
-              limit={15}
-              colors={colors}
-              filters={data.filters}
-              onFilter={updateFilters}
-              onAddLabel={handleAddLabel}
-              onUpdateLabel={handleUpdateLabel}
-              onRemoveLabel={handleRemoveLabel}
-            />
+            <Collapse open={!labelsCollapsed}>
+              <Labels
+                labels={data.labels}
+                limit={15}
+                colors={colors}
+                filters={data.filters}
+                onFilter={updateFilters}
+                onAddLabel={handleAddLabel}
+                onUpdateLabel={handleUpdateLabel}
+                onRemoveLabel={handleRemoveLabel}
+              />
+            </Collapse>
 
             <div className="mt-4">
               <Settings labels={data.labels} />

@@ -8,6 +8,7 @@ import useFocusTrap from "../hooks/useFocusTrap"
 interface MobileDrawerProps {
   open: boolean
   onClose: () => void
+  title?: React.ReactNode
   children: React.ReactNode
   footer?: React.ReactNode
 }
@@ -15,6 +16,7 @@ interface MobileDrawerProps {
 const MobileDrawer: React.FC<MobileDrawerProps> = ({
   open,
   onClose,
+  title,
   children,
   footer
 }) => {
@@ -62,9 +64,10 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               className="fixed top-0 right-0 bottom-0 w-4/5 max-w-sm z-50 bg-white dark:bg-navy-900 shadow-xl flex flex-col"
             >
               <div
-                className="flex items-center justify-end p-4 pb-0"
-                style={{ paddingTop: "max(16px, env(safe-area-inset-top))" }}
+                className="flex items-center justify-between px-4"
+                style={{ paddingTop: "max(8px, env(safe-area-inset-top))" }}
               >
+                {title || <span />}
                 <button
                   className="no-style text-slate-500 dark:text-navy-400"
                   onClick={onClose}
@@ -73,7 +76,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   <CrossIcon fontSize={22} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 pt-2 min-h-0">
+              <div className="flex-1 overflow-y-auto p-4 pt-0 min-h-0">
                 {children}
               </div>
               {footer && <div className="p-4">{footer}</div>}
