@@ -22,38 +22,47 @@
     <meta name="theme-color" content="#151925" media="(prefers-color-scheme: dark)" />
     <meta name="referrer" content="origin" />
 
-    <!-- Primary Meta Tags -->
-    <meta name="title" content="What Todo 🤷‍♂️" />
-    <meta
-      name="description"
-      content="Manage your workload in your browser to keep things on track."
-    />
+    <!-- SEO -->
+    <meta name="description" content="A simple, private todo app. Organize tasks with labels, pins, dark mode, and keyboard shortcuts. All data stays in your browser." />
+    <meta name="keywords" content="todo, task manager, productivity, todo app, task list, organizer" />
+    <meta name="author" content="Mark Murray" />
+    <link rel="canonical" href="https://what-todo.app/" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://what-todo.app" />
-    <meta
-      property="og:image"
-      content="https://what-todo.app/screenshot.5a398b02.png"
-    />
-    <meta property="og:title" content="What Todo 🤷‍♂️" />
-    <meta
-      property="og:description"
-      content="Manage your workload in your browser to keep things on track."
-    />
+    <meta property="og:site_name" content="What Todo" />
+    <meta property="og:url" content="https://what-todo.app/" />
+    <meta property="og:title" content="What Todo — A simple, private task manager" />
+    <meta property="og:description" content="Organize your day with labels, pins, dark mode, and keyboard shortcuts. Your data never leaves your browser." />
+    <meta property="og:image" content="https://what-todo.app/og-image.png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="800" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://what-todo.app/" />
-    <meta property="twitter:title" content="What Todo 🤷‍♂️" />
-    <meta
-      property="twitter:description"
-      content="Manage your workload in your browser to keep things on track."
-    />
-    <meta
-      property="twitter:image"
-      content="https://what-todo.app/screenshot.5a398b02.png"
-    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://what-todo.app/" />
+    <meta name="twitter:title" content="What Todo — A simple, private task manager" />
+    <meta name="twitter:description" content="Organize your day with labels, pins, dark mode, and keyboard shortcuts. Your data never leaves your browser." />
+    <meta name="twitter:image" content="https://what-todo.app/og-image.png" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "What Todo",
+        "url": "https://what-todo.app",
+        "description": "A simple, private todo app. Organize tasks with labels, pins, dark mode, and keyboard shortcuts.",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
