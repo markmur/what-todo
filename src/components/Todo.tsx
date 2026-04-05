@@ -395,8 +395,6 @@ const Todo: React.FC = ({}) => {
               right: isDesktop ? focusRight : 0,
               height: fullHeight,
               zIndex: 1,
-              paddingLeft: 24,
-              paddingRight: 24,
               paddingTop: 8,
               paddingBottom: isDesktop ? 32 : 16,
               transition: isDesktop && mounted ? slideTransition : undefined
@@ -493,7 +491,7 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="flex-1 overflow-y-auto min-h-0 px-6">
               <div className="pb-1">
                 <Title>Focus</Title>
                 <Subtitle>{formatDateHeading(todayDateStr)}</Subtitle>
@@ -553,7 +551,7 @@ const Todo: React.FC = ({}) => {
             </div>
 
             <div
-              className="pt-3 bg-white dark:bg-navy-900"
+              className="pt-3 pb-10 px-6 bg-white dark:bg-navy-900"
               style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
               <TaskInput
