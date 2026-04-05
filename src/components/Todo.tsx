@@ -386,7 +386,6 @@ const Todo: React.FC = ({}) => {
               height: fullHeight,
               zIndex: 1,
               paddingTop: 8,
-              paddingBottom: isDesktop ? 32 : 16,
               transition: isDesktop && mounted ? slideTransition : undefined
             }}
           >
@@ -491,7 +490,7 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto min-h-0 px-6 pt-4">
+            <div className="flex-1 overflow-y-auto min-h-0 px-6 pt-4 pb-28">
               {data.filters.length > 0 && (
                 <div className="my-2">
                   <small>Showing: </small>
@@ -546,8 +545,8 @@ const Todo: React.FC = ({}) => {
             </div>
 
             <div
-              className="pt-3 pb-10 px-6 bg-white dark:bg-navy-900"
-              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+              className="absolute bottom-0 left-0 right-0 pt-3 pb-10 px-6 bg-white/80 dark:bg-navy-900/80 backdrop-blur-lg z-10"
+              style={{ paddingBottom: "max(40px, env(safe-area-inset-bottom))" }}
             >
               <TaskInput
                 placeholder="What needs to be done?"
