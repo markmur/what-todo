@@ -24,13 +24,10 @@ const Footer: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode()
   const dataStr =
     "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data))
-  const downloadLinkRef = React.useRef()
+  const downloadLinkRef = React.useRef<HTMLAnchorElement>(null)
 
   const downloadJSON = React.useCallback(() => {
-    if (downloadLinkRef && downloadLinkRef.current) {
-      // @ts-ignore
-      downloadLinkRef.current.click()
-    }
+    downloadLinkRef.current?.click()
   }, [])
 
   const [importOpen, setImportOpen] = React.useState(false)

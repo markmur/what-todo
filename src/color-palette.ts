@@ -1,13 +1,17 @@
 export interface Color {
   name?: string
   backgroundColor: string
-  foregroundColor
+  foregroundColor: string
 }
 
 const BLACK = "#000000"
 const WHITE = "#ffffff"
 
-const createColor = (name, backgroundColor, foregroundColor = WHITE): Color => {
+const createColor = (
+  name: string,
+  backgroundColor: string,
+  foregroundColor = WHITE
+): Color => {
   return {
     name,
     backgroundColor,

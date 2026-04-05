@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import { render, fireEvent } from "@testing-library/react"
 import { SettingsProvider, useSettings } from "./SettingsContext"
-import React from "react"
 
 function TestConsumer() {
   const { settings, updateSetting } = useSettings()

@@ -1,5 +1,10 @@
 // Types
-import type { Data, Task, Label as LabelType } from "../index.d"
+import type {
+  Data,
+  Task,
+  Label as LabelType,
+  IntermediateLabel
+} from "../index.d"
 import React, { PropsWithChildren, useCallback, useState } from "react"
 // utils
 import { formatDateHeading, today } from "../utils"
@@ -114,7 +119,9 @@ const Todo: React.FC = ({}) => {
   const handleMoveToToday = useAction<Task>(moveToToday)
 
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null)
-  const deleteTimerRef = React.useRef<ReturnType<typeof setTimeout>>()
+  const deleteTimerRef = React.useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined)
 
   const handleRemoveTask = useCallback(
     (task: Task) => {
@@ -149,7 +156,10 @@ const Todo: React.FC = ({}) => {
   }, [pendingDelete, doRemoveTask])
 
   // Label callbacks
-  const handleAddLabel = useAction<LabelType>(addLabel)
+  const handleAddLabel = useCallback(
+    (label: IntermediateLabel) => addLabel(label as LabelType),
+    [addLabel]
+  )
   const handleRemoveLabel = useAction<LabelType>(removeLabel)
   const handleUpdateLabel = useAction<LabelType>(updateLabel)
 
