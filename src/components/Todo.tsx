@@ -187,7 +187,7 @@ const Todo: React.FC = ({}) => {
 
   const activeSidebarWidth = sidebar.collapsed ? 0 : sidebarWidth
 
-  const fullHeight = "calc(100dvh - 66px)"
+  const fullHeight = "calc(100dvh - 66px - env(safe-area-inset-bottom, 0px))"
 
   const isDesktop =
     breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
