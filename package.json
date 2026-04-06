@@ -25,6 +25,7 @@
     "url": "https://github.com/markmur/what-todo/issues"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.19",
     "@meronex/icons": "^4.0.0",
     "classnames": "^2.2.6",
     "framer-motion": "^12.38.0",
@@ -32,7 +33,6 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-textarea-autosize": "^8.3.1",
-    "react-tooltip": "^5.30.0",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
