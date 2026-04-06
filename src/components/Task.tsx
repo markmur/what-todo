@@ -490,7 +490,8 @@ const Task: React.FC<Props> = ({
             data-tooltip-id="tooltip"
             data-tooltip-content="Delete (X)"
             aria-label="Delete task"
-            onClick={() => {
+            onPointerUp={e => {
+              e.stopPropagation()
               haptic()
               onRemoveTask(state ?? task)
             }}

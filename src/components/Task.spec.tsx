@@ -80,7 +80,7 @@ describe("Task", () => {
       const removeButton = document.querySelector(
         "[data-tooltip-content='Delete (X)']"
       ) as HTMLElement
-      fireEvent.click(removeButton)
+      fireEvent.pointerUp(removeButton)
 
       expect(onRemoveTask).toHaveBeenCalled()
     })
