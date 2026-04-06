@@ -15,7 +15,7 @@ import Textarea from "react-textarea-autosize"
 import cx from "classnames"
 import FiLink from "@meronex/icons/fi/FiLink"
 import { useSettings } from "../context/SettingsContext"
-import { contrastText } from "../utils"
+import { contrastText, haptic } from "../utils"
 
 const MAX_DESCRIPTION_LENGTH = 1000
 
@@ -143,6 +143,7 @@ const Task: React.FC<Props> = ({
     if (isTyping) return
 
     if (event.key === "p" && state && !state.completed) {
+      haptic()
       const pinning = !Boolean(state.pinned)
       const updated = { ...state, pinned: pinning }
       setState(updated)
@@ -150,6 +151,7 @@ const Task: React.FC<Props> = ({
       if (pinning) setGlowing(true)
     }
     if (event.key === "x") {
+      haptic()
       onRemoveTask(state ?? task)
     }
     if (event.key === "m" && onMoveToToday) {
@@ -181,6 +183,7 @@ const Task: React.FC<Props> = ({
 
   const handleSelect = useCallback(() => {
     if (state) {
+      haptic()
       const updated = {
         ...state,
         completed: !state.completed,
@@ -385,6 +388,7 @@ const Task: React.FC<Props> = ({
               style={state?.pinned ? { color: "#93c5fd" } : undefined}
               onClick={preventDefault(() => {
                 if (!state) return
+                haptic()
                 const pinning = !Boolean(state.pinned)
                 const updated = { ...state, pinned: pinning }
                 setState(updated)
@@ -478,7 +482,10 @@ const Task: React.FC<Props> = ({
             data-tooltip-id="tooltip"
             data-tooltip-content="Delete (X)"
             aria-label="Delete task"
-            onClick={() => onRemoveTask(state ?? task)}
+            onClick={() => {
+              haptic()
+              onRemoveTask(state ?? task)
+            }}
           >
             <CrossIcon />
           </button>

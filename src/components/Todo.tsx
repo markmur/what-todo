@@ -31,6 +31,7 @@ import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import SearchIcon from "@meronex/icons/fi/FiSearch"
 import CheckIcon from "@meronex/icons/fi/FiCheckCircle"
 import Toast from "./Toast"
+import useKeyboardAware from "../hooks/useKeyboardAware"
 
 function Title({ children }: PropsWithChildren) {
   return (
@@ -65,6 +66,7 @@ const slideTransition =
 const Todo: React.FC = ({}) => {
   const breakpoint = useMedia()
   const { settings } = useSettings()
+  useKeyboardAware()
   const {
     data,
     sections,
