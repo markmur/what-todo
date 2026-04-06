@@ -114,6 +114,11 @@ const TaskInput: React.FC<Props> = ({
       className={cx(
         "bg-slate-100 dark:bg-navy-800 p-4 rounded-lg transition-all border-solid border-slate-200 dark:border-navy-700 border-2"
       )}
+      onBlur={e => {
+        if (!ref.current?.contains(e.relatedTarget as Node)) {
+          setOpen(false)
+        }
+      }}
     >
       <div className="flex justify-between items-center">
         <label htmlFor="task-title" className="sr-only">

@@ -91,9 +91,21 @@
   }
 
   html {
-    padding-top: env(safe-area-inset-top);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #app, main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
 
   html.dark {
@@ -256,7 +268,7 @@
   }
 
   footer {
-    padding: 1.5em 0 env(safe-area-inset-bottom, 0px);
+    padding: 1.5em 0;
     border-top: 2px solid black;
     font-size: 14px;
     font-weight: bold;

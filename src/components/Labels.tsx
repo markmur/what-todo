@@ -133,7 +133,7 @@ const Labels: React.FC<Props> = ({
                 >
                   <button
                     type="button"
-                    className="no-style w-[16px] h-[16px] rounded-lg p-0 m-1 grow-0 shrink-0 flex-basis-[16px] cursor-pointer"
+                    className="no-style w-[20px] h-[20px] rounded-full p-0 m-1 grow-0 shrink-0 cursor-pointer"
                     style={{
                       backgroundColor: label.color
                     }}

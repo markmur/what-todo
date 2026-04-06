@@ -149,6 +149,7 @@ const Task: React.FC<Props> = ({
       setState(updated)
       onUpdate(updated)
       if (pinning) setGlowing(true)
+      onDeselect()
     }
     if (event.key === "x") {
       haptic()
@@ -240,7 +241,7 @@ const Task: React.FC<Props> = ({
             ["animate-glow"]: glowing
           }
         )}
-        onClick={handlePress}
+        onPointerUp={handlePress as any}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         onAnimationEnd={() => setGlowing(false)}
@@ -396,6 +397,7 @@ const Task: React.FC<Props> = ({
                 setState(updated)
                 onUpdate(updated)
                 if (pinning) setGlowing(true)
+                onDeselect()
               })}
             >
               {state?.pinned ? (

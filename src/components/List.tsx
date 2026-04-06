@@ -102,6 +102,7 @@ const List: React.FC<Props> = ({
 }) => {
   const { settings } = useSettings()
   const selectedRef = useRef<HTMLDivElement>(null)
+  const completedRef = useRef<HTMLButtonElement>(null)
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
   const [collapsed, setCollapsed] = React.useState(collapseCompleted)
   const filteredTasks = getFilteredTasks(tasks, filters)
@@ -260,6 +261,7 @@ const List: React.FC<Props> = ({
 
       {hasCompletedTasks && (
         <button
+          ref={completedRef}
           type="button"
           className={cx(
             "no-style flex mb-2 items-center cursor-pointer w-full",
@@ -268,7 +270,18 @@ const List: React.FC<Props> = ({
               "mt-4": uncompleted.length === 0
             }
           )}
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => {
+            const expanding = collapsed
+            setCollapsed(!collapsed)
+            if (expanding) {
+              setTimeout(() => {
+                completedRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start"
+                })
+              }, 250)
+            }
+          }}
           aria-expanded={!collapsed}
         >
           <h4 className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200 font-bold">

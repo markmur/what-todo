@@ -21,6 +21,8 @@ export default function Tooltip() {
   })
 
   useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return
+
     const handleOver = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest?.(
         "[data-tooltip-content]"

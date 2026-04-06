@@ -193,9 +193,9 @@ describe("Task", () => {
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
       const checkbox = document.querySelector(
-        "input[type='checkbox']"
-      ) as HTMLInputElement
-      fireEvent.click(checkbox)
+        "[role='checkbox']"
+      ) as HTMLElement
+      fireEvent.pointerUp(checkbox)
 
       vi.advanceTimersByTime(1500)
 
@@ -348,29 +348,22 @@ describe("Task", () => {
   })
 
   describe("Checkbox click does not select task", () => {
-    it("does not call onSelect when checkbox is clicked on inactive task", () => {
+    it("does not call onSelect when checkbox is tapped on inactive task", () => {
       const { onSelect } = renderTask()
-      const checkbox = document.querySelector(".checkbox label") as HTMLElement
-      fireEvent.click(checkbox)
-      expect(onSelect).not.toHaveBeenCalled()
-    })
-
-    it("does not call onSelect when checkbox input is clicked", () => {
-      const { onSelect } = renderTask()
-      const input = document.querySelector(
-        "input[type='checkbox']"
+      const checkbox = document.querySelector(
+        "[role='checkbox']"
       ) as HTMLElement
-      fireEvent.click(input)
+      fireEvent.pointerUp(checkbox)
       expect(onSelect).not.toHaveBeenCalled()
     })
 
-    it("calls onMarkAsComplete when checkbox is clicked", () => {
+    it("calls onMarkAsComplete when checkbox is tapped", () => {
       vi.useFakeTimers()
       const { onMarkAsComplete } = renderTask()
-      const input = document.querySelector(
-        "input[type='checkbox']"
+      const checkbox = document.querySelector(
+        "[role='checkbox']"
       ) as HTMLElement
-      fireEvent.click(input)
+      fireEvent.pointerUp(checkbox)
       vi.advanceTimersByTime(1500)
       expect(onMarkAsComplete).toHaveBeenCalled()
       vi.useRealTimers()

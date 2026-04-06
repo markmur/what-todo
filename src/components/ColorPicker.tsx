@@ -98,7 +98,7 @@ const ColorPicker: React.FC<Props> = ({
                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
                 className="fixed bottom-0 left-0 right-0 z-60 bg-white dark:bg-navy-800 rounded-t-2xl shadow-xl"
                 style={{
-                  paddingBottom: "max(16px, env(safe-area-inset-bottom, 16px))"
+                  paddingBottom: 16
                 }}
               >
                 <div className="flex justify-center pt-2 pb-1">

@@ -14,7 +14,7 @@ export default function useFocusTrap(
     const first = focusable[0]
     const last = focusable[focusable.length - 1]
 
-    first?.focus()
+    el.focus({ preventScroll: true })
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Tab" || focusable.length === 0) return
