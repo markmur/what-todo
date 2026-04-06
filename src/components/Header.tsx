@@ -94,7 +94,7 @@ function Header({
       </div>
       {onMenuClick && (
         <button
-          className="no-style md:hidden dark:text-navy-100"
+          className="no-style dark:text-navy-100"
           onClick={onMenuClick}
           aria-label="Open menu"
         >
