@@ -23,6 +23,7 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+    touch-action: manipulation;
   }
 
   @media (prefers-reduced-motion: reduce) {
