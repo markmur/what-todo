@@ -241,7 +241,8 @@ const Todo: React.FC = ({}) => {
         onMenuClick={
           !isDesktop ? () => setDrawerOpen(prev => !prev) : undefined
         }
-        taskCount={todaysTasks.filter(t => !t.completed).length}
+        completedCount={todaysTasks.filter(t => t.completed).length}
+        totalCount={todaysTasks.length}
         date={formatDateHeading(todayDateStr)}
       />
       <main>
@@ -301,7 +302,7 @@ const Todo: React.FC = ({}) => {
 
                 <div className="w-full overflow-y-auto flex-1 min-h-0">
                   {olderTasks.length === 0 ? (
-                    <div className="text-slate-400 dark:text-navy-500 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
+                    <div className="text-slate-400 dark:text-navy-400 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
                       <CheckIcon
                         fontSize={32}
                         className="text-slate-300 dark:text-navy-600"
@@ -560,7 +561,7 @@ const Todo: React.FC = ({}) => {
                         if (e.key === "Escape") setSearchQuery("")
                       }}
                       placeholder="Search tasks..."
-                      className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
+                      className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
                     />
                   </div>
                 </div>

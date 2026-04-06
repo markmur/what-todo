@@ -67,13 +67,15 @@ const TaskInput: React.FC<Props> = ({
       })
     }
 
+  const isMobile = window.matchMedia("(pointer: coarse)").matches
+
   const handleAdd = React.useCallback(() => {
     if (validTask(task)) {
       onAdd(task as Task)
       clearTask()
-      setOpen(false)
+      if (isMobile) setOpen(false)
     }
-  }, [task, onAdd, clearTask])
+  }, [task, onAdd, clearTask, isMobile])
 
   const handleLabelClick = (id: string) => {
     const currentLabels = task.labels ?? []
@@ -154,7 +156,7 @@ const TaskInput: React.FC<Props> = ({
               minRows={1}
               maxRows={6}
               value={task.description}
-              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-3 outline-hidden resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-500 dark:text-navy-100"
+              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-3 outline-hidden resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100"
               placeholder="Add a description or URL..."
               onChange={handleChange("description")}
               onKeyDown={handleKeyDown("description")}

@@ -221,7 +221,7 @@ const Task: React.FC<Props> = ({
   )
 
   return (
-    <Animate active duration={0.15}>
+    <Animate active duration={0.15} skipInitial>
       <div
         ref={ref}
         role="button"
@@ -263,7 +263,7 @@ const Task: React.FC<Props> = ({
               className={cx(
                 "unstyled task-title-input font-semibold text-slate-700 dark:text-navy-100 leading-normal bg-transparent pt-0",
                 {
-                  ["text-slate-400 dark:text-navy-500"]: state?.completed
+                  ["text-slate-400 dark:text-navy-400"]: state?.completed
                 }
               )}
               onKeyDown={handleKeyDown}
@@ -276,7 +276,7 @@ const Task: React.FC<Props> = ({
               className={cx(
                 "inline font-semibold text-slate-700 dark:text-navy-100",
                 {
-                  ["text-slate-400 dark:text-navy-500"]: state?.completed
+                  ["text-slate-400 dark:text-navy-400"]: state?.completed
                 }
               )}
             >
@@ -298,13 +298,13 @@ const Task: React.FC<Props> = ({
           )}
 
           <>
-            {state?.description && (
+            {(state?.description || active) && (
               <div className="mt-1">
                 <Textarea
                   maxRows={10}
                   name="description"
                   value={getDescription(active, state?.description)}
-                  placeholder=""
+                  placeholder={active ? "Add description..." : ""}
                   className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
                   onChange={handleChange("description")}
                   onKeyDown={handleKeyDown}
@@ -315,21 +315,6 @@ const Task: React.FC<Props> = ({
             )}
 
             <Animate active={active}>
-              {!state?.description && (
-                <div className="mt-1">
-                  <Textarea
-                    maxRows={10}
-                    name="description"
-                    value=""
-                    placeholder="Add description..."
-                    className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
-                    onChange={handleChange("description")}
-                    onKeyDown={handleKeyDown}
-                    onFocus={selectTask}
-                    onBlur={handleBlur}
-                  />
-                </div>
-              )}
 
               <div className="flex mt-2 flex-wrap">
                 {Object.entries(labels).map(([id, label]) => (
