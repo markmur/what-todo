@@ -520,7 +520,7 @@ const Todo: React.FC = ({}) => {
 
             <div className="flex-1 overflow-y-auto min-h-0 px-6 pt-4">
               {data.filters.length > 0 && (
-                <div className="my-2">
+                <div className="mb-4">
                   <small>Showing: </small>
                   {data.filters.map(id => (
                     <div className="inline mb-1 mr-1" key={id}>
@@ -537,7 +537,7 @@ const Todo: React.FC = ({}) => {
               )}
 
               {todaysTasks.length > 0 && (
-                <div className="mb-3 relative">
+                <div className="mb-3 relative sticky top-0 z-10 bg-white dark:bg-navy-900 pb-1">
                   <SearchIcon
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-navy-500"
                     fontSize={14}

@@ -1,8 +1,8 @@
 import { AnimatePresence, motion, type Easing } from "framer-motion"
 
 const variants = {
-  open: { height: "auto", opacity: 1 },
-  closed: { height: 0, opacity: 0 }
+  open: { height: "auto", opacity: 1, overflow: "visible" as const },
+  closed: { height: 0, opacity: 0, overflow: "hidden" as const }
 }
 
 export default function Animate({
@@ -26,8 +26,11 @@ export default function Animate({
           animate="open"
           exit="closed"
           variants={variants}
-          transition={{ duration, ease }}
-          style={{ overflow: "hidden" }}
+          transition={{
+            duration,
+            ease,
+            overflow: { delay: duration }
+          }}
         >
           {children}
         </motion.div>

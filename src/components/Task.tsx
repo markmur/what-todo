@@ -103,6 +103,19 @@ const Task: React.FC<Props> = ({
   const [state, setState] = React.useState<TaskType | undefined>(task)
   const descriptionURL = getDescriptionURL(state?.description)
   const [, setHovering] = React.useState<boolean>(false)
+  const [glowing, setGlowing] = React.useState(false)
+
+  React.useEffect(() => {
+    if (task.completed) return
+    const isNew = Date.now() - new Date(task.created_at).getTime() < 5000
+    if (isNew) {
+      setGlowing(true)
+      const timer = setTimeout(() => {
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+      }, 200)
+      return () => clearTimeout(timer)
+    }
+  }, [task.completed, task.created_at])
 
   const handleChange =
     (field: keyof TaskType) =>
@@ -130,9 +143,11 @@ const Task: React.FC<Props> = ({
     if (isTyping) return
 
     if (event.key === "p" && state && !state.completed) {
-      const updated = { ...state, pinned: !Boolean(state.pinned) }
+      const pinning = !Boolean(state.pinned)
+      const updated = { ...state, pinned: pinning }
       setState(updated)
       onUpdate(updated)
+      if (pinning) setGlowing(true)
     }
     if (event.key === "x") {
       onRemoveTask(state ?? task)
@@ -214,7 +229,7 @@ const Task: React.FC<Props> = ({
         tabIndex={0}
         onKeyDown={handleKeyDown}
         className={cx(
-          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 rounded-xl px-3 overflow-hidden h-auto border-2 outline-none",
+          "group flex items-start hover:bg-slate-100 dark:hover:bg-navy-700 rounded-xl px-3 h-auto border-2 outline-none",
           compact ? "py-2 mb-1" : "py-4 mb-3",
           active
             ? "bg-slate-100 dark:bg-navy-700"
@@ -223,12 +238,14 @@ const Task: React.FC<Props> = ({
             ? "border-blue-300 dark:border-blue-500/50"
             : "border-transparent",
           {
-            ["cursor-pointer"]: !active
+            ["cursor-pointer"]: !active,
+            ["animate-glow"]: glowing
           }
         )}
         onClick={handlePress}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
+        onAnimationEnd={() => setGlowing(false)}
       >
         <div className="mt-[2px] mr-3">
           <Checkbox
@@ -370,9 +387,11 @@ const Task: React.FC<Props> = ({
               style={state?.pinned ? { color: "#93c5fd" } : undefined}
               onClick={preventDefault(() => {
                 if (!state) return
-                const updated = { ...state, pinned: !Boolean(state.pinned) }
+                const pinning = !Boolean(state.pinned)
+                const updated = { ...state, pinned: pinning }
                 setState(updated)
                 onUpdate(updated)
+                if (pinning) setGlowing(true)
               })}
             >
               {state?.pinned ? <PinFilled /> : <Pin />}
