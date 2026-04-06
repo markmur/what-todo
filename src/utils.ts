@@ -59,6 +59,10 @@ export const parseDataStr = (data: string): Record<string, unknown> => {
   }
 }
 
+export function haptic(ms = 10) {
+  navigator?.vibrate?.(ms)
+}
+
 export const preventDefault =
   (fn: (event: MouseEvent, ...args: any[]) => any) =>
   (event: MouseEvent, ...args: any[]) => {

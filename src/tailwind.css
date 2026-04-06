@@ -26,6 +26,7 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    overscroll-behavior: contain;
   }
 
   button,
