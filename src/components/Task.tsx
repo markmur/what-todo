@@ -208,7 +208,7 @@ const Task: React.FC<Props> = ({
     (event: MouseEvent) => {
       if (active) return
       const target = event.target as HTMLElement
-      if (target.closest(".checkbox, #actions")) return
+      if (target.closest(".checkbox, [aria-label='Task actions']")) return
 
       onSelect(task.id, event)
       setTimeout(() => {
@@ -222,9 +222,12 @@ const Task: React.FC<Props> = ({
 
   return (
     <Animate active duration={0.15} skipInitial>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         ref={ref}
-        role="button"
+        role="article"
+        aria-label={state?.title}
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         onKeyDown={handleKeyDown}
         className={cx(
@@ -340,9 +343,10 @@ const Task: React.FC<Props> = ({
           </>
         </div>
 
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
         <div
-          id="actions"
-          role="presentation"
+          aria-label="Task actions"
+          role="group"
           className="flex items-center ml-auto shrink-0"
           onClick={e => e.stopPropagation()}
         >

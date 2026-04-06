@@ -111,8 +111,9 @@ const TaskInput: React.FC<Props> = ({
   })
 
   return (
-    <div
+    <section
       ref={ref}
+      aria-label="Add task"
       className={cx(
         "bg-slate-100 dark:bg-navy-800 p-4 rounded-lg transition-all border-solid border-slate-200 dark:border-navy-700 border-2"
       )}
@@ -181,7 +182,7 @@ const TaskInput: React.FC<Props> = ({
           </>
         )}
       </Animate>
-    </div>
+    </section>
   )
 }
 

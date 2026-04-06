@@ -38,6 +38,7 @@ function ReorderableItem({
     >
       <div
         className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
+        aria-hidden="true"
         onPointerDown={e => {
           e.preventDefault()
           controls.start(e)
@@ -219,7 +220,7 @@ const List: React.FC<Props> = ({
         const target = e.target as HTMLElement
         if (
           !target.closest(
-            "[role='button'], [role='checkbox'], button, textarea, input, #actions"
+            "[role='article'], [role='checkbox'], button, textarea, input, [aria-label='Task actions']"
           )
         ) {
           setSelectedTask(undefined)

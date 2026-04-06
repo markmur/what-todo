@@ -157,7 +157,7 @@ describe("Task", () => {
       renderTask({ labels: ["label-1", "label-2"] }, { active: true })
 
       const inlineLabels = document.querySelectorAll(
-        "#actions [role='button'][aria-label]"
+        "[aria-label='Task actions'] [role='button'][aria-label]"
       )
       expect(inlineLabels.length).toBe(0)
     })
@@ -279,7 +279,7 @@ describe("Task", () => {
   describe("Keyboard shortcuts", () => {
     it("Escape calls onDeselect", () => {
       const { onDeselect } = renderTask({}, { active: true })
-      const card = document.querySelector("[role='button']") as HTMLElement
+      const card = document.querySelector("[role='article']") as HTMLElement
       fireEvent.keyDown(card, { key: "Escape" })
       expect(onDeselect).toHaveBeenCalled()
     })
@@ -295,7 +295,7 @@ describe("Task", () => {
 
     it("P key toggles pin when not typing", () => {
       const { onUpdate } = renderTask({ pinned: false }, { active: true })
-      const card = document.querySelector("[role='button']") as HTMLElement
+      const card = document.querySelector("[role='article']") as HTMLElement
       fireEvent.keyDown(card, { key: "p" })
       expect(onUpdate).toHaveBeenCalledWith(
         expect.objectContaining({ pinned: true })
@@ -304,14 +304,14 @@ describe("Task", () => {
 
     it("X key calls onRemoveTask when not typing", () => {
       const { onRemoveTask } = renderTask({}, { active: true })
-      const card = document.querySelector("[role='button']") as HTMLElement
+      const card = document.querySelector("[role='article']") as HTMLElement
       fireEvent.keyDown(card, { key: "x" })
       expect(onRemoveTask).toHaveBeenCalled()
     })
 
     it("M key calls onMoveToToday when not typing", () => {
       const { onMoveToToday } = renderTask({})
-      const card = document.querySelector("[role='button']") as HTMLElement
+      const card = document.querySelector("[role='article']") as HTMLElement
       fireEvent.keyDown(card, { key: "m" })
       expect(onMoveToToday).toHaveBeenCalled()
     })
