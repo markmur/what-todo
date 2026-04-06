@@ -87,9 +87,9 @@ const Todo: React.FC = ({}) => {
   const todaysTasks = getTasksFor(todayDateStr)(data)
   const olderTasks = getOlderTasks(data)
 
-  // Move any pinned tasks to today
+  // Move any uncompleted older tasks to today
   olderTasks.map(task => {
-    if (task.pinned) {
+    if (!task.completed) {
       moveToToday(task)
     }
   })
@@ -303,7 +303,7 @@ const Todo: React.FC = ({}) => {
                     <div>
                       <List
                         tasks={olderTasks.filter(
-                          t => t.id !== pendingDelete?.id
+                          t => t.id !== pendingDelete?.id && t.completed
                         )}
                         labels={labelsById}
                         filters={data.filters}

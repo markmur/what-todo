@@ -347,6 +347,36 @@ describe("Task", () => {
     })
   })
 
+  describe("Checkbox click does not select task", () => {
+    it("does not call onSelect when checkbox is clicked on inactive task", () => {
+      const { onSelect } = renderTask()
+      const checkbox = document.querySelector(".checkbox label") as HTMLElement
+      fireEvent.click(checkbox)
+      expect(onSelect).not.toHaveBeenCalled()
+    })
+
+    it("does not call onSelect when checkbox input is clicked", () => {
+      const { onSelect } = renderTask()
+      const input = document.querySelector(
+        "input[type='checkbox']"
+      ) as HTMLElement
+      fireEvent.click(input)
+      expect(onSelect).not.toHaveBeenCalled()
+    })
+
+    it("calls onMarkAsComplete when checkbox is clicked", () => {
+      vi.useFakeTimers()
+      const { onMarkAsComplete } = renderTask()
+      const input = document.querySelector(
+        "input[type='checkbox']"
+      ) as HTMLElement
+      fireEvent.click(input)
+      vi.advanceTimersByTime(1500)
+      expect(onMarkAsComplete).toHaveBeenCalled()
+      vi.useRealTimers()
+    })
+  })
+
   describe("Mobile delete button visibility", () => {
     it("delete button has mobile-visible classes", () => {
       renderTask()
