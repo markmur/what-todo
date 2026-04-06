@@ -204,21 +204,12 @@ const Task: React.FC<Props> = ({
     (event: MouseEvent) => {
       if (active) return
 
-      const target = event.target as HTMLElement
-
-      const isCheckbox = target.closest(".checkbox")
-      if (
-        !isCheckbox &&
-        !["TEXTAREA"].includes(event.currentTarget.nodeName) &&
-        !["INPUT", "svg"].includes(target.nodeName)
-      ) {
-        onSelect(task.id, event)
-        setTimeout(() => {
-          const title = ref.current?.querySelector("textarea")
-          title?.focus()
-          title?.setSelectionRange(title?.value.length, title?.value.length)
-        })
-      }
+      onSelect(task.id, event)
+      setTimeout(() => {
+        const title = ref.current?.querySelector("textarea")
+        title?.focus()
+        title?.setSelectionRange(title?.value.length, title?.value.length)
+      })
     },
     [onSelect, task, active]
   )
@@ -359,7 +350,12 @@ const Task: React.FC<Props> = ({
           </>
         </div>
 
-        <div id="actions" className="flex items-center ml-auto shrink-0">
+        <div
+          id="actions"
+          role="presentation"
+          className="flex items-center ml-auto shrink-0"
+          onClick={e => e.stopPropagation()}
+        >
           {onMoveToToday && (
             <button
               type="button"
