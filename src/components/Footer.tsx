@@ -38,7 +38,10 @@ const Footer: React.FC = () => {
         <em data-tooltip-id="tooltip" data-tooltip-content="🤷‍♂️">
           <a {...linkProps} onDoubleClick={() => setImportOpen(true)}>
             What Todo
-          </a>
+          </a>{" "}
+          <span className="text-slate-400 dark:text-navy-600 text-xs not-italic">
+            v{__APP_VERSION__}
+          </span>
         </em>
 
         <div className="flex items-center">
