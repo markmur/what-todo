@@ -315,7 +315,6 @@ const Task: React.FC<Props> = ({
             )}
 
             <Animate active={active}>
-
               <div className="flex mt-2 flex-wrap">
                 {Object.entries(labels).map(([id, label]) => (
                   <div className="mr-1 mb-1" key={id}>

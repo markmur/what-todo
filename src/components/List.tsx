@@ -217,7 +217,11 @@ const List: React.FC<Props> = ({
       className="h-full"
       onPointerUp={e => {
         const target = e.target as HTMLElement
-        if (!target.closest("[role='button'], [role='checkbox'], button, textarea, input, #actions")) {
+        if (
+          !target.closest(
+            "[role='button'], [role='checkbox'], button, textarea, input, #actions"
+          )
+        ) {
           setSelectedTask(undefined)
         }
       }}

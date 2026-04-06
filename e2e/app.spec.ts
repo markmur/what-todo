@@ -42,6 +42,30 @@ test("full app workflow", async ({ page }) => {
     await expect(page.getByText("From the farmers market")).toBeVisible()
   })
 
+  await test.step("add description from empty keeps focus", async () => {
+    await page.getByText("Write tests").click()
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "Write tests" })
+    const desc = card.locator("textarea[name='description']")
+    await desc.focus()
+    await desc.pressSequentially("My new description")
+    await expect(desc).toBeFocused()
+    await expect(desc).toHaveValue("My new description")
+    await page.keyboard.press("Escape")
+  })
+
+  await test.step("clicking empty space deselects task", async () => {
+    await page.getByText("Write tests").click()
+    const card = page
+      .locator("[role='button']")
+      .filter({ hasText: "Write tests" })
+    await expect(card.locator("textarea.task-title-input")).toBeVisible()
+    // Click the search input area (outside any task)
+    await page.getByPlaceholder("Search tasks...").click()
+    await expect(card.locator("textarea.task-title-input")).toBeHidden()
+  })
+
   await test.step("toggle labels on a task", async () => {
     await page.getByText("Write tests").click()
     // Click "Work" label in the edit view to add it
@@ -110,12 +134,32 @@ test("full app workflow", async ({ page }) => {
       .toBe(true)
   })
 
-  await test.step("input closes after adding a task", async () => {
+  await test.step("input stays open when clicking label inside it", async () => {
+    const taskInput = page.getByPlaceholder("What needs to be done?")
+    await taskInput.focus()
+    await expect(page.locator("#task-description")).toBeVisible()
+    // Click a label button inside the expanded input
+    const labelBtn = page
+      .locator("#task-description")
+      .locator("..")
+      .locator("..")
+      .getByText("Work")
+    await labelBtn.click()
+    // The input section should still be expanded
+    await expect(page.locator("#task-description")).toBeVisible()
+    await page.keyboard.press("Escape")
+  })
+
+  await test.step("input stays open on desktop after adding a task", async () => {
     const taskInput = page.getByPlaceholder("What needs to be done?")
     await taskInput.focus()
     await expect(page.locator("#task-description")).toBeVisible()
     await taskInput.fill("Temp task")
     await taskInput.press("Enter")
+    // On desktop (fine pointer), input stays open for quick entry
+    await expect(page.locator("#task-description")).toBeVisible()
+    // Click outside to close
+    await page.locator("h1").first().click()
     await expect(page.locator("#task-description")).toBeHidden()
   })
 
