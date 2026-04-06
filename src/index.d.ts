@@ -39,6 +39,7 @@ export type Tasks = Record<string, Task[]>
 export type Filters = string[]
 
 export type Data = {
+  schemaVersion?: number
   filters: Filters
   tasks: Tasks
   labels: Label[]

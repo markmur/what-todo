@@ -4,14 +4,17 @@ import React, { PropsWithChildren, useCallback, useRef, useState } from "react"
 import StorageManager from "../StorageManager"
 import { StorageAdapter } from "../adapters/StorageAdapter"
 import { LocalStorageAdapter } from "../adapters/LocalStorageAdapter"
+import { AppSupabaseAdapter } from "../adapters/AppSupabaseAdapter"
 import { SupabaseStorageAdapter } from "../adapters/SupabaseStorageAdapter"
 import { DebouncedAdapter, SyncStatus } from "../adapters/DebouncedAdapter"
 import { migrateData } from "../adapters/migrateData"
+import { mergeData } from "../adapters/mergeData"
 import {
   getSupabaseConfig,
   setSupabaseConfig,
   clearSupabaseConfig
 } from "../adapters/supabaseConfig"
+import { useAuth } from "./AuthContext"
 
 function createInitialAdapter(): StorageAdapter {
   const config = getSupabaseConfig()
@@ -21,7 +24,6 @@ function createInitialAdapter(): StorageAdapter {
         new SupabaseStorageAdapter(config.url, config.anonKey)
       )
     } catch {
-      // Invalid stored config — fall back to localStorage
       clearSupabaseConfig()
     }
   }
@@ -51,6 +53,8 @@ interface Storage {
   lastSyncedAt: Date | null
   connectSupabase: (url: string, anonKey: string) => Promise<void>
   disconnectSupabase: () => Promise<void>
+  dataConflict: { local: Data; remote: Data } | null
+  resolveConflict: (choice: "remote" | "merge") => void
 }
 
 const noop = () => undefined
@@ -79,13 +83,16 @@ export const StorageContext = React.createContext<Storage>({
   syncStatus: "idle",
   lastSyncedAt: null,
   connectSupabase: () => Promise.resolve(),
-  disconnectSupabase: () => Promise.resolve()
+  disconnectSupabase: () => Promise.resolve(),
+  dataConflict: null,
+  resolveConflict: noop
 })
 
 function StorageProvider({
   children
 }: PropsWithChildren<unknown>): React.ReactNode {
-  // Lazy-init: create the adapter and StorageManager once on first render
+  const { isAuthenticated } = useAuth()
+
   const storageRef = useRef<StorageManager | null>(null)
   const initialAdapterRef = useRef<StorageAdapter | null>(null)
   if (!storageRef.current) {
@@ -101,6 +108,11 @@ function StorageProvider({
   )
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle")
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null)
+  const [dataConflict, setDataConflict] = useState<{
+    local: Data
+    remote: Data
+    adapter: AppSupabaseAdapter
+  } | null>(null)
 
   const attachSyncListener = useCallback((adapter: DebouncedAdapter) => {
     adapter.onSyncChange((status, syncedAt) => {
@@ -109,7 +121,6 @@ function StorageProvider({
     })
   }, [])
 
-  // Attach listener to the initial adapter if it's debounced (Supabase)
   React.useEffect(() => {
     const adapter = initialAdapterRef.current
     if (adapter instanceof DebouncedAdapter) {
@@ -121,45 +132,98 @@ function StorageProvider({
     setDataFn(data)
   }
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     storage.getData().then(({ data }) => {
       setData(data)
     })
-  }
+  }, [storage])
 
   const dataRef = React.useRef(data)
   dataRef.current = data
 
+  // Switch adapter when auth state changes.
+  // Custom Supabase (Layer 2) takes priority — only switch to AppSupabaseAdapter
+  // if the user hasn't connected their own project.
+  React.useEffect(() => {
+    if (getSupabaseConfig()) return
+
+    if (isAuthenticated) {
+      const appAdapter = new AppSupabaseAdapter()
+      const newAdapter = new DebouncedAdapter(appAdapter)
+      attachSyncListener(newAdapter)
+
+      const localAdapter = new LocalStorageAdapter()
+
+      Promise.all([localAdapter.get(), appAdapter.get()]).then(
+        ([local, remote]) => {
+          const hasLocal =
+            local && Object.values(local.tasks ?? {}).flat().length > 0
+          const hasRemote =
+            remote && Object.values(remote.tasks ?? {}).flat().length > 0
+
+          if (hasLocal && hasRemote) {
+            // Both have data — let the user decide
+            setDataConflict({ local, remote, adapter: appAdapter })
+            storage.setAdapter(newAdapter)
+            fetchData()
+          } else if (hasLocal && !hasRemote) {
+            // Only local data — migrate it up
+            migrateData(localAdapter, appAdapter).finally(() => {
+              storage.setAdapter(newAdapter)
+              fetchData()
+            })
+          } else {
+            // No local data or only remote — just switch
+            storage.setAdapter(newAdapter)
+            fetchData()
+          }
+        }
+      )
+    } else {
+      storage.setAdapter(new LocalStorageAdapter())
+      setSyncStatus("idle")
+      setLastSyncedAt(null)
+      setDataConflict(null)
+      fetchData()
+    }
+  }, [isAuthenticated, attachSyncListener, storage, fetchData])
+
+  const resolveConflict = useCallback(
+    (choice: "remote" | "merge") => {
+      if (!dataConflict) return
+      const { local, remote, adapter } = dataConflict
+      const resolved = choice === "merge" ? mergeData(local, remote) : remote
+      adapter.set(resolved).then(() => {
+        new LocalStorageAdapter().clear()
+        setDataConflict(null)
+        fetchData()
+      })
+    },
+    [dataConflict, fetchData]
+  )
+
   const connectSupabase = async (url: string, anonKey: string) => {
-    // Create and test the new adapter
     const rawAdapter = new SupabaseStorageAdapter(url, anonKey)
     if (rawAdapter.testConnection) {
       await rawAdapter.testConnection()
     }
 
-    // Migrate from current local data to Supabase
     const currentAdapter = new LocalStorageAdapter()
     await migrateData(currentAdapter, rawAdapter)
 
-    // Wrap in debounced adapter to coalesce rapid writes
     const newAdapter = new DebouncedAdapter(rawAdapter)
     attachSyncListener(newAdapter)
 
-    // Persist config and swap — only after migration succeeds
     setSupabaseConfig({ url, anonKey })
     storage.setAdapter(newAdapter)
     setIsSupabaseConnected(true)
 
-    // Reload data from the new adapter
     fetchData()
   }
 
   const disconnectSupabase = async () => {
     const localAdapter = new LocalStorageAdapter()
-
-    // Copy current Supabase data to localStorage before disconnecting
-    const currentData = data
-    await localAdapter.set(currentData)
+    await localAdapter.set(data)
 
     clearSupabaseConfig()
     storage.setAdapter(localAdapter)
@@ -167,7 +231,6 @@ function StorageProvider({
     setSyncStatus("idle")
     setLastSyncedAt(null)
 
-    // Refresh UI from the local adapter
     fetchData()
   }
 
@@ -185,26 +248,21 @@ function StorageProvider({
         dataRef.current = newData
         setData(newData)
       },
-
       [fn]
     )
   }
 
-  // Callbacks for tasks
   const addTask = useAction<Task>(storage.addTask)
   const updateTask = useAction<Task>(storage.updateTask)
   const removeTask = useAction<Task>(storage.removeTask)
   const moveToToday = useAction<Task>(storage.moveTaskToToday)
 
-  // Callbacks for labels
   const addLabel = useAction<Label>(storage.addLabel)
   const removeLabel = useAction<Label>(storage.removeLabel)
   const updateLabel = useAction<Label>(storage.updateLabel)
 
-  // Callbacks for filters
   const updateFilters = useAction<Filters>(storage.updateFilters)
 
-  // Callbacks for sections
   const updateSection = useAction<Section, any>(storage.updateSection)
   const updateSections = useAction<Record<string, SectionData>>(
     storage.updateSections
@@ -234,7 +292,11 @@ function StorageProvider({
     syncStatus,
     lastSyncedAt,
     connectSupabase,
-    disconnectSupabase
+    disconnectSupabase,
+    dataConflict: dataConflict
+      ? { local: dataConflict.local, remote: dataConflict.remote }
+      : null,
+    resolveConflict
   }
 
   return (

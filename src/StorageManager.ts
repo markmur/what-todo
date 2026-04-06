@@ -5,6 +5,8 @@ import { StorageAdapter } from "./adapters/StorageAdapter"
 import colors from "./color-palette"
 import set from "lodash-es/set"
 
+export const SCHEMA_VERSION = 1
+
 const uuid = () => crypto.randomUUID()
 
 type Item = Label
@@ -20,6 +22,7 @@ const defaultLabels: Label[] = [
 ]
 
 const defaultData: Data = {
+  schemaVersion: SCHEMA_VERSION,
   migrated: true,
   filters: [],
   tasks: {},
@@ -58,7 +61,7 @@ class StorageManager {
 
   private async sync(newData: Data, action: Action): Promise<Data> {
     try {
-      await this.adapter.set(newData)
+      await this.adapter.set({ ...newData, schemaVersion: SCHEMA_VERSION })
     } catch (err) {
       console.error(`[StorageManager] sync failed (${action}):`, err)
       return newData
