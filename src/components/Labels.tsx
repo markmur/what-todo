@@ -127,6 +127,7 @@ const Labels: React.FC<Props> = ({
               <div className="mr-2">
                 <ColorPicker
                   visible={label.id === selectedLabel}
+                  label={label.title}
                   onHide={() => setSelectedLabel(undefined)}
                   onChange={color => handleColorChange(color, label)}
                 >

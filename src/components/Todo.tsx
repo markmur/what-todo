@@ -8,7 +8,6 @@ import type {
 import React, { PropsWithChildren, useCallback, useState } from "react"
 // utils
 import { formatDateHeading, today } from "../utils"
-import useMedia, { Breakpoints } from "../hooks/media"
 
 import Footer from "./Footer"
 import Labels from "./Labels"
@@ -64,7 +63,6 @@ const slideTransition =
   "left 0.3s cubic-bezier(0.4, 0, 0.2, 1), right 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
 
 const Todo: React.FC = ({}) => {
-  const breakpoint = useMedia()
   const { settings } = useSettings()
   useKeyboardAware()
   const {
@@ -196,8 +194,16 @@ const Todo: React.FC = ({}) => {
 
   const fullHeight = "calc(100dvh - 66px - env(safe-area-inset-bottom, 0px))"
 
-  const isDesktop =
-    breakpoint != Breakpoints.MOBILE && breakpoint != Breakpoints.TABLET
+  const [isDesktop, setIsDesktop] = useState(
+    () => window.matchMedia("(min-width: 64em)").matches
+  )
+
+  React.useEffect(() => {
+    const mql = window.matchMedia("(min-width: 64em)")
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mql.addEventListener("change", handler)
+    return () => mql.removeEventListener("change", handler)
+  }, [])
 
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [labelsCollapsed, setLabelsCollapsed] = useState(false)

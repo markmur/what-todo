@@ -206,6 +206,8 @@ const Task: React.FC<Props> = ({
   const handlePress = useCallback(
     (event: MouseEvent) => {
       if (active) return
+      const target = event.target as HTMLElement
+      if (target.closest(".checkbox, #actions")) return
 
       onSelect(task.id, event)
       setTimeout(() => {
@@ -370,7 +372,7 @@ const Task: React.FC<Props> = ({
                 onMoveToToday(state ?? task)
               })}
             >
-              <RightArrowIcon />
+              <RightArrowIcon fontSize={20} />
             </button>
           )}
 
@@ -396,7 +398,11 @@ const Task: React.FC<Props> = ({
                 if (pinning) setGlowing(true)
               })}
             >
-              {state?.pinned ? <PinFilled /> : <Pin />}
+              {state?.pinned ? (
+                <PinFilled fontSize={20} />
+              ) : (
+                <Pin fontSize={20} />
+              )}
             </button>
           )}
 
@@ -413,7 +419,7 @@ const Task: React.FC<Props> = ({
                 window.open(descriptionURL, "_blank")
               })}
             >
-              <FiLink />
+              <FiLink fontSize={20} />
             </button>
           )}
 
@@ -462,7 +468,7 @@ const Task: React.FC<Props> = ({
                   key={id}
                   role="button"
                   tabIndex={0}
-                  className="w-[16px] h-[16px] rounded-lg p-0 ml-1 grow-0 shrink-0 cursor-pointer"
+                  className="w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
                   data-tooltip-id="tooltip"
                   data-tooltip-content={labels[id]?.title}
                   aria-label={labels[id]?.title}
@@ -487,7 +493,7 @@ const Task: React.FC<Props> = ({
               onRemoveTask(state ?? task)
             }}
           >
-            <CrossIcon />
+            <CrossIcon fontSize={20} />
           </button>
         </div>
       </div>
