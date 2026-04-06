@@ -62,7 +62,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-4/5 max-w-sm z-50 bg-white dark:bg-navy-900 shadow-xl flex flex-col"
+              className="fixed top-0 right-0 bottom-0 w-4/5 max-w-sm z-50 bg-white dark:bg-navy-900 shadow-xl flex flex-col outline-none"
             >
               <div
                 className="flex items-center justify-between px-4"

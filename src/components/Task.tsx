@@ -254,7 +254,7 @@ const Task: React.FC<Props> = ({
           />
         </div>
 
-        <div className="w-full">
+        <div className="flex-1 overflow-hidden">
           {active ? (
             <Textarea
               maxRows={3}
@@ -425,64 +425,65 @@ const Task: React.FC<Props> = ({
             </button>
           )}
 
-          {(state?.labels ?? task.labels)
-            ?.sort((a, b) => a.localeCompare(b))
-            ?.map(id => {
-              const handleLabelClick = preventDefault(
-                (event: MouseEvent<any>) => {
-                  if (filters.includes(id)) {
-                    onFilter(filters.filter(f => f !== id))
-                  } else {
-                    if (event.metaKey) {
-                      onFilter([...filters, id])
+          {!active &&
+            (state?.labels ?? task.labels)
+              ?.sort((a, b) => a.localeCompare(b))
+              ?.map(id => {
+                const handleLabelClick = preventDefault(
+                  (event: MouseEvent<any>) => {
+                    if (filters.includes(id)) {
+                      onFilter(filters.filter(f => f !== id))
                     } else {
-                      onFilter([id])
+                      if (event.metaKey) {
+                        onFilter([...filters, id])
+                      } else {
+                        onFilter([id])
+                      }
                     }
                   }
-                }
-              )
+                )
 
-              if (settings.labelStyle === "pill") {
-                const bg = labels[id]?.color
+                if (settings.labelStyle === "pill") {
+                  const bg = labels[id]?.color
+                  return (
+                    <span
+                      key={id}
+                      role="button"
+                      tabIndex={0}
+                      className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
+                      style={{
+                        backgroundColor: bg,
+                        color: bg ? contrastText(bg) : undefined
+                      }}
+                      onClick={handleLabelClick}
+                      onKeyDown={e => {
+                        if (e.key === "Enter" || e.key === " ")
+                          handleLabelClick(e as any)
+                      }}
+                    >
+                      {labels[id]?.title}
+                    </span>
+                  )
+                }
+
                 return (
                   <span
                     key={id}
                     role="button"
                     tabIndex={0}
-                    className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
-                    style={{
-                      backgroundColor: bg,
-                      color: bg ? contrastText(bg) : undefined
-                    }}
+                    className="w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
+                    data-tooltip-id="tooltip"
+                    data-tooltip-content={labels[id]?.title}
+                    aria-label={labels[id]?.title}
+                    style={{ backgroundColor: labels[id]?.color }}
                     onClick={handleLabelClick}
                     onKeyDown={e => {
                       if (e.key === "Enter" || e.key === " ")
                         handleLabelClick(e as any)
                     }}
-                  >
-                    {labels[id]?.title}
-                  </span>
+                  />
                 )
-              }
-
-              return (
-                <span
-                  key={id}
-                  role="button"
-                  tabIndex={0}
-                  className="w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
-                  data-tooltip-id="tooltip"
-                  data-tooltip-content={labels[id]?.title}
-                  aria-label={labels[id]?.title}
-                  style={{ backgroundColor: labels[id]?.color }}
-                  onClick={handleLabelClick}
-                  onKeyDown={e => {
-                    if (e.key === "Enter" || e.key === " ")
-                      handleLabelClick(e as any)
-                  }}
-                />
-              )
-            })}
+              })}
 
           <button
             type="button"

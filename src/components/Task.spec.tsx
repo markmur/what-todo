@@ -153,29 +153,13 @@ describe("Task", () => {
       )
     })
 
-    it("updates pill indicators immediately when label is toggled", () => {
+    it("hides inline label indicators when task is active", () => {
       renderTask({ labels: ["label-1", "label-2"] }, { active: true })
 
-      const pillsBefore = document.querySelectorAll(
-        "[role='button'][aria-label]"
+      const inlineLabels = document.querySelectorAll(
+        "#actions [role='button'][aria-label]"
       )
-      const labelIds = Array.from(pillsBefore)
-        .map(el => el.getAttribute("aria-label"))
-        .filter(Boolean)
-      expect(labelIds).toContain("Work")
-      expect(labelIds).toContain("Personal")
-
-      const workLabel = screen.getByText("Work")
-      fireEvent.click(workLabel)
-
-      const pillsAfter = document.querySelectorAll(
-        "[role='button'][aria-label]"
-      )
-      const labelIdsAfter = Array.from(pillsAfter)
-        .map(el => el.getAttribute("aria-label"))
-        .filter(Boolean)
-      expect(labelIdsAfter).not.toContain("Work")
-      expect(labelIdsAfter).toContain("Personal")
+      expect(inlineLabels.length).toBe(0)
     })
   })
 
