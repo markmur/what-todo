@@ -12,7 +12,11 @@ interface Props {
 
 const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
   return (
-    <span className={cx("checkbox", { checked })}>
+    <span
+      className={cx("checkbox", { checked })}
+      role="presentation"
+      onClick={e => e.stopPropagation()}
+    >
       <label
         htmlFor={id}
         className="inline-flex items-center justify-center p-3 -m-3"
