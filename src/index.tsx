@@ -25,10 +25,10 @@ const App = () => {
   }, [])
 
   return (
-    <main>
+    <>
       <Todo />
       <Tooltip />
-    </main>
+    </>
   )
 }
 

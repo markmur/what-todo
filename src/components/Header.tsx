@@ -84,14 +84,16 @@ function Header({
           <span
             className="text-xs font-semibold bg-slate-200 dark:bg-navy-700 text-slate-600 dark:text-navy-300 rounded-full px-2 py-0.5 leading-none"
             style={{ verticalAlign: "baseline" }}
+            aria-label={`${completedCount} of ${totalCount} tasks completed`}
+            role="status"
           >
             {completedCount}/{totalCount}
           </span>
         )}
         {date && (
-          <span className="text-xs text-slate-400 dark:text-navy-400 leading-none">
+          <time className="text-xs text-slate-400 dark:text-navy-400 leading-none">
             {date}
-          </span>
+          </time>
         )}
       </div>
       {onMenuClick && (

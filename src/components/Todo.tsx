@@ -528,7 +528,10 @@ const Todo: React.FC = ({}) => {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto min-h-0 px-6">
+            <section
+              className="flex-1 overflow-y-auto min-h-0 px-6"
+              aria-label="Task list"
+            >
               {data.filters.length > 0 && (
                 <div className="mt-2 mb-4">
                   <small>Showing: </small>
@@ -547,7 +550,7 @@ const Todo: React.FC = ({}) => {
               )}
 
               {todaysTasks.length > 0 && (
-                <div className="mb-3 sticky top-0 z-10 pt-3">
+                <search className="mb-3 sticky top-0 z-10 pt-3">
                   <div className="relative">
                     <SearchIcon
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-navy-400 z-10"
@@ -564,7 +567,7 @@ const Todo: React.FC = ({}) => {
                       className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
                     />
                   </div>
-                </div>
+                </search>
               )}
 
               <List
@@ -580,7 +583,7 @@ const Todo: React.FC = ({}) => {
                   reordered.forEach(t => handleUpdateTask(t))
                 }}
               />
-            </div>
+            </section>
 
             <div className="pt-3 pb-4 px-6 bg-white dark:bg-navy-900">
               <TaskInput
