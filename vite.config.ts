@@ -53,6 +53,14 @@ export default defineConfig({
       }
     })
   ],
+  server: {
+    proxy: {
+      "/relay": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     environment: "happy-dom",
     globals: true,
