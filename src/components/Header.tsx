@@ -38,12 +38,14 @@ async function seedFromFile() {
 function Header({
   className,
   onMenuClick,
-  taskCount,
+  completedCount,
+  totalCount,
   date
 }: {
   className?: string
   onMenuClick?: () => void
-  taskCount?: number
+  completedCount?: number
+  totalCount?: number
   date?: string
 }) {
   const tapCount = useRef(0)
@@ -78,16 +80,16 @@ function Header({
         >
           What Todo 🤷‍♂️
         </h1>
-        {typeof taskCount === "number" && (
+        {typeof totalCount === "number" && (
           <span
             className="text-xs font-semibold bg-slate-200 dark:bg-navy-700 text-slate-600 dark:text-navy-300 rounded-full px-2 py-0.5 leading-none"
             style={{ verticalAlign: "baseline" }}
           >
-            {taskCount}
+            {completedCount}/{totalCount}
           </span>
         )}
         {date && (
-          <span className="text-xs text-slate-400 dark:text-navy-500 leading-none">
+          <span className="text-xs text-slate-400 dark:text-navy-400 leading-none">
             {date}
           </span>
         )}

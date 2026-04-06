@@ -46,11 +46,17 @@ export default function Tooltip() {
       }
     }
 
+    const dismiss = () => setOpen(false)
+
     document.addEventListener("mouseover", handleOver)
     document.addEventListener("mouseout", handleOut)
+    document.addEventListener("pointerdown", dismiss)
+    document.addEventListener("scroll", dismiss, true)
     return () => {
       document.removeEventListener("mouseover", handleOver)
       document.removeEventListener("mouseout", handleOut)
+      document.removeEventListener("pointerdown", dismiss)
+      document.removeEventListener("scroll", dismiss, true)
       clearTimeout(timeoutRef.current)
     }
   }, [refs])

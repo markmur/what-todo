@@ -2,13 +2,19 @@ import { Label as LabelType, Task as TaskType } from "../index.d"
 import React, { useCallback, useRef } from "react"
 
 // Icons
+import CheckCircle from "@meronex/icons/fi/FiCheckCircle"
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import Task from "./Task"
 import cx from "classnames"
 import useOnClickOutside from "../hooks/onclickoutside"
 import { useSettings } from "../context/SettingsContext"
-import { Reorder, useDragControls } from "framer-motion"
+import {
+  AnimatePresence,
+  Reorder,
+  motion,
+  useDragControls
+} from "framer-motion"
 import GripIcon from "@meronex/icons/fi/FiMenu"
 import Animate from "./Animate"
 
@@ -206,10 +212,31 @@ const List: React.FC<Props> = ({
   }
 
   return (
-    <div ref={selectedRef}>
+    <div
+      ref={selectedRef}
+      className="h-full"
+      onPointerUp={e => {
+        const target = e.target as HTMLElement
+        if (
+          !target.closest(
+            "[role='button'], [role='checkbox'], button, textarea, input, #actions"
+          )
+        ) {
+          setSelectedTask(undefined)
+        }
+      }}
+    >
       {uncompleted.length === 0 && !hasCompletedTasks && onReorder && (
-        <div className="text-slate-400 dark:text-navy-500 text-sm text-center py-12">
-          {isFiltering ? "No tasks found." : "Nothing to do — enjoy your day!"}
+        <div className="text-slate-400 dark:text-navy-400 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
+          <CheckCircle
+            fontSize={48}
+            className="text-slate-300 dark:text-navy-600"
+          />
+          <span>
+            {isFiltering
+              ? "No tasks found."
+              : "Nothing to do — enjoy your day!"}
+          </span>
         </div>
       )}
 
@@ -243,19 +270,27 @@ const List: React.FC<Props> = ({
             compact: forceCompact || settings.compactMode
           })}
         >
-          {uncompleted.map(task => (
-            <li key={task.id} className="task">
-              <Task
-                {...callbackHandlers}
-                active={task.id === selected}
-                task={task}
-                labels={labels}
-                filters={filters}
-                canPin={canPinTasks}
-                compact={forceCompact || settings.compactMode}
-              />
-            </li>
-          ))}
+          <AnimatePresence initial={false}>
+            {uncompleted.map(task => (
+              <motion.li
+                key={task.id}
+                className="task"
+                layout
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Task
+                  {...callbackHandlers}
+                  active={task.id === selected}
+                  task={task}
+                  labels={labels}
+                  filters={filters}
+                  canPin={canPinTasks}
+                  compact={forceCompact || settings.compactMode}
+                />
+              </motion.li>
+            ))}
+          </AnimatePresence>
         </ul>
       )}
 
@@ -303,19 +338,27 @@ const List: React.FC<Props> = ({
             compact: forceCompact || settings.compactMode
           })}
         >
-          {completed.map(task => (
-            <li key={task.id} className="task">
-              <Task
-                {...callbackHandlers}
-                active={task.id === selected}
-                task={task}
-                canPin={canPinTasks}
-                labels={labels}
-                filters={filters}
-                compact={forceCompact || settings.compactMode}
-              />
-            </li>
-          ))}
+          <AnimatePresence initial={false}>
+            {completed.map(task => (
+              <motion.li
+                key={task.id}
+                className="task"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                transition={{ duration: 0.3 }}
+              >
+                <Task
+                  {...callbackHandlers}
+                  active={task.id === selected}
+                  task={task}
+                  canPin={canPinTasks}
+                  labels={labels}
+                  filters={filters}
+                  compact={forceCompact || settings.compactMode}
+                />
+              </motion.li>
+            ))}
+          </AnimatePresence>
         </ul>
       </Animate>
     </div>

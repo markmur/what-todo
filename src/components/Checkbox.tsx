@@ -37,7 +37,7 @@ const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
       {checked ? (
         <Checked
           fontSize={22}
-          className="text-slate-500 hover:text-slate-800 dark:text-navy-500 dark:hover:text-navy-300"
+          className="text-slate-500 hover:text-slate-800 dark:text-navy-400 dark:hover:text-navy-300"
         />
       ) : (
         <Unchecked
