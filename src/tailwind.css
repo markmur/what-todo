@@ -24,6 +24,16 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  button,
+  [role="button"],
+  label,
+  .task,
+  .checkbox {
+    user-select: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
