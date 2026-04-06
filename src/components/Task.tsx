@@ -206,7 +206,9 @@ const Task: React.FC<Props> = ({
 
       const target = event.target as HTMLElement
 
+      const isCheckbox = target.closest(".checkbox")
       if (
+        !isCheckbox &&
         !["TEXTAREA"].includes(event.currentTarget.nodeName) &&
         !["INPUT", "svg"].includes(target.nodeName)
       ) {

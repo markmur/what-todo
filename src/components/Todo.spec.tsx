@@ -4,35 +4,44 @@ import Todo from "./Todo"
 import { SettingsProvider } from "../context/SettingsContext"
 import { DarkModeProvider } from "../context/DarkModeContext"
 
-const defaultData = {
-  tasks: {},
-  labels: [
-    { id: "l1", title: "Work", color: "#5352ed" },
-    { id: "l2", title: "Personal", color: "#ff7f50" }
-  ],
-  filters: [],
-  sections: {
-    completed: { collapsed: false },
-    focus: {},
-    sidebar: { collapsed: false }
+const yesterday = new Date(Date.now() - 86400000).toDateString()
+
+const mockMoveToToday = vi.fn()
+
+let testData: Record<string, any> = {}
+
+function makeDefaultData(overrides: Record<string, any> = {}) {
+  return {
+    tasks: {},
+    labels: [
+      { id: "l1", title: "Work", color: "#5352ed" },
+      { id: "l2", title: "Personal", color: "#ff7f50" }
+    ],
+    filters: [],
+    sections: {
+      completed: { collapsed: false },
+      focus: {},
+      sidebar: { collapsed: false }
+    },
+    ...overrides
   }
 }
 
 vi.mock("../context/StorageContext", () => ({
   useStorage: () => ({
-    data: defaultData,
+    data: testData,
     labelsById: {
       l1: { id: "l1", title: "Work", color: "#5352ed" },
       l2: { id: "l2", title: "Personal", color: "#ff7f50" }
     },
-    sections: defaultData.sections,
+    sections: testData.sections,
     storage: {},
     fetchData: vi.fn(),
     addTask: vi.fn(),
     updateTask: vi.fn(),
     removeTask: vi.fn(),
     markAsComplete: vi.fn(),
-    moveToToday: vi.fn(),
+    moveToToday: mockMoveToToday,
     addLabel: vi.fn(),
     updateLabel: vi.fn(),
     removeLabel: vi.fn(),
@@ -67,6 +76,8 @@ function renderTodo() {
 describe("Todo — curtain sidebar animation", () => {
   beforeEach(() => {
     localStorage.clear()
+    mockMoveToToday.mockClear()
+    testData = makeDefaultData()
   })
 
   it("always renders the completed section in the DOM", () => {
@@ -169,5 +180,99 @@ describe("Todo — curtain sidebar animation", () => {
     ) as HTMLElement
     expect(section).toBeTruthy()
     expect(section.style.pointerEvents).toBe("auto")
+  })
+})
+
+describe("Todo — older task migration", () => {
+  beforeEach(() => {
+    localStorage.clear()
+    mockMoveToToday.mockClear()
+  })
+
+  it("moves uncompleted older tasks to today", () => {
+    testData = makeDefaultData({
+      tasks: {
+        [yesterday]: [
+          {
+            id: "old-1",
+            title: "Unfinished task",
+            completed: false,
+            created_at: new Date(yesterday).toISOString(),
+            labels: []
+          },
+          {
+            id: "old-2",
+            title: "Done task",
+            completed: true,
+            created_at: new Date(yesterday).toISOString(),
+            labels: []
+          }
+        ]
+      }
+    })
+
+    renderTodo()
+
+    expect(mockMoveToToday).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "old-1", completed: false })
+    )
+    expect(mockMoveToToday).not.toHaveBeenCalledWith(
+      expect.objectContaining({ id: "old-2" })
+    )
+  })
+
+  it("does not move completed older tasks", () => {
+    testData = makeDefaultData({
+      tasks: {
+        [yesterday]: [
+          {
+            id: "old-done",
+            title: "Completed yesterday",
+            completed: true,
+            created_at: new Date(yesterday).toISOString(),
+            labels: []
+          }
+        ]
+      }
+    })
+
+    renderTodo()
+
+    expect(mockMoveToToday).not.toHaveBeenCalled()
+  })
+
+  it("completed sidebar only shows completed tasks", () => {
+    testData = makeDefaultData({
+      tasks: {
+        [yesterday]: [
+          {
+            id: "old-incomplete",
+            title: "Should not appear",
+            completed: false,
+            created_at: new Date(yesterday).toISOString(),
+            labels: []
+          },
+          {
+            id: "old-complete",
+            title: "Should appear in completed",
+            completed: true,
+            created_at: new Date(yesterday).toISOString(),
+            labels: []
+          }
+        ]
+      }
+    })
+
+    renderTodo()
+
+    const completedHeading = Array.from(document.querySelectorAll("h1")).find(
+      el => el.textContent === "Completed"
+    )
+    const completedSection = completedHeading?.closest(
+      "[style*='position: absolute']"
+    ) as HTMLElement
+
+    expect(completedSection).toBeTruthy()
+    expect(completedSection.textContent).not.toContain("Should not appear")
   })
 })
