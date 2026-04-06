@@ -7,7 +7,7 @@ function TrapTest({ active }: { active: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   useFocusTrap(ref, active)
   return (
-    <div ref={ref}>
+    <div ref={ref} tabIndex={-1} data-testid="container">
       <button data-testid="first">First</button>
       <button data-testid="second">Second</button>
       <button data-testid="last">Last</button>
@@ -16,9 +16,9 @@ function TrapTest({ active }: { active: boolean }) {
 }
 
 describe("useFocusTrap", () => {
-  it("focuses the first element when active", () => {
+  it("focuses the container when active", () => {
     const { getByTestId } = render(<TrapTest active />)
-    expect(document.activeElement).toBe(getByTestId("first"))
+    expect(document.activeElement).toBe(getByTestId("container"))
   })
 
   it("does not focus anything when inactive", () => {

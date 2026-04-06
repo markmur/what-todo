@@ -7,31 +7,25 @@ describe("Checkbox", () => {
     const { container } = render(
       <Checkbox id="test" checked={false} onChange={vi.fn()} />
     )
-    const input = container.querySelector(
-      "input[type='checkbox']"
-    ) as HTMLInputElement
-    expect(input.checked).toBe(false)
+    const span = container.querySelector("[role='checkbox']") as HTMLElement
+    expect(span.getAttribute("aria-checked")).toBe("false")
   })
 
   it("renders checked state", () => {
     const { container } = render(
       <Checkbox id="test" checked={true} onChange={vi.fn()} />
     )
-    const input = container.querySelector(
-      "input[type='checkbox']"
-    ) as HTMLInputElement
-    expect(input.checked).toBe(true)
+    const span = container.querySelector("[role='checkbox']") as HTMLElement
+    expect(span.getAttribute("aria-checked")).toBe("true")
   })
 
-  it("calls onChange with toggled value on click", () => {
+  it("calls onChange with toggled value on pointerUp", () => {
     const onChange = vi.fn()
     const { container } = render(
       <Checkbox id="test" checked={false} onChange={onChange} />
     )
-    const input = container.querySelector(
-      "input[type='checkbox']"
-    ) as HTMLInputElement
-    fireEvent.click(input)
+    const span = container.querySelector("[role='checkbox']") as HTMLElement
+    fireEvent.pointerUp(span)
     expect(onChange).toHaveBeenCalledWith(true)
   })
 
@@ -40,18 +34,18 @@ describe("Checkbox", () => {
     const { container } = render(
       <Checkbox id="test" checked={true} onChange={onChange} />
     )
-    const input = container.querySelector(
-      "input[type='checkbox']"
-    ) as HTMLInputElement
-    fireEvent.click(input)
+    const span = container.querySelector("[role='checkbox']") as HTMLElement
+    fireEvent.pointerUp(span)
     expect(onChange).toHaveBeenCalledWith(false)
   })
 
-  it("has a label element for accessibility", () => {
+  it("has proper ARIA attributes for accessibility", () => {
     const { container } = render(
       <Checkbox id="test-id" checked={false} onChange={vi.fn()} />
     )
-    const label = container.querySelector("label[for='test-id']")
-    expect(label).toBeTruthy()
+    const span = container.querySelector("[role='checkbox']") as HTMLElement
+    expect(span).toBeTruthy()
+    expect(span.getAttribute("aria-label")).toBe("Toggle complete")
+    expect(span.getAttribute("tabindex")).toBe("0")
   })
 })

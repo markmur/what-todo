@@ -89,7 +89,7 @@ test("full app workflow", async ({ page }) => {
     const card = page
       .locator("[role='button']")
       .filter({ hasText: "Buy organic groceries" })
-    await card.locator(".checkbox label").click()
+    await card.locator("[role='checkbox']").click()
     await expect(page.locator(".strike-animated").first()).toBeVisible({
       timeout: 3000
     })
@@ -382,7 +382,7 @@ test("mobile", async ({ page }) => {
 
   await test.step("complete a task on mobile", async () => {
     const card = page.locator("[role='button']").filter({ hasText: "Buy milk" })
-    await card.locator(".checkbox label").click()
+    await card.locator("[role='checkbox']").click()
     await expect(page.locator(".strike-animated").first()).toBeVisible({
       timeout: 3000
     })
@@ -488,8 +488,8 @@ test("sequential deletes and completes", async ({ page }) => {
   })
 
   await test.step("completing multiple tasks in sequence persists them all", async () => {
-    await card("Task D").locator(".checkbox label").click()
-    await card("Task E").locator(".checkbox label").click()
+    await card("Task D").locator("[role='checkbox']").click()
+    await card("Task E").locator("[role='checkbox']").click()
 
     await expect
       .poll(

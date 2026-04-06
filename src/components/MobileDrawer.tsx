@@ -57,6 +57,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               role="dialog"
               aria-modal="true"
               aria-label="Menu"
+              tabIndex={-1}
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -65,7 +66,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
             >
               <div
                 className="flex items-center justify-between px-4"
-                style={{ paddingTop: "max(8px, env(safe-area-inset-top))" }}
+                style={{ paddingTop: 8 }}
               >
                 {title || <span />}
                 <button

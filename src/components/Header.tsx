@@ -68,7 +68,7 @@ function Header({
         className,
         "border-b border-slate-100 dark:border-navy-700 flex items-center justify-between"
       )}
-      style={{ padding: "2em 16px", maxHeight: 66, borderBottomWidth: 2 }}
+      style={{ padding: "2em 16px", maxHeight: 66 }}
     >
       <div className="flex items-baseline gap-3">
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
