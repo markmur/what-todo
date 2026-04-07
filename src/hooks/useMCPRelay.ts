@@ -1,5 +1,10 @@
 import type { Data, Task, Label } from "../index.d"
-import { notifyStorageUpdate, STORAGE_KEY } from "../context/StorageContext"
+import { STORAGE_KEY } from "../adapters/LocalStorageAdapter"
+
+function notifyStorageUpdate() {
+  // Dispatch a storage event so StorageContext re-reads from localStorage
+  window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }))
+}
 
 interface RelayCommand {
   id: string
