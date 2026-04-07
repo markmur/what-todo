@@ -2,9 +2,15 @@
 
 ## Working with Git
 
-- Use **worktrees** for all non-trivial changes — create one with the `EnterWorktree` tool at the start of a task
+- Always use a **worktree** for any task that involves code changes — create one with the `EnterWorktree` tool before starting
 - Use `git` and `gh` for version control — do not use Graphite
-- To create a PR, use the `/create-pr` command
+- To create a PR, use the `/create-pr` skill — this is a **project-level skill**, use it directly (never invoke global skills)
+- Once the PR has been created with a title and description, **delete the worktree** using `ExitWorktree` with `action: "remove"`
+
+## Skills
+
+- Only use **project-level skills** defined in `.claude/` — never invoke global skills
+- The available project skill is `/create-pr`
 
 
 
