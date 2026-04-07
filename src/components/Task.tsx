@@ -454,23 +454,17 @@ const Task: React.FC<Props> = ({
 
           {(state?.description || active) && (
             <div className="mt-1">
-              {active ? (
-                <Textarea
-                  maxRows={10}
-                  name="description"
-                  value={getDescription(active, state?.description)}
-                  placeholder="Add description..."
-                  className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px] w-full"
-                  onChange={handleChange("description")}
-                  onKeyDown={handleKeyDown}
-                  onFocus={selectTask}
-                  onBlur={handleBlur}
-                />
-              ) : (
-                <div className="text-slate-500 dark:text-navy-400 text-sm whitespace-pre-wrap break-words">
-                  {getDescription(false, state?.description)}
-                </div>
-              )}
+              <Textarea
+                maxRows={10}
+                name="description"
+                value={getDescription(active, state?.description)}
+                placeholder={active ? "Add description..." : ""}
+                className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px] w-full"
+                onChange={handleChange("description")}
+                onKeyDown={handleKeyDown}
+                onFocus={selectTask}
+                onBlur={handleBlur}
+              />
             </div>
           )}
 
