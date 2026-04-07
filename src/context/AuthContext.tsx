@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
 import Toast from "../components/Toast"
+import WaitlistSheet from "../components/WaitlistSheet"
 
 export type OAuthProvider = "google"
 
@@ -21,24 +22,34 @@ const AuthContext = createContext<AuthContextValue>({
   signOut: () => Promise.resolve()
 })
 
-function parseOAuthError(): string | null {
-  const params = new URLSearchParams(window.location.search)
-  const description = params.get("error_description")
-  if (!description) return null
+interface OAuthError {
+  code: string | null
+  description: string | null
+}
 
-  // Clean the error params from the URL without triggering a navigation
+function parseOAuthError(): OAuthError | null {
+  const params = new URLSearchParams(window.location.search)
+  const code = params.get("error_code")
+  const description = params.get("error_description")
+  if (!code && !description) return null
+
   const clean = new URL(window.location.href)
   clean.searchParams.delete("error")
   clean.searchParams.delete("error_code")
   clean.searchParams.delete("error_description")
   window.history.replaceState(null, "", clean.toString())
 
-  return decodeURIComponent(description.replace(/\+/g, " "))
+  return {
+    code,
+    description: description
+      ? decodeURIComponent(description.replace(/\+/g, " "))
+      : null
+  }
 }
 
 export function AuthProvider({ children }: React.PropsWithChildren<unknown>) {
   const [user, setUser] = useState<User | null>(null)
-  const [authError, setAuthError] = useState<string | null>(() =>
+  const [authError, setAuthError] = useState<OAuthError | null>(() =>
     parseOAuthError()
   )
 
@@ -71,6 +82,8 @@ export function AuthProvider({ children }: React.PropsWithChildren<unknown>) {
     await supabase.auth.signOut()
   }
 
+  const isWaitlistError = authError?.code === "signup_disabled"
+
   return (
     <AuthContext.Provider
       value={{
@@ -82,9 +95,18 @@ export function AuthProvider({ children }: React.PropsWithChildren<unknown>) {
       }}
     >
       {children}
-      {authError && (
-        <Toast message={authError} onDismiss={() => setAuthError(null)} />
+
+      {authError && !isWaitlistError && (
+        <Toast
+          message={authError.description ?? "Sign in failed"}
+          onDismiss={() => setAuthError(null)}
+        />
       )}
+
+      <WaitlistSheet
+        open={isWaitlistError}
+        onClose={() => setAuthError(null)}
+      />
     </AuthContext.Provider>
   )
 }

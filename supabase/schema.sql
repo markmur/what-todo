@@ -66,6 +66,23 @@ ALTER TABLE todos ADD CONSTRAINT todos_user_id_unique UNIQUE (user_id);
 
 
 -- ------------------------------------------------------------
+-- Waitlist
+-- Stores emails from users who requested early access.
+-- ------------------------------------------------------------
+
+CREATE TABLE waitlist (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email       TEXT NOT NULL UNIQUE,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can join waitlist" ON waitlist
+  FOR INSERT WITH CHECK (true);
+
+
+-- ------------------------------------------------------------
 -- User's own Supabase project schema
 -- Run this in the SQL editor of the USER'S Supabase project,
 -- not the what-todo.app project.
