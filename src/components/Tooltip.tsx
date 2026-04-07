@@ -66,6 +66,7 @@ export default function Tooltip() {
   return (
     <FloatingPortal>
       <div
+        // eslint-disable-next-line react-hooks/refs
         ref={refs.setFloating}
         role="tooltip"
         style={floatingStyles}
