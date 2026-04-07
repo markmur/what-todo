@@ -2,8 +2,30 @@ name: CI
 
 on:
   pull_request:
+    paths:
+      - 'src/**'
+      - 'e2e/**'
+      - 'public/**'
+      - 'index.html'
+      - 'vite.config.*'
+      - 'tsconfig*.json'
+      - 'eslint.config.*'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/test.yml'
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'e2e/**'
+      - 'public/**'
+      - 'index.html'
+      - 'vite.config.*'
+      - 'tsconfig*.json'
+      - 'eslint.config.*'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/test.yml'
 
 jobs:
   setup:
