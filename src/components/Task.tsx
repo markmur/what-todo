@@ -257,9 +257,9 @@ const Task: React.FC<Props> = ({
           />
         </div>
 
-        <div className="flex-1 overflow-hidden min-w-0">
+        <div className="flex-1 overflow-clip min-w-0">
           <div className="flex items-start">
-            <div className="flex-1 overflow-hidden min-w-0">
+            <div className="flex-1 overflow-clip min-w-0">
               {active ? (
                 <Textarea
                   maxRows={3}
