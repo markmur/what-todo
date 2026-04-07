@@ -373,9 +373,9 @@ test("mobile", async ({ page }) => {
     await expect(page.getByLabel("Compact mode")).toBeVisible()
   })
 
-  await test.step("task count is always visible in mobile", async () => {
+  await test.step("task count is hidden on mobile", async () => {
     await app.drawer.close()
-    await expect(app.header.progressBadge).toBeVisible()
+    await expect(app.header.progressBadge).toBeHidden()
   })
 
   await test.step("dark mode toggle accessible via drawer", async () => {

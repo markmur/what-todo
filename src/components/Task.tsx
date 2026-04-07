@@ -249,7 +249,7 @@ const Task: React.FC<Props> = ({
         onMouseLeave={() => setHovering(false)}
         onAnimationEnd={() => setGlowing(false)}
       >
-        <div className="mt-[2px] mr-3">
+        <div className="mt-[2px] mr-3 shrink-0">
           <Checkbox
             id={task.id}
             checked={state?.completed ?? false}
@@ -257,236 +257,240 @@ const Task: React.FC<Props> = ({
           />
         </div>
 
-        <div className="flex-1 overflow-hidden">
-          {active ? (
-            <Textarea
-              maxRows={3}
-              value={state?.title}
-              spellCheck={active}
-              className={cx(
-                "unstyled task-title-input font-semibold text-slate-700 dark:text-navy-100 leading-normal bg-transparent pt-0",
-                {
-                  ["text-slate-400 dark:text-navy-400"]: state?.completed
-                }
-              )}
-              onKeyDown={handleKeyDown}
-              onChange={handleChange("title")}
-              onFocus={selectTask}
-              onBlur={handleBlur}
-            />
-          ) : (
-            <div
-              className={cx(
-                "inline font-semibold text-slate-700 dark:text-navy-100",
-                {
-                  ["text-slate-400 dark:text-navy-400"]: state?.completed
-                }
-              )}
-            >
-              {state?.completed
-                ? state?.title
-                    .split(/\s/)
-                    .filter(Boolean)
-                    .map((word, i) => (
-                      <span
-                        key={word}
-                        className="strike-animated inline-flex mr-1"
-                        style={{ "--strike-index": i } as React.CSSProperties}
-                      >
-                        {word}
-                      </span>
-                    ))
-                : state?.title}
-            </div>
-          )}
-
-          <>
-            {(state?.description || active) && (
-              <div className="mt-1">
+        <div className="flex-1 overflow-hidden min-w-0">
+          <div className="flex items-start">
+            <div className="flex-1 overflow-hidden min-w-0">
+              {active ? (
                 <Textarea
-                  maxRows={10}
-                  name="description"
-                  value={getDescription(active, state?.description)}
-                  placeholder={active ? "Add description..." : ""}
-                  className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px]"
-                  onChange={handleChange("description")}
+                  maxRows={3}
+                  value={state?.title}
+                  spellCheck={active}
+                  className={cx(
+                    "unstyled task-title-input font-semibold text-slate-700 dark:text-navy-100 leading-normal bg-transparent pt-0",
+                    {
+                      ["text-slate-400 dark:text-navy-400"]: state?.completed
+                    }
+                  )}
                   onKeyDown={handleKeyDown}
+                  onChange={handleChange("title")}
                   onFocus={selectTask}
                   onBlur={handleBlur}
                 />
-              </div>
-            )}
-
-            <Animate active={active}>
-              <div className="flex mt-2 flex-wrap">
-                {Object.entries(labels).map(([id, label]) => (
-                  <div className="mr-1 mb-1" key={id}>
-                    <Label
-                      small
-                      active={state?.labels?.includes(id) ?? false}
-                      label={label}
-                      onClick={preventDefault(() => {
-                        if (!state) return
-                        const currentLabels = state.labels ?? []
-                        const nextLabels = currentLabels.includes(id)
-                          ? currentLabels.filter(l => l !== id)
-                          : [...currentLabels, id]
-                        const updated = { ...state, labels: nextLabels }
-                        setState(updated)
-                        onUpdate(updated)
-                      })}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Animate>
-          </>
-        </div>
-
-        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
-        <div
-          aria-label="Task actions"
-          role="group"
-          className="flex items-center ml-auto shrink-0"
-          onClick={e => e.stopPropagation()}
-        >
-          {onMoveToToday && (
-            <button
-              type="button"
-              data-tooltip-id="tooltip"
-              data-tooltip-content="Move to today (M)"
-              aria-label="Move to today"
-              className="no-style remove-icon touch-target"
-              onClick={preventDefault(() => {
-                onMoveToToday(state ?? task)
-              })}
-            >
-              <RightArrowIcon fontSize={20} />
-            </button>
-          )}
-
-          {canPin && !state?.completed && (
-            <button
-              type="button"
-              data-tooltip-id="tooltip"
-              data-tooltip-content={
-                state?.pinned ? "Unpin task (P)" : "Pin task (P)"
-              }
-              aria-label={state?.pinned ? "Unpin task" : "Pin task"}
-              className={cx("no-style remove-icon touch-target", {
-                active: state?.pinned
-              })}
-              style={state?.pinned ? { color: "#93c5fd" } : undefined}
-              onClick={preventDefault(() => {
-                if (!state) return
-                haptic()
-                const pinning = !Boolean(state.pinned)
-                const updated = { ...state, pinned: pinning }
-                setState(updated)
-                onUpdate(updated)
-                if (pinning) setGlowing(true)
-                onDeselect()
-              })}
-            >
-              {state?.pinned ? (
-                <PinFilled fontSize={20} />
               ) : (
-                <Pin fontSize={20} />
-              )}
-            </button>
-          )}
-
-          {descriptionURL && (
-            <button
-              type="button"
-              data-tooltip-id="tooltip"
-              data-tooltip-content={shortenURL(descriptionURL)}
-              aria-label="Open link"
-              className={cx("no-style remove-icon touch-target", {
-                active: true
-              })}
-              onClick={preventDefault(() => {
-                window.open(descriptionURL, "_blank")
-              })}
-            >
-              <FiLink fontSize={20} />
-            </button>
-          )}
-
-          {!active &&
-            (state?.labels ?? task.labels)
-              ?.sort((a, b) => a.localeCompare(b))
-              ?.map(id => {
-                const handleLabelClick = preventDefault(
-                  (event: MouseEvent<any>) => {
-                    if (filters.includes(id)) {
-                      onFilter(filters.filter(f => f !== id))
-                    } else {
-                      if (event.metaKey) {
-                        onFilter([...filters, id])
-                      } else {
-                        onFilter([id])
-                      }
+                <div
+                  className={cx(
+                    "inline font-semibold text-slate-700 dark:text-navy-100",
+                    {
+                      ["text-slate-400 dark:text-navy-400"]: state?.completed
                     }
+                  )}
+                >
+                  {state?.completed
+                    ? state?.title
+                        .split(/\s/)
+                        .filter(Boolean)
+                        .map((word, i) => (
+                          <span
+                            key={word}
+                            className="strike-animated inline-flex mr-1"
+                            style={
+                              { "--strike-index": i } as React.CSSProperties
+                            }
+                          >
+                            {word}
+                          </span>
+                        ))
+                    : state?.title}
+                </div>
+              )}
+            </div>
+
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
+            <div
+              aria-label="Task actions"
+              role="group"
+              className="flex items-center ml-auto shrink-0"
+              onClick={e => e.stopPropagation()}
+            >
+              {onMoveToToday && (
+                <button
+                  type="button"
+                  data-tooltip-id="tooltip"
+                  data-tooltip-content="Move to today (M)"
+                  aria-label="Move to today"
+                  className="no-style remove-icon touch-target"
+                  onClick={preventDefault(() => {
+                    onMoveToToday(state ?? task)
+                  })}
+                >
+                  <RightArrowIcon fontSize={20} />
+                </button>
+              )}
+
+              {canPin && !state?.completed && (
+                <button
+                  type="button"
+                  data-tooltip-id="tooltip"
+                  data-tooltip-content={
+                    state?.pinned ? "Unpin task (P)" : "Pin task (P)"
                   }
-                )
+                  aria-label={state?.pinned ? "Unpin task" : "Pin task"}
+                  className={cx("no-style remove-icon touch-target", {
+                    active: state?.pinned
+                  })}
+                  style={state?.pinned ? { color: "#93c5fd" } : undefined}
+                  onClick={preventDefault(() => {
+                    if (!state) return
+                    haptic()
+                    const pinning = !Boolean(state.pinned)
+                    const updated = { ...state, pinned: pinning }
+                    setState(updated)
+                    onUpdate(updated)
+                    if (pinning) setGlowing(true)
+                    onDeselect()
+                  })}
+                >
+                  {state?.pinned ? (
+                    <PinFilled fontSize={20} />
+                  ) : (
+                    <Pin fontSize={20} />
+                  )}
+                </button>
+              )}
 
-                if (settings.labelStyle === "pill") {
-                  const bg = labels[id]?.color
-                  return (
-                    <span
-                      key={id}
-                      role="button"
-                      tabIndex={0}
-                      className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
-                      style={{
-                        backgroundColor: bg,
-                        color: bg ? contrastText(bg) : undefined
-                      }}
-                      onClick={handleLabelClick}
-                      onKeyDown={e => {
-                        if (e.key === "Enter" || e.key === " ")
-                          handleLabelClick(e as any)
-                      }}
-                    >
-                      {labels[id]?.title}
-                    </span>
-                  )
-                }
+              {descriptionURL && (
+                <button
+                  type="button"
+                  data-tooltip-id="tooltip"
+                  data-tooltip-content={shortenURL(descriptionURL)}
+                  aria-label="Open link"
+                  className={cx("no-style remove-icon touch-target", {
+                    active: true
+                  })}
+                  onClick={preventDefault(() => {
+                    window.open(descriptionURL, "_blank")
+                  })}
+                >
+                  <FiLink fontSize={20} />
+                </button>
+              )}
 
-                return (
-                  <span
-                    key={id}
-                    role="button"
-                    tabIndex={0}
-                    className="w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
-                    data-tooltip-id="tooltip"
-                    data-tooltip-content={labels[id]?.title}
-                    aria-label={labels[id]?.title}
-                    style={{ backgroundColor: labels[id]?.color }}
-                    onClick={handleLabelClick}
-                    onKeyDown={e => {
-                      if (e.key === "Enter" || e.key === " ")
-                        handleLabelClick(e as any)
-                    }}
+              {!active &&
+                (state?.labels ?? task.labels)
+                  ?.sort((a, b) => a.localeCompare(b))
+                  ?.map(id => {
+                    const handleLabelClick = preventDefault(
+                      (event: MouseEvent<any>) => {
+                        if (filters.includes(id)) {
+                          onFilter(filters.filter(f => f !== id))
+                        } else {
+                          if (event.metaKey) {
+                            onFilter([...filters, id])
+                          } else {
+                            onFilter([id])
+                          }
+                        }
+                      }
+                    )
+
+                    if (settings.labelStyle === "pill") {
+                      const bg = labels[id]?.color
+                      return (
+                        <span
+                          key={id}
+                          role="button"
+                          tabIndex={0}
+                          className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
+                          style={{
+                            backgroundColor: bg,
+                            color: bg ? contrastText(bg) : undefined
+                          }}
+                          onClick={handleLabelClick}
+                          onKeyDown={e => {
+                            if (e.key === "Enter" || e.key === " ")
+                              handleLabelClick(e as any)
+                          }}
+                        >
+                          {labels[id]?.title}
+                        </span>
+                      )
+                    }
+
+                    return (
+                      <span
+                        key={id}
+                        role="button"
+                        tabIndex={0}
+                        className="w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
+                        data-tooltip-id="tooltip"
+                        data-tooltip-content={labels[id]?.title}
+                        aria-label={labels[id]?.title}
+                        style={{ backgroundColor: labels[id]?.color }}
+                        onClick={handleLabelClick}
+                        onKeyDown={e => {
+                          if (e.key === "Enter" || e.key === " ")
+                            handleLabelClick(e as any)
+                        }}
+                      />
+                    )
+                  })}
+
+              <button
+                type="button"
+                className="no-style remove-icon touch-target overflow-hidden transition-all duration-200 max-w-[44px] opacity-100 md:max-w-0 md:opacity-0 group-hover:max-w-[44px] group-hover:opacity-100"
+                data-tooltip-id="tooltip"
+                data-tooltip-content="Delete (X)"
+                aria-label="Delete task"
+                onPointerUp={e => {
+                  e.stopPropagation()
+                  haptic()
+                  onRemoveTask(state ?? task)
+                }}
+              >
+                <CrossIcon fontSize={20} />
+              </button>
+            </div>
+          </div>
+
+          {(state?.description || active) && (
+            <div className="mt-1">
+              <Textarea
+                maxRows={10}
+                name="description"
+                value={getDescription(active, state?.description)}
+                placeholder={active ? "Add description..." : ""}
+                className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px] w-full"
+                onChange={handleChange("description")}
+                onKeyDown={handleKeyDown}
+                onFocus={selectTask}
+                onBlur={handleBlur}
+              />
+            </div>
+          )}
+
+          <Animate active={active}>
+            <div className="flex mt-2 flex-wrap">
+              {Object.entries(labels).map(([id, label]) => (
+                <div className="mr-1 mb-1" key={id}>
+                  <Label
+                    small
+                    active={state?.labels?.includes(id) ?? false}
+                    label={label}
+                    onClick={preventDefault(() => {
+                      if (!state) return
+                      const currentLabels = state.labels ?? []
+                      const nextLabels = currentLabels.includes(id)
+                        ? currentLabels.filter(l => l !== id)
+                        : [...currentLabels, id]
+                      const updated = { ...state, labels: nextLabels }
+                      setState(updated)
+                      onUpdate(updated)
+                    })}
                   />
-                )
-              })}
-
-          <button
-            type="button"
-            className="no-style remove-icon touch-target overflow-hidden transition-all duration-200 max-w-[44px] opacity-100 md:max-w-0 md:opacity-0 group-hover:max-w-[44px] group-hover:opacity-100"
-            data-tooltip-id="tooltip"
-            data-tooltip-content="Delete (X)"
-            aria-label="Delete task"
-            onPointerUp={e => {
-              e.stopPropagation()
-              haptic()
-              onRemoveTask(state ?? task)
-            }}
-          >
-            <CrossIcon fontSize={20} />
-          </button>
+                </div>
+              ))}
+            </div>
+          </Animate>
         </div>
       </div>
     </Animate>

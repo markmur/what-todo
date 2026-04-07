@@ -21,6 +21,8 @@ import Label from "./Label"
 import ToggleButton from "./ToggleButton"
 import Header from "./Header"
 import MobileDrawer from "./MobileDrawer"
+import McpSetupSheet from "./McpSetupSheet"
+import { useAuth } from "../context/AuthContext"
 import Settings from "./Settings"
 import { useSettings } from "../context/SettingsContext"
 import useResize from "../hooks/useResize"
@@ -206,7 +208,9 @@ const Todo: React.FC = ({}) => {
   }, [])
 
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [mcpOpen, setMcpOpen] = useState(false)
   const [labelsCollapsed, setLabelsCollapsed] = useState(false)
+  const { user } = useAuth()
 
   const [mounted, setMounted] = useState(false)
   React.useEffect(() => {
@@ -626,7 +630,21 @@ const Todo: React.FC = ({}) => {
               </span>
             </button>
           }
-          footer={<Footer />}
+          footer={
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawerOpen(false)
+                  setMcpOpen(true)
+                }}
+                className="no-style w-full text-left text-[13px] font-medium text-slate-400 dark:text-navy-500 hover:text-slate-600 dark:hover:text-navy-300 transition-colors py-1"
+              >
+                /mcp — Use with Claude
+              </button>
+              <Footer />
+            </div>
+          }
         >
           <div className="flex-1 overflow-y-auto pb-2">
             <Collapse open={!labelsCollapsed}>
@@ -648,6 +666,12 @@ const Todo: React.FC = ({}) => {
           </div>
         </MobileDrawer>
       )}
+
+      <McpSetupSheet
+        open={mcpOpen}
+        onClose={() => setMcpOpen(false)}
+        apiToken={user?.id ?? null}
+      />
 
       {pendingDelete && (
         <Toast
