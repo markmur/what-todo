@@ -257,9 +257,9 @@ const Task: React.FC<Props> = ({
           />
         </div>
 
-        <div className="flex-1 overflow-hidden min-w-0">
+        <div className="flex-1 overflow-clip min-w-0">
           <div className="flex items-start">
-            <div className="flex-1 overflow-hidden min-w-0">
+            <div className="flex-1 overflow-clip min-w-0">
               {active ? (
                 <Textarea
                   maxRows={3}
@@ -454,17 +454,23 @@ const Task: React.FC<Props> = ({
 
           {(state?.description || active) && (
             <div className="mt-1">
-              <Textarea
-                maxRows={10}
-                name="description"
-                value={getDescription(active, state?.description)}
-                placeholder={active ? "Add description..." : ""}
-                className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px] w-full"
-                onChange={handleChange("description")}
-                onKeyDown={handleKeyDown}
-                onFocus={selectTask}
-                onBlur={handleBlur}
-              />
+              {active ? (
+                <Textarea
+                  maxRows={10}
+                  name="description"
+                  value={getDescription(active, state?.description)}
+                  placeholder="Add description..."
+                  className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px] w-full"
+                  onChange={handleChange("description")}
+                  onKeyDown={handleKeyDown}
+                  onFocus={selectTask}
+                  onBlur={handleBlur}
+                />
+              ) : (
+                <div className="text-slate-500 dark:text-navy-400 text-sm whitespace-pre-wrap break-words">
+                  {getDescription(false, state?.description)}
+                </div>
+              )}
             </div>
           )}
 
