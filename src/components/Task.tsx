@@ -103,8 +103,10 @@ const Task: React.FC<Props> = ({
   const [localState, setLocalState] = React.useState<TaskType | undefined>(task)
   const prevTaskRef = React.useRef<TaskType>(task)
 
-  // When the task prop changes externally, sync only the fields that changed
-  // from the outside — preserving any in-progress local edits.
+  // Derived state during render: when the task prop changes externally, sync
+  // only the fields that differ — preserving any in-progress local edits.
+  // Calling setState here (not in an effect) is intentional per React docs:
+  // React re-renders immediately and the stale render output is discarded.
   if (prevTaskRef.current !== task) {
     const prev = prevTaskRef.current
     prevTaskRef.current = task

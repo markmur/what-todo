@@ -1,10 +1,10 @@
 [build]
-  command = "pnpm build && git diff --quiet HEAD~1 HEAD -- supabase/functions/ 2>/dev/null || supabase functions deploy mcp --project-ref $SUPABASE_PROJECT_REF"
+  command = "pnpm build && (git diff --quiet HEAD~1 HEAD -- supabase/functions/ || supabase functions deploy mcp --project-ref $SUPABASE_PROJECT_REF)"
   publish = "dist"
 
 [[redirects]]
   from = "/mcp"
-  to = "https://<your-project>.supabase.co/functions/v1/mcp"
+  to = "$SUPABASE_URL/functions/v1/mcp"
   status = 200
   force = true
 

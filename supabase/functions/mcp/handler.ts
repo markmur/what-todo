@@ -1,3 +1,8 @@
+// NOTE: The tool execution logic here is intentionally self-contained.
+// Deno edge functions have strict module resolution requirements that make
+// cross-runtime imports from the Node server (server/tools.ts) fragile.
+// Keep the two in sync when adding or changing tools.
+
 // ---- Types ------------------------------------------------------------------
 
 export interface Task {

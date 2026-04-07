@@ -26,6 +26,7 @@ const COLORS = [
 ]
 
 const defaultData: Data = {
+  schemaVersion: 1,
   migrated: true,
   filters: [],
   tasks: {},
@@ -44,12 +45,6 @@ function read(): Data {
     return JSON.parse(raw) as Data
   } catch {
     return defaultData
-  }
-}
-
-declare global {
-  interface Window {
-    __mcpRelayEventSource?: EventSource
   }
 }
 
@@ -216,7 +211,11 @@ declare global {
   }
 }
 
-if (RELAY_TOKEN && !window.__mcpRelayEventSource) {
+export function initMCPRelay() {
+  if (!RELAY_TOKEN || window.__mcpRelayEventSource) return
+
+  // EventSource doesn't support custom headers, so the token is passed as a
+  // query param. This is local-dev only — the relay is never exposed publicly.
   const url = `/relay/events?token=${RELAY_TOKEN}`
   const eventSource = new EventSource(url)
   window.__mcpRelayEventSource = eventSource
@@ -253,5 +252,3 @@ if (RELAY_TOKEN && !window.__mcpRelayEventSource) {
     console.warn("[MCP Relay] SSE connection error, will retry...")
   }
 }
-
-export function useMCPRelay() {}
