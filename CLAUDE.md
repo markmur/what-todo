@@ -1,5 +1,13 @@
 # What Todo
 
+## Working with Git
+
+- Use **worktrees** for all non-trivial changes — create one with the `EnterWorktree` tool at the start of a task
+- Use `git` and `gh` for version control — do not use Graphite
+- To create a PR, use the `/create-pr` command
+
+
+
 A personal todo app built as a PWA with offline support.
 
 ## Tech Stack
