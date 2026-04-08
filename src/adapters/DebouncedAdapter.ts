@@ -19,6 +19,8 @@ export interface SyncListener {
 }
 
 export class DebouncedAdapter implements StorageAdapter {
+  readonly isAsync = true
+
   private timer: ReturnType<typeof setTimeout> | null = null
   private pendingData: Data | null = null
   private writePromise: Promise<void> | null = null

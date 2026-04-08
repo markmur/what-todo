@@ -32,6 +32,7 @@ function createInitialAdapter(): StorageAdapter {
 
 interface Storage {
   data: Data
+  loading: boolean
   labelsById: Record<string, Label>
   storage: StorageManager
   sections?: Record<Section, SectionData>
@@ -63,6 +64,7 @@ const defaultStorage = new StorageManager(new LocalStorageAdapter())
 
 export const StorageContext = React.createContext<Storage>({
   data: defaultStorage.defaultData,
+  loading: false,
   labelsById: {},
   sections: defaultStorage.defaultData.sections,
   storage: defaultStorage,
@@ -103,6 +105,9 @@ function StorageProvider({
   const storage = storageRef.current
 
   const [data, setDataFn] = React.useState<Data>(storage.defaultData)
+  const [loading, setLoading] = useState(
+    () => initialAdapterRef.current?.isAsync === true
+  )
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(
     () => getSupabaseConfig() !== null
   )
@@ -133,9 +138,17 @@ function StorageProvider({
   }
 
   const fetchData = useCallback(() => {
-    storage.getData().then(({ data }) => {
-      setData(data)
-    })
+    storage
+      .getData()
+      .then(({ data }) => {
+        setData(data)
+      })
+      .catch(err => {
+        console.error("[StorageProvider] fetchData failed:", err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [storage])
 
   const dataRef = React.useRef(data)
@@ -148,14 +161,15 @@ function StorageProvider({
     if (getSupabaseConfig()) return
 
     if (isAuthenticated) {
+      setLoading(true)
       const appAdapter = new AppSupabaseAdapter()
       const newAdapter = new DebouncedAdapter(appAdapter)
       attachSyncListener(newAdapter)
 
       const localAdapter = new LocalStorageAdapter()
 
-      Promise.all([localAdapter.get(), appAdapter.get()]).then(
-        ([local, remote]) => {
+      Promise.all([localAdapter.get(), appAdapter.get()])
+        .then(([local, remote]) => {
           const hasLocal =
             local && Object.values(local.tasks ?? {}).flat().length > 0
           const hasRemote =
@@ -177,8 +191,11 @@ function StorageProvider({
             storage.setAdapter(newAdapter)
             fetchData()
           }
-        }
-      )
+        })
+        .catch(err => {
+          console.error("[StorageProvider] auth adapter switch failed:", err)
+          setLoading(false)
+        })
     } else {
       storage.setAdapter(new LocalStorageAdapter())
       setSyncStatus("idle")
@@ -207,6 +224,8 @@ function StorageProvider({
     if (rawAdapter.testConnection) {
       await rawAdapter.testConnection()
     }
+
+    setLoading(true)
 
     const currentAdapter = new LocalStorageAdapter()
     await migrateData(currentAdapter, rawAdapter)
@@ -274,6 +293,7 @@ function StorageProvider({
     addLabel,
     addTask: addTask.bind(storage),
     data,
+    loading,
     fetchData,
     labelsById,
     markAsComplete: updateTask,

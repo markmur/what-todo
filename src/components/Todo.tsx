@@ -32,6 +32,7 @@ import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import SearchIcon from "@meronex/icons/fi/FiSearch"
 import CheckIcon from "@meronex/icons/fi/FiCheckCircle"
 import Toast from "./Toast"
+import LoadingSkeleton from "./LoadingSkeleton"
 import useKeyboardAware from "../hooks/useKeyboardAware"
 
 function Title({ children }: PropsWithChildren) {
@@ -69,6 +70,7 @@ const Todo: React.FC = ({}) => {
   useKeyboardAware()
   const {
     data,
+    loading,
     sections,
     labelsById,
     addTask,
@@ -536,57 +538,63 @@ const Todo: React.FC = ({}) => {
               className="flex-1 overflow-y-auto min-h-0 px-6"
               aria-label="Task list"
             >
-              {data.filters.length > 0 && (
-                <div className="mt-2 mb-4">
-                  <small>Showing: </small>
-                  {data.filters.map(id => (
-                    <div className="inline mb-1 mr-1" key={id}>
-                      <Label
-                        active
-                        label={labelsById[id]}
-                        onRemove={() => {
-                          updateFilters(data.filters.filter(x => x !== id))
-                        }}
-                      />
+              {loading ? (
+                <LoadingSkeleton />
+              ) : (
+                <>
+                  {data.filters.length > 0 && (
+                    <div className="mt-2 mb-4">
+                      <small>Showing: </small>
+                      {data.filters.map(id => (
+                        <div className="inline mb-1 mr-1" key={id}>
+                          <Label
+                            active
+                            label={labelsById[id]}
+                            onRemove={() => {
+                              updateFilters(data.filters.filter(x => x !== id))
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
+                  )}
 
-              {todaysTasks.length > 0 && (
-                <search className="mb-3 sticky top-0 z-10 pt-3">
-                  <div className="relative">
-                    <SearchIcon
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-navy-400 z-10"
-                      fontSize={14}
-                    />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Escape") setSearchQuery("")
-                      }}
-                      placeholder="Search tasks..."
-                      className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
-                    />
-                  </div>
-                </search>
-              )}
+                  {todaysTasks.length > 0 && (
+                    <search className="mb-3 sticky top-0 z-10 pt-3">
+                      <div className="relative">
+                        <SearchIcon
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-navy-400 z-10"
+                          fontSize={14}
+                        />
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={e => setSearchQuery(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Escape") setSearchQuery("")
+                          }}
+                          placeholder="Search tasks..."
+                          className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
+                        />
+                      </div>
+                    </search>
+                  )}
 
-              <List
-                tasks={visibleTasks}
-                labels={labelsById}
-                filters={data.filters}
-                isFiltering={isFiltering}
-                onFilter={updateFilters}
-                onUpdateTask={handleUpdateTask}
-                onRemoveTask={handleRemoveTask}
-                onMarkAsComplete={markAsComplete}
-                onReorder={reordered => {
-                  reordered.forEach(t => handleUpdateTask(t))
-                }}
-              />
+                  <List
+                    tasks={visibleTasks}
+                    labels={labelsById}
+                    filters={data.filters}
+                    isFiltering={isFiltering}
+                    onFilter={updateFilters}
+                    onUpdateTask={handleUpdateTask}
+                    onRemoveTask={handleRemoveTask}
+                    onMarkAsComplete={markAsComplete}
+                    onReorder={reordered => {
+                      reordered.forEach(t => handleUpdateTask(t))
+                    }}
+                  />
+                </>
+              )}
             </section>
 
             <div className="pt-3 pb-4 px-6 bg-white dark:bg-navy-900">
