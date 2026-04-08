@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render } from "@testing-library/react"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { render, screen } from "@testing-library/react"
 import Todo from "./Todo"
 import { SettingsProvider } from "../context/SettingsContext"
 import { DarkModeProvider } from "../context/DarkModeContext"
@@ -9,6 +9,7 @@ const yesterday = new Date(Date.now() - 86400000).toDateString()
 const mockMoveToToday = vi.fn()
 
 let testData: Record<string, any> = {}
+let testLoading = false
 
 function makeDefaultData(overrides: Record<string, any> = {}) {
   return {
@@ -30,6 +31,7 @@ function makeDefaultData(overrides: Record<string, any> = {}) {
 vi.mock("../context/StorageContext", () => ({
   useStorage: () => ({
     data: testData,
+    loading: testLoading,
     labelsById: {
       l1: { id: "l1", title: "Work", color: "#5352ed" },
       l2: { id: "l2", title: "Personal", color: "#ff7f50" }
@@ -72,6 +74,31 @@ function renderTodo() {
     </DarkModeProvider>
   )
 }
+
+describe("Todo — loading state", () => {
+  beforeEach(() => {
+    localStorage.clear()
+    mockMoveToToday.mockClear()
+    testData = makeDefaultData()
+  })
+
+  afterEach(() => {
+    testLoading = false
+  })
+
+  it("shows loading skeleton and hides task list when loading is true", () => {
+    testLoading = true
+    renderTodo()
+    expect(screen.queryByTestId("loading-skeleton")).toBeTruthy()
+    expect(screen.queryByPlaceholderText("Search tasks...")).toBeNull()
+  })
+
+  it("does not show loading skeleton when loading is false", () => {
+    testLoading = false
+    renderTodo()
+    expect(screen.queryByTestId("loading-skeleton")).toBeNull()
+  })
+})
 
 describe("Todo — curtain sidebar animation", () => {
   beforeEach(() => {

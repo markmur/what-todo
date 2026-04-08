@@ -18,6 +18,13 @@ export interface StorageAdapter {
   clear(): Promise<void>
 
   /**
+   * Whether this adapter requires async network access.
+   * When true, the UI should show a loading indicator during initial fetch.
+   * Synchronous adapters (e.g. localStorage) return false or omit this.
+   */
+  readonly isAsync?: boolean
+
+  /**
    * Verify the adapter can connect to its backend.
    * Throws with a descriptive message if the connection fails.
    * Adapters that don't need connection testing (e.g. localStorage)
