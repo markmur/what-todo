@@ -199,11 +199,13 @@ const List: React.FC<Props> = ({
 
   const [localOrder, setLocalOrder] = React.useState(uncompleted)
 
-  const uncompletedIds = uncompleted.map(t => t.id).join(",")
+  const uncompletedKey = uncompleted
+    .map(t => `${t.id}:${t.pinned}:${t.labels?.join("|")}`)
+    .join(",")
   React.useEffect(() => {
     setLocalOrder(uncompleted)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uncompletedIds])
+  }, [uncompletedKey])
 
   const handleReorder = (reordered: TaskType[]) => {
     setLocalOrder(reordered)

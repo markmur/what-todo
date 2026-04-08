@@ -1,7 +1,7 @@
 import { Data } from "../index.d"
 import { StorageAdapter } from "./StorageAdapter"
 
-const STORAGE_KEY = "what-todo"
+export const STORAGE_KEY = "what-todo"
 
 /**
  * Stores data in the browser's localStorage as a single JSON blob.

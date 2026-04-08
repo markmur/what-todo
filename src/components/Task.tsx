@@ -100,7 +100,30 @@ const Task: React.FC<Props> = ({
 }) => {
   const { settings } = useSettings()
   const ref = useRef<HTMLDivElement>(null)
-  const [state, setState] = React.useState<TaskType | undefined>(task)
+  const [localState, setLocalState] = React.useState<TaskType | undefined>(task)
+  const prevTaskRef = React.useRef<TaskType>(task)
+
+  // Derived state during render: when the task prop changes externally, sync
+  // only the fields that differ — preserving any in-progress local edits.
+  // Calling setState here (not in an effect) is intentional per React docs:
+  // React re-renders immediately and the stale render output is discarded.
+  if (prevTaskRef.current !== task) {
+    const prev = prevTaskRef.current
+    prevTaskRef.current = task
+    if (localState) {
+      const patch: Partial<TaskType> = {}
+      if (prev.pinned !== task.pinned) patch.pinned = task.pinned
+      if (prev.completed !== task.completed) patch.completed = task.completed
+      if (prev.labels?.join(",") !== task.labels?.join(","))
+        patch.labels = task.labels
+      if (Object.keys(patch).length > 0) {
+        setLocalState({ ...localState, ...patch })
+      }
+    }
+  }
+
+  const state = localState
+  const setState = (t: TaskType | undefined) => setLocalState(t)
   const descriptionURL = getDescriptionURL(state?.description)
   const [, setHovering] = React.useState<boolean>(false)
   const [glowing, setGlowing] = React.useState(false)

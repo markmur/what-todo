@@ -1,0 +1,15 @@
+[build]
+  command = "pnpm build && (git diff --quiet HEAD~1 HEAD -- supabase/functions/ || supabase functions deploy mcp --project-ref $SUPABASE_PROJECT_REF)"
+  publish = "dist"
+
+[[redirects]]
+  from = "/mcp"
+  to = "$SUPABASE_URL/functions/v1/mcp"
+  status = 200
+  force = true
+
+# SPA fallback — must be last
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

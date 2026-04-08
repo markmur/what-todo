@@ -9,6 +9,9 @@ import Todo from "./components/Todo"
 import Tooltip from "./components/Tooltip"
 import { createRoot } from "react-dom/client"
 import { useStorage } from "./context/StorageContext"
+import { initMCPRelay } from "./hooks/useMCPRelay"
+
+initMCPRelay()
 
 const App = () => {
   const { fetchData } = useStorage()
