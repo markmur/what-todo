@@ -43,6 +43,9 @@ const TaskInput: React.FC<Props> = ({
     labels: defaultLabels
   })
   const [open, setOpen] = React.useState(false)
+  const [showError, setShowError] = React.useState(false)
+
+  const isValid = validTask(task)
 
   React.useEffect(() => {
     setTask({ ...task, labels: defaultLabels })
@@ -61,6 +64,7 @@ const TaskInput: React.FC<Props> = ({
   const handleChange =
     (field: keyof Task) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (field === "title" && showError) setShowError(false)
       setTask({
         ...task,
         [field]: event.target.value
@@ -71,11 +75,15 @@ const TaskInput: React.FC<Props> = ({
 
   const handleAdd = React.useCallback(() => {
     if (validTask(task)) {
+      setShowError(false)
       onAdd(task as Task)
       clearTask()
       if (isMobile) setOpen(false)
+    } else if (open) {
+      setShowError(true)
+      setTimeout(() => setShowError(false), 800)
     }
-  }, [task, onAdd, clearTask, isMobile])
+  }, [task, onAdd, clearTask, isMobile, open])
 
   const handleLabelClick = (id: string) => {
     const currentLabels = task.labels ?? []
@@ -115,7 +123,15 @@ const TaskInput: React.FC<Props> = ({
       ref={ref}
       aria-label="Add task"
       className={cx(
-        "bg-slate-100 dark:bg-navy-800 p-4 rounded-lg transition-all border-solid border-slate-200 dark:border-navy-700 border-2"
+        "p-4 rounded-xl border-solid border-2 transition-all duration-200",
+        open
+          ? "bg-white dark:bg-navy-800 shadow-lg dark:shadow-navy-950/40"
+          : "bg-slate-100 dark:bg-navy-800",
+        showError
+          ? "border-red-400 dark:border-red-500"
+          : open
+            ? "border-blue-200 dark:border-blue-500/30"
+            : "border-slate-200 dark:border-navy-700"
       )}
     >
       <div className="flex justify-between items-center">
@@ -125,6 +141,8 @@ const TaskInput: React.FC<Props> = ({
         <input
           id="task-title"
           type="text"
+          inputMode="text"
+          autoComplete="off"
           className="text-md font-bold"
           value={task.title}
           placeholder={placeholder}
@@ -137,18 +155,25 @@ const TaskInput: React.FC<Props> = ({
         {open && (
           <button
             type="button"
-            className="no-style mb-2 text-slate-600 hover:text-slate-800"
+            className={cx(
+              "no-style shrink-0 transition-all duration-150 active:scale-90",
+              isValid
+                ? "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                : "text-slate-300 dark:text-navy-600"
+            )}
             onClick={handleAdd}
             aria-label="Add task"
           >
-            <Icon cursor="pointer" fontSize={24} />
+            <Icon cursor="pointer" fontSize={26} />
           </button>
         )}
       </div>
 
-      <Animate duration={0.15} active={open}>
+      <Animate duration={0.2} active={open}>
         {open && (
-          <>
+          <div className="pt-1">
+            <div className="border-t border-slate-200 dark:border-navy-700 my-2" />
+
             <label htmlFor="task-description" className="sr-only">
               Description
             </label>
@@ -157,7 +182,7 @@ const TaskInput: React.FC<Props> = ({
               minRows={1}
               maxRows={6}
               value={task.description}
-              className="sm:text-md md:text-sm border-top w-full bg-transparent py-2 mb-3 outline-hidden resize-none border-top border-slate-200 dark:border-navy-700 placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100"
+              className="sm:text-md md:text-sm w-full bg-transparent py-1 mb-3 outline-hidden resize-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100"
               placeholder="Add a description or URL..."
               onChange={handleChange("description")}
               onKeyDown={handleKeyDown("description")}
@@ -165,7 +190,9 @@ const TaskInput: React.FC<Props> = ({
 
             <div>
               <div className="mb-2">
-                <span className="text-sm">Labels</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-navy-300 uppercase tracking-wide">
+                  Labels
+                </span>
               </div>
               <div>
                 {labels.map(label => (
@@ -179,7 +206,7 @@ const TaskInput: React.FC<Props> = ({
                 ))}
               </div>
             </div>
-          </>
+          </div>
         )}
       </Animate>
     </section>
