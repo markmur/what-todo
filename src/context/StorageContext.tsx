@@ -66,7 +66,8 @@ export const StorageContext = React.createContext<Storage>({
   data: defaultStorage.defaultData,
   loading: false,
   labelsById: {},
-  sections: defaultStorage.defaultData.sections,
+  sections:
+    StorageManager.getCachedSections() ?? defaultStorage.defaultData.sections,
   storage: defaultStorage,
   fetchData: noop,
   addTask: noop,
@@ -105,6 +106,10 @@ function StorageProvider({
   const storage = storageRef.current
 
   const [data, setDataFn] = React.useState<Data>(storage.defaultData)
+  const defaultSections = storage.defaultData.sections!
+  const [sections, setSectionsState] = useState<Record<Section, SectionData>>(
+    () => StorageManager.getCachedSections() ?? defaultSections
+  )
   const [loading, setLoading] = useState(
     () => initialAdapterRef.current?.isAsync === true
   )
@@ -282,10 +287,21 @@ function StorageProvider({
 
   const updateFilters = useAction<Filters>(storage.updateFilters)
 
-  const updateSection = useAction<Section, any>(storage.updateSection)
-  const updateSections = useAction<Record<string, SectionData>>(
-    storage.updateSections
-  )
+  const updateSection = useCallback((key: Section, value: SectionData) => {
+    setSectionsState(prev => {
+      const next = { ...prev, [key]: value }
+      StorageManager.cacheSections(next)
+      return next
+    })
+  }, [])
+
+  const updateSections = useCallback((updates: Record<string, SectionData>) => {
+    setSectionsState(prev => {
+      const next = { ...prev, ...updates }
+      StorageManager.cacheSections(next)
+      return next
+    })
+  }, [])
 
   const labelsById = storage.getLabelsById(data)
 
@@ -301,7 +317,7 @@ function StorageProvider({
     removeLabel,
     removeTask,
     storage,
-    sections: data.sections,
+    sections,
     updateFilters,
     updateLabel,
     updateTask,

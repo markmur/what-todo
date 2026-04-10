@@ -45,7 +45,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
     <button
       onClick={onClick}
       aria-label={collapsed ? "Expand section" : "Collapse section"}
-      className="group flex flex-col items-center justify-center w-5 h-12 cursor-pointer bg-transparent border-none p-0 shrink-0"
+      className="group touch-target flex flex-col items-center justify-center w-8 h-12 cursor-pointer bg-transparent border-none p-0 shrink-0"
     >
       <span
         className={cx(

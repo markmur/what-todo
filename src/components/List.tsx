@@ -230,10 +230,10 @@ const List: React.FC<Props> = ({
       }}
     >
       {uncompleted.length === 0 && !hasCompletedTasks && onReorder && (
-        <div className="text-slate-400 dark:text-navy-400 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
+        <div className="text-slate-500 dark:text-navy-300 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
           <CheckCircle
             fontSize={48}
-            className="text-slate-300 dark:text-navy-600"
+            className="text-slate-300 dark:text-navy-400"
           />
           <span>
             {isFiltering
@@ -322,7 +322,7 @@ const List: React.FC<Props> = ({
           }}
           aria-expanded={!collapsed}
         >
-          <h4 className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200 font-bold">
+          <h4 className="text-slate-600 hover:text-black dark:text-navy-300 dark:hover:text-navy-100 font-bold">
             {completed.length} Completed
           </h4>
           <span className="align-center" aria-hidden="true">

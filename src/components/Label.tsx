@@ -25,7 +25,7 @@ const Label: React.FC<Props> = ({
     <button
       type="button"
       className={cx(
-        "no-style touch-target inline-flex items-center py-1 px-2 rounded-lg text-xs text-slate-700 hover:text-slate-900 dark:text-navy-300 dark:hover:text-navy-100 text-md cursor-pointer",
+        "no-style touch-target inline-flex items-center py-1 px-2 rounded-lg text-xs text-slate-700 hover:text-slate-900 dark:text-navy-300 dark:hover:text-navy-100 text-md cursor-pointer transition-transform duration-100 active:scale-[0.97]",
         small
           ? "bg-slate-300 hover:bg-slate-400 dark:bg-navy-500 dark:hover:bg-navy-400"
           : "bg-slate-200 hover:bg-slate-300 dark:bg-navy-700 dark:hover:bg-navy-600",
@@ -49,24 +49,17 @@ const Label: React.FC<Props> = ({
     >
       {label.title}
       {onRemove && (
-        <span
-          className="label-x block ml-2 p-2 -m-2 rounded-full hover:bg-black/15 dark:hover:bg-white/15 transition-colors"
-          role="button"
-          tabIndex={0}
+        <button
+          type="button"
+          className="label-x no-style block ml-2 p-2 -m-2 rounded-full hover:bg-black/15 dark:hover:bg-white/15 transition-colors"
           aria-label={`Remove ${label.title}`}
           onClick={event => {
             event.stopPropagation()
             onRemove()
           }}
-          onKeyDown={event => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.stopPropagation()
-              onRemove()
-            }
-          }}
         >
           <CrossIcon />
-        </span>
+        </button>
       )}
     </button>
   )

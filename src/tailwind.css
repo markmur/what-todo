@@ -59,8 +59,8 @@
   }
 
   *:focus-visible {
-    outline: 2px solid rgba(59, 130, 246, 0.5);
-    outline-offset: -2px;
+    outline: 2px solid rgba(59, 130, 246, 0.8);
+    outline-offset: 2px;
   }
 
   textarea:focus-visible,
@@ -206,7 +206,7 @@
     visibility: visible;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .task .remove-icon[aria-label="Delete task"] {
       visibility: visible;
     }
@@ -238,7 +238,7 @@
   }
 
   html.dark .remove-icon {
-    color: #3a4259;
+    color: #69718b;
   }
 
   html.dark .remove-icon:hover {
@@ -303,7 +303,7 @@
     left: 0;
     transform: translateY(-50%);
     transform-origin: left;
-    animation: strike 0.1s linear forwards;
+    animation: strike 0.1s ease-out forwards;
     animation-delay: calc(var(--strike-index, 0) * 0.033s);
   }
 

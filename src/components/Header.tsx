@@ -75,6 +75,9 @@ function UserMenu({
           <img
             src={avatar}
             alt={email ?? "User"}
+            width={28}
+            height={28}
+            loading="lazy"
             className="w-7 h-7 rounded-full"
           />
         ) : (
@@ -85,10 +88,10 @@ function UserMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+8px)] w-64 bg-white dark:bg-navy-800 border border-slate-200 dark:border-navy-600 rounded-lg shadow-xl z-[100] overflow-hidden">
+        <div className="absolute right-0 top-[calc(100%+8px)] w-64 bg-white dark:bg-navy-800 border border-slate-200 dark:border-navy-600 rounded-lg shadow-xl z-30 overflow-hidden">
           {email && (
             <div className="px-3 py-2.5 border-b border-slate-100 dark:border-navy-700">
-              <p className="text-xs text-slate-400 dark:text-navy-500 truncate">
+              <p className="text-xs text-slate-500 dark:text-navy-300 truncate">
                 Signed in as
               </p>
               <p className="text-[13px] font-medium text-slate-700 dark:text-navy-100 truncate">
@@ -98,7 +101,7 @@ function UserMenu({
           )}
 
           <div className="border-b border-slate-100 dark:border-navy-700">
-            <p className="px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-navy-500">
+            <p className="px-3 pt-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-navy-300">
               Advanced
             </p>
             <button
@@ -112,7 +115,7 @@ function UserMenu({
               <span>Connect custom Supabase</span>
               <div className="flex items-center gap-1.5">
                 {schemaOutdated && (
-                  <span className="text-[10px] font-semibold text-amber-500">
+                  <span className="text-[11px] font-semibold text-amber-500">
                     Update needed
                   </span>
                 )}
@@ -148,7 +151,7 @@ function McpPill() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="no-style hidden md:inline-flex text-[11px] font-medium text-slate-400 dark:text-navy-500 hover:text-slate-600 dark:hover:text-navy-300 transition-colors px-2.5 py-1 rounded-full border border-slate-200 dark:border-navy-600 mr-1"
+        className="no-style hidden md:inline-flex text-[11px] font-medium text-slate-500 dark:text-navy-300 hover:text-slate-600 dark:hover:text-navy-100 transition-colors px-2.5 py-1 rounded-full border border-slate-200 dark:border-navy-600 mr-1"
       >
         /mcp
       </button>
@@ -232,7 +235,7 @@ function Header({
           </span>
         )}
         {date && (
-          <time className="hidden md:inline text-xs text-slate-400 dark:text-navy-400 leading-none">
+          <time className="hidden md:inline text-xs text-slate-500 dark:text-navy-300 leading-none">
             {date}
           </time>
         )}

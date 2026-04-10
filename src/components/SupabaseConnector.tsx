@@ -50,7 +50,7 @@ function SyncIndicator({
 }) {
   if (syncStatus === "syncing") {
     return (
-      <span className="text-[11px] text-slate-400 dark:text-navy-500">
+      <span className="text-[11px] text-slate-500 dark:text-navy-300">
         Syncing…
       </span>
     )
@@ -62,7 +62,7 @@ function SyncIndicator({
 
   if (lastSyncedAt) {
     return (
-      <span className="text-[11px] text-slate-400 dark:text-navy-500">
+      <span className="text-[11px] text-slate-500 dark:text-navy-300">
         {formatLastSynced(lastSyncedAt)}
       </span>
     )
@@ -119,7 +119,7 @@ function ConnectorPanel({
           </span>
         </div>
         {userEmail && (
-          <p className="text-[12px] text-slate-400 dark:text-navy-500 mb-3 pl-3.5">
+          <p className="text-[12px] text-slate-500 dark:text-navy-300 mb-3 pl-3.5">
             {userEmail}
           </p>
         )}
@@ -179,7 +179,7 @@ function ConnectorPanel({
         <button
           type="button"
           onClick={onDisconnect}
-          className="no-style text-xs text-slate-400 dark:text-navy-500 underline"
+          className="no-style text-xs text-slate-500 dark:text-navy-300 underline"
         >
           Disconnect
         </button>
@@ -371,7 +371,7 @@ function SupabaseConnector({
       {!useSheet && open && (
         <div
           ref={popoverRef}
-          className="absolute right-0 top-[calc(100%+8px)] w-[340px] bg-white dark:bg-navy-800 border border-slate-200 dark:border-navy-600 rounded-lg p-4 shadow-xl z-[100]"
+          className="absolute right-0 top-[calc(100%+8px)] w-[340px] bg-white dark:bg-navy-800 border border-slate-200 dark:border-navy-600 rounded-lg p-4 shadow-xl z-30"
         >
           <ConnectorPanel {...panelProps} />
         </div>

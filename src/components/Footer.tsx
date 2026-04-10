@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
           <a {...linkProps} onDoubleClick={() => setImportOpen(true)}>
             What Todo
           </a>{" "}
-          <span className="text-slate-400 dark:text-navy-600 text-xs not-italic">
+          <span className="text-slate-500 dark:text-navy-400 text-xs not-italic">
             v{__APP_VERSION__}
           </span>
         </em>

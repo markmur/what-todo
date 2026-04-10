@@ -221,7 +221,7 @@ const Labels: React.FC<Props> = ({
         <div className="pt-2 pb-1">
           <button
             type="button"
-            className="no-style inline-flex text-slate-500 hover:text-slate-700 dark:text-navy-500 dark:hover:text-navy-300 whitespace-nowrap items-center text-sm cursor-pointer"
+            className="no-style inline-flex text-slate-500 hover:text-slate-700 dark:text-navy-300 dark:hover:text-navy-100 whitespace-nowrap items-center text-sm cursor-pointer"
             onClick={handleCreate}
           >
             <PlusIcon className="mr-2" />

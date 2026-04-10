@@ -1,5 +1,5 @@
 // Types
-import { Action, Data, Label, Section, SectionData, Task } from "./index.d"
+import { Action, Data, Label, Task } from "./index.d"
 
 import { StorageAdapter } from "./adapters/StorageAdapter"
 import colors from "./color-palette"
@@ -57,6 +57,28 @@ class StorageManager {
   /** Swap the storage backend at runtime (e.g. when connecting Supabase). */
   setAdapter(adapter: StorageAdapter) {
     this.adapter = adapter
+  }
+
+  private static readonly SECTIONS_KEY = "what-todo-sections"
+
+  static getCachedSections(): Data["sections"] | null {
+    try {
+      const raw = localStorage.getItem(StorageManager.SECTIONS_KEY)
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  }
+
+  static cacheSections(sections: Data["sections"]) {
+    try {
+      localStorage.setItem(
+        StorageManager.SECTIONS_KEY,
+        JSON.stringify(sections)
+      )
+    } catch {
+      // storage full — non-critical
+    }
   }
 
   private async sync(newData: Data, action: Action): Promise<Data> {
@@ -422,36 +444,6 @@ class StorageManager {
     newData.filters = filters.filter(id => labelIds.includes(id))
 
     this.sync(newData, "UPDATE_FILTERS")
-
-    return newData
-  }
-
-  updateSection = (data: Data, key: Section, section: SectionData) => {
-    const newData = this.cloneData(data)
-
-    if (typeof newData.sections !== "object") {
-      newData.sections = defaultData.sections
-    }
-
-    set(newData, `sections.${key}`, section)
-
-    this.sync(newData, "UPDATE_SECTION")
-
-    return newData
-  }
-
-  updateSections = (data: Data, updates: Record<string, SectionData>) => {
-    const newData = this.cloneData(data)
-
-    if (typeof newData.sections !== "object") {
-      newData.sections = defaultData.sections
-    }
-
-    for (const [key, section] of Object.entries(updates)) {
-      set(newData, `sections.${key}`, section)
-    }
-
-    this.sync(newData, "UPDATE_SECTION")
 
     return newData
   }
