@@ -37,7 +37,7 @@ import useKeyboardAware from "../hooks/useKeyboardAware"
 
 function Title({ children }: PropsWithChildren) {
   return (
-    <h1 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">
+    <h1 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-400 font-bold">
       {children}
     </h1>
   )
@@ -308,10 +308,10 @@ const Todo: React.FC = ({}) => {
 
                 <div className="w-full overflow-y-auto flex-1 min-h-0">
                   {olderTasks.length === 0 ? (
-                    <div className="text-slate-400 dark:text-navy-400 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
+                    <div className="text-slate-500 dark:text-navy-300 text-sm text-center flex flex-col items-center justify-center h-full gap-3">
                       <CheckIcon
                         fontSize={32}
-                        className="text-slate-300 dark:text-navy-600"
+                        className="text-slate-300 dark:text-navy-400"
                       />
                       Completed tasks will show up here a day after completion.
                     </div>
@@ -379,12 +379,12 @@ const Todo: React.FC = ({}) => {
                   <span className="ml-1" aria-hidden="true">
                     {labelsCollapsed ? (
                       <ChevronDown
-                        className="text-slate-300 dark:text-navy-500"
+                        className="text-slate-300 dark:text-navy-400"
                         style={{ verticalAlign: "middle" }}
                       />
                     ) : (
                       <ChevronUp
-                        className="text-slate-300 dark:text-navy-500"
+                        className="text-slate-300 dark:text-navy-400"
                         style={{ verticalAlign: "middle" }}
                       />
                     )}
@@ -620,18 +620,18 @@ const Todo: React.FC = ({}) => {
               onClick={() => setLabelsCollapsed(!labelsCollapsed)}
               aria-expanded={!labelsCollapsed}
             >
-              <h1 className="text-4xl text-slate-300 dark:text-navy-500 font-bold">
+              <h1 className="text-4xl text-slate-400 dark:text-navy-400 font-bold">
                 Labels
               </h1>
               <span className="ml-1" aria-hidden="true">
                 {labelsCollapsed ? (
                   <ChevronDown
-                    className="text-slate-300 dark:text-navy-500"
+                    className="text-slate-400 dark:text-navy-400"
                     style={{ verticalAlign: "middle" }}
                   />
                 ) : (
                   <ChevronUp
-                    className="text-slate-300 dark:text-navy-500"
+                    className="text-slate-400 dark:text-navy-400"
                     style={{ verticalAlign: "middle" }}
                   />
                 )}
@@ -646,7 +646,7 @@ const Todo: React.FC = ({}) => {
                   setDrawerOpen(false)
                   setMcpOpen(true)
                 }}
-                className="no-style w-full text-left text-[13px] font-medium text-slate-400 dark:text-navy-500 hover:text-slate-600 dark:hover:text-navy-300 transition-colors py-1"
+                className="no-style w-full text-left text-[13px] font-medium text-slate-500 dark:text-navy-300 hover:text-slate-600 dark:hover:text-navy-100 transition-colors py-1"
               >
                 /mcp — Use with Claude
               </button>

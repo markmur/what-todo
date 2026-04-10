@@ -419,41 +419,31 @@ const Task: React.FC<Props> = ({
                     if (settings.labelStyle === "pill") {
                       const bg = labels[id]?.color
                       return (
-                        <span
+                        <button
+                          type="button"
                           key={id}
-                          role="button"
-                          tabIndex={0}
-                          className="inline-flex items-center text-[10px] font-bold rounded-full px-2 py-0.5 ml-1 cursor-pointer"
+                          className="no-style touch-target inline-flex items-center text-xs font-bold rounded-full px-2 py-1 ml-1 cursor-pointer"
                           style={{
                             backgroundColor: bg,
                             color: bg ? contrastText(bg) : undefined
                           }}
                           onClick={handleLabelClick}
-                          onKeyDown={e => {
-                            if (e.key === "Enter" || e.key === " ")
-                              handleLabelClick(e as any)
-                          }}
                         >
                           {labels[id]?.title}
-                        </span>
+                        </button>
                       )
                     }
 
                     return (
-                      <span
+                      <button
+                        type="button"
                         key={id}
-                        role="button"
-                        tabIndex={0}
-                        className="w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
+                        className="no-style touch-target w-[20px] h-[20px] rounded-full p-0 ml-2 grow-0 shrink-0 cursor-pointer"
                         data-tooltip-id="tooltip"
                         data-tooltip-content={labels[id]?.title}
                         aria-label={labels[id]?.title}
                         style={{ backgroundColor: labels[id]?.color }}
                         onClick={handleLabelClick}
-                        onKeyDown={e => {
-                          if (e.key === "Enter" || e.key === " ")
-                            handleLabelClick(e as any)
-                        }}
                       />
                     )
                   })}
@@ -482,7 +472,7 @@ const Task: React.FC<Props> = ({
                 name="description"
                 value={getDescription(active, state?.description)}
                 placeholder={active ? "Add description..." : ""}
-                className="unstyled text-slate-500 dark:text-navy-400 text-sm bg-transparent max-h-[800px] w-full"
+                className="unstyled text-slate-600 dark:text-navy-300 text-sm bg-transparent max-h-[800px] w-full max-w-prose"
                 onChange={handleChange("description")}
                 onKeyDown={handleKeyDown}
                 onFocus={selectTask}

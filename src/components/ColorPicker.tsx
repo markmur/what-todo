@@ -131,7 +131,7 @@ const ColorPicker: React.FC<Props> = ({
                         className="w-[32px] h-[32px] rounded-full block"
                         style={{ backgroundColor: color.backgroundColor }}
                       />
-                      <span className="text-[9px] leading-tight text-slate-400 dark:text-navy-500 w-full text-center line-clamp-2">
+                      <span className="text-[10px] leading-tight text-slate-500 dark:text-navy-300 w-full text-center line-clamp-2">
                         {color.name}
                       </span>
                     </button>

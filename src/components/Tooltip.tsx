@@ -70,7 +70,7 @@ export default function Tooltip() {
         ref={refs.setFloating}
         role="tooltip"
         style={floatingStyles}
-        className="bg-black text-white text-xs rounded px-2 py-1 z-[9999] pointer-events-none"
+        className="bg-black text-white text-xs rounded px-2 py-1 z-[70] pointer-events-none"
       >
         {content}
       </div>

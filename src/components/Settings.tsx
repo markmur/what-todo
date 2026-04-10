@@ -76,18 +76,18 @@ export default function Settings({ labels }: SettingsProps) {
         onClick={() => setCollapsed(!collapsed)}
         aria-expanded={!collapsed}
       >
-        <h2 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-500 font-bold">
+        <h2 className="text-4xl mt-4 mb-3 text-slate-300 dark:text-navy-400 font-bold">
           Settings
         </h2>
         <span className="ml-1" aria-hidden="true">
           {collapsed ? (
             <ChevronDown
-              className="text-slate-300 dark:text-navy-500"
+              className="text-slate-300 dark:text-navy-400"
               style={{ verticalAlign: "middle" }}
             />
           ) : (
             <ChevronUp
-              className="text-slate-300 dark:text-navy-500"
+              className="text-slate-300 dark:text-navy-400"
               style={{ verticalAlign: "middle" }}
             />
           )}

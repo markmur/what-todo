@@ -14,7 +14,7 @@ const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
   return (
     <span
       className={cx(
-        "checkbox inline-flex items-center justify-center p-3 -m-3",
+        "checkbox inline-flex items-center justify-center p-3 -m-3 transition-transform duration-100 active:scale-90",
         { checked }
       )}
       role="checkbox"
@@ -37,12 +37,12 @@ const Checkbox: React.FC<Props> = ({ id, checked, onChange }) => {
       {checked ? (
         <Checked
           fontSize={22}
-          className="text-slate-500 hover:text-slate-800 dark:text-navy-400 dark:hover:text-navy-300"
+          className="text-slate-500 hover:text-slate-800 dark:text-navy-300 dark:hover:text-navy-200"
         />
       ) : (
         <Unchecked
           fontSize={22}
-          className="text-slate-600 hover:text-black dark:text-navy-400 dark:hover:text-navy-200"
+          className="text-slate-600 hover:text-black dark:text-navy-300 dark:hover:text-navy-100"
         />
       )}
       <input

@@ -70,7 +70,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               >
                 {title || <span />}
                 <button
-                  className="no-style text-slate-500 dark:text-navy-400"
+                  className="no-style text-slate-600 dark:text-navy-300"
                   onClick={onClose}
                   aria-label="Close menu"
                 >
