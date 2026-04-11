@@ -20,9 +20,11 @@ import Animate from "./Animate"
 
 function ReorderableItem({
   task,
+  canReorder,
   children
 }: {
   task: TaskType
+  canReorder: boolean
   children: React.ReactNode
 }) {
   const controls = useDragControls()
@@ -37,9 +39,15 @@ function ReorderableItem({
       dragControls={controls}
     >
       <div
-        className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
+        className={cx(
+          "touch-target shrink-0 touch-none py-4 pr-1 text-slate-300 dark:text-navy-600 transition-opacity duration-200",
+          canReorder
+            ? "cursor-grab active:cursor-grabbing opacity-100"
+            : "opacity-0 pointer-events-none"
+        )}
         aria-hidden="true"
         onPointerDown={e => {
+          if (!canReorder) return
           e.preventDefault()
           controls.start(e)
         }}
@@ -112,6 +120,11 @@ const List: React.FC<Props> = ({
   const completedRef = useRef<HTMLButtonElement>(null)
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
   const [collapsed, setCollapsed] = React.useState(collapseCompleted)
+  const [editMode, setEditMode] = React.useState(false)
+  const isMobile = React.useMemo(
+    () => window.matchMedia("(pointer: coarse)").matches,
+    []
+  )
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -244,29 +257,46 @@ const List: React.FC<Props> = ({
       )}
 
       {onReorder ? (
-        <Reorder.Group
-          axis="y"
-          values={localOrder}
-          onReorder={handleReorder}
-          className={cx("task-list", {
-            compact: forceCompact || settings.compactMode
-          })}
-          as="ul"
-        >
-          {localOrder.map(task => (
-            <ReorderableItem key={task.id} task={task}>
-              <Task
-                {...callbackHandlers}
-                active={task.id === selected}
+        <>
+          {isMobile && localOrder.length > 1 && (
+            <div className="flex justify-end mb-2">
+              <button
+                type="button"
+                className="no-style text-sm font-medium text-blue-500 dark:text-blue-400 px-2 py-1"
+                onClick={() => setEditMode(prev => !prev)}
+              >
+                {editMode ? "Done" : "Edit"}
+              </button>
+            </div>
+          )}
+          <Reorder.Group
+            axis="y"
+            values={localOrder}
+            onReorder={handleReorder}
+            className={cx("task-list", {
+              compact: forceCompact || settings.compactMode
+            })}
+            as="ul"
+          >
+            {localOrder.map(task => (
+              <ReorderableItem
+                key={task.id}
                 task={task}
-                labels={labels}
-                filters={filters}
-                canPin={canPinTasks}
-                compact={forceCompact || settings.compactMode}
-              />
-            </ReorderableItem>
-          ))}
-        </Reorder.Group>
+                canReorder={!isMobile || editMode}
+              >
+                <Task
+                  {...callbackHandlers}
+                  active={task.id === selected}
+                  task={task}
+                  labels={labels}
+                  filters={filters}
+                  canPin={canPinTasks}
+                  compact={forceCompact || settings.compactMode}
+                />
+              </ReorderableItem>
+            ))}
+          </Reorder.Group>
+        </>
       ) : (
         <ul
           className={cx("task-list", {
