@@ -30,6 +30,7 @@ import Collapse from "./Collapse"
 import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import SearchIcon from "@meronex/icons/fi/FiSearch"
+import EditIcon from "@meronex/icons/fi/FiEdit2"
 import CheckIcon from "@meronex/icons/fi/FiCheckCircle"
 import Toast from "./Toast"
 import LoadingSkeleton from "./LoadingSkeleton"
@@ -184,6 +185,11 @@ const Todo: React.FC = ({}) => {
   }, [sidebar.width])
 
   const [searchQuery, setSearchQuery] = useState("")
+  const [editMode, setEditMode] = useState(false)
+  const isMobile = React.useMemo(
+    () => window.matchMedia("(pointer: coarse)").matches,
+    []
+  )
 
   const { handleMouseDown: handleResizeMouseDown } = useResize({
     minWidth: 0.2,
@@ -535,7 +541,7 @@ const Todo: React.FC = ({}) => {
             )}
 
             <section
-              className="flex-1 overflow-y-auto min-h-0 px-6"
+              className="flex-1 overflow-y-auto min-h-0 px-3"
               aria-label="Task list"
             >
               {loading ? (
@@ -561,21 +567,34 @@ const Todo: React.FC = ({}) => {
 
                   {todaysTasks.length > 0 && (
                     <search className="mb-3 sticky top-0 z-10 pt-3">
-                      <div className="relative">
-                        <SearchIcon
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-navy-400 z-10"
-                          fontSize={14}
-                        />
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={e => setSearchQuery(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === "Escape") setSearchQuery("")
-                          }}
-                          placeholder="Search tasks..."
-                          className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <SearchIcon
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-navy-400 z-10"
+                            fontSize={14}
+                          />
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === "Escape") setSearchQuery("")
+                            }}
+                            placeholder="Search tasks..."
+                            className="w-full text-sm bg-slate-100/70 dark:bg-navy-800/70 backdrop-blur-md rounded-lg pl-8 pr-3 py-2.5 outline-none placeholder-slate-400 dark:placeholder-navy-400 dark:text-navy-100 border border-slate-200/50 dark:border-navy-700/50"
+                          />
+                        </div>
+                        {isMobile && visibleTasks.length > 1 && (
+                          <button
+                            type="button"
+                            aria-label={editMode ? "Done editing" : "Edit task order"}
+                            className="no-style shrink-0 p-2 rounded-lg touch-target transition-colors"
+                            style={editMode ? { color: "#3b82f6" } : undefined}
+                            onClick={() => setEditMode(prev => !prev)}
+                          >
+                            <EditIcon fontSize={18} />
+                          </button>
+                        )}
                       </div>
                     </search>
                   )}
@@ -585,6 +604,7 @@ const Todo: React.FC = ({}) => {
                     labels={labelsById}
                     filters={data.filters}
                     isFiltering={isFiltering}
+                    editMode={isMobile ? editMode : undefined}
                     onFilter={updateFilters}
                     onUpdateTask={handleUpdateTask}
                     onRemoveTask={handleRemoveTask}
@@ -597,7 +617,7 @@ const Todo: React.FC = ({}) => {
               )}
             </section>
 
-            <div className="pt-3 pb-4 px-6 bg-white dark:bg-navy-900">
+            <div className="pt-3 pb-4 px-3 bg-white dark:bg-navy-900">
               <TaskInput
                 placeholder="What needs to be done?"
                 labels={data.labels}

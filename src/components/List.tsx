@@ -69,6 +69,8 @@ interface Props {
   forceCompact?: boolean
   canPinTasks?: boolean
   canCollapse?: boolean
+  /** When undefined, reordering is always enabled (desktop). When provided, controls mobile edit mode. */
+  editMode?: boolean
   onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
@@ -108,6 +110,7 @@ const List: React.FC<Props> = ({
   isFiltering = false,
   forceCompact = false,
   canPinTasks = true,
+  editMode,
   onFilter,
   onUpdateTask,
   onRemoveTask,
@@ -120,11 +123,8 @@ const List: React.FC<Props> = ({
   const completedRef = useRef<HTMLButtonElement>(null)
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
   const [collapsed, setCollapsed] = React.useState(collapseCompleted)
-  const [editMode, setEditMode] = React.useState(false)
-  const isMobile = React.useMemo(
-    () => window.matchMedia("(pointer: coarse)").matches,
-    []
-  )
+  // editMode === undefined means desktop (always allow reorder)
+  const canReorder = editMode === undefined ? true : editMode
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -257,46 +257,33 @@ const List: React.FC<Props> = ({
       )}
 
       {onReorder ? (
-        <>
-          {isMobile && localOrder.length > 1 && (
-            <div className="flex justify-end mb-2">
-              <button
-                type="button"
-                className="no-style text-sm font-medium text-blue-500 dark:text-blue-400 px-2 py-1"
-                onClick={() => setEditMode(prev => !prev)}
-              >
-                {editMode ? "Done" : "Edit"}
-              </button>
-            </div>
-          )}
-          <Reorder.Group
-            axis="y"
-            values={localOrder}
-            onReorder={handleReorder}
-            className={cx("task-list", {
-              compact: forceCompact || settings.compactMode
-            })}
-            as="ul"
-          >
-            {localOrder.map(task => (
-              <ReorderableItem
-                key={task.id}
+        <Reorder.Group
+          axis="y"
+          values={localOrder}
+          onReorder={handleReorder}
+          className={cx("task-list", {
+            compact: forceCompact || settings.compactMode
+          })}
+          as="ul"
+        >
+          {localOrder.map(task => (
+            <ReorderableItem
+              key={task.id}
+              task={task}
+              canReorder={canReorder}
+            >
+              <Task
+                {...callbackHandlers}
+                active={task.id === selected}
                 task={task}
-                canReorder={!isMobile || editMode}
-              >
-                <Task
-                  {...callbackHandlers}
-                  active={task.id === selected}
-                  task={task}
-                  labels={labels}
-                  filters={filters}
-                  canPin={canPinTasks}
-                  compact={forceCompact || settings.compactMode}
-                />
-              </ReorderableItem>
+                labels={labels}
+                filters={filters}
+                canPin={canPinTasks}
+                compact={forceCompact || settings.compactMode}
+              />
+            </ReorderableItem>
             ))}
-          </Reorder.Group>
-        </>
+        </Reorder.Group>
       ) : (
         <ul
           className={cx("task-list", {
