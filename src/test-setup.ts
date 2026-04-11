@@ -6,7 +6,10 @@
  * working localStorage is available in every test.
  */
 
-if (typeof globalThis.localStorage === "undefined" || typeof globalThis.localStorage.clear !== "function") {
+if (
+  typeof globalThis.localStorage === "undefined" ||
+  typeof globalThis.localStorage.clear !== "function"
+) {
   const store = new Map<string, string>()
 
   globalThis.localStorage = {
