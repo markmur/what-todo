@@ -267,7 +267,7 @@ const Task: React.FC<Props> = ({
             ["animate-glow"]: glowing
           }
         )}
-        onPointerUp={handlePress as any}
+        onClick={handlePress as any}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         onAnimationEnd={() => setGlowing(false)}
