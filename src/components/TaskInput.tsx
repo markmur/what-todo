@@ -28,6 +28,7 @@ const TaskInput: React.FC<Props> = ({
 }) => {
   const { settings } = useSettings()
   const ref = React.useRef<HTMLDivElement>(null)
+  const titleRef = React.useRef<HTMLInputElement>(null)
 
   const defaultLabels = React.useMemo(() => {
     const base = [...filters]
@@ -92,6 +93,8 @@ const TaskInput: React.FC<Props> = ({
       : [...currentLabels, id]
 
     setTask({ ...task, labels: nextLabels })
+    // Refocus title so the keyboard stays open on mobile after label tap
+    titleRef.current?.focus()
   }
 
   const handleKeyDown =
@@ -139,6 +142,7 @@ const TaskInput: React.FC<Props> = ({
           Task title
         </label>
         <input
+          ref={titleRef}
           id="task-title"
           type="text"
           inputMode="text"

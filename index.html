@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="en" dir="ltr">
   <head>
+    <style>
+      html { background-color: #f8fafc; }
+      html.dark, html.dark body { background-color: #151925; }
+    </style>
     <script>
       try {
         if (localStorage.getItem("what-todo-dark-mode") !== "false")
@@ -18,7 +22,7 @@
     />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#151925" media="(prefers-color-scheme: dark)" />
     <meta name="referrer" content="no-referrer-when-downgrade" />
 

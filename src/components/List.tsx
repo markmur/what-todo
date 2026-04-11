@@ -20,9 +20,11 @@ import Animate from "./Animate"
 
 function ReorderableItem({
   task,
+  canReorder,
   children
 }: {
   task: TaskType
+  canReorder: boolean
   children: React.ReactNode
 }) {
   const controls = useDragControls()
@@ -36,16 +38,18 @@ function ReorderableItem({
       dragListener={false}
       dragControls={controls}
     >
-      <div
-        className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
-        aria-hidden="true"
-        onPointerDown={e => {
-          e.preventDefault()
-          controls.start(e)
-        }}
-      >
-        <GripIcon fontSize={14} />
-      </div>
+      {canReorder && (
+        <div
+          className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
+          aria-hidden="true"
+          onPointerDown={e => {
+            e.preventDefault()
+            controls.start(e)
+          }}
+        >
+          <GripIcon fontSize={14} />
+        </div>
+      )}
       <div className="flex-1 min-w-0">{children}</div>
     </Reorder.Item>
   )
@@ -61,6 +65,8 @@ interface Props {
   forceCompact?: boolean
   canPinTasks?: boolean
   canCollapse?: boolean
+  /** When undefined, reordering is always enabled (desktop). When provided, controls mobile edit mode. */
+  editMode?: boolean
   onFilter: (labelIds: string[]) => void
   onUpdateTask: (task: TaskType) => void
   onRemoveTask: (task: TaskType) => void
@@ -100,6 +106,7 @@ const List: React.FC<Props> = ({
   isFiltering = false,
   forceCompact = false,
   canPinTasks = true,
+  editMode,
   onFilter,
   onUpdateTask,
   onRemoveTask,
@@ -112,6 +119,8 @@ const List: React.FC<Props> = ({
   const completedRef = useRef<HTMLButtonElement>(null)
   const [selected, setSelected] = React.useState<TaskType["id"] | undefined>()
   const [collapsed, setCollapsed] = React.useState(collapseCompleted)
+  // editMode === undefined means desktop (always allow reorder)
+  const canReorder = editMode === undefined ? true : editMode
   const filteredTasks = getFilteredTasks(tasks, filters)
 
   function setSelectedTask(taskId: TaskType["id"] | undefined) {
@@ -254,7 +263,7 @@ const List: React.FC<Props> = ({
           as="ul"
         >
           {localOrder.map(task => (
-            <ReorderableItem key={task.id} task={task}>
+            <ReorderableItem key={task.id} task={task} canReorder={canReorder}>
               <Task
                 {...callbackHandlers}
                 active={task.id === selected}
