@@ -49,17 +49,25 @@ const Label: React.FC<Props> = ({
     >
       {label.title}
       {onRemove && (
-        <button
-          type="button"
+        <span
+          role="button"
+          tabIndex={0}
           className="label-x no-style block ml-2 p-2 -m-2 rounded-full hover:bg-black/15 dark:hover:bg-white/15 transition-colors"
           aria-label={`Remove ${label.title}`}
           onClick={event => {
             event.stopPropagation()
             onRemove()
           }}
+          onKeyDown={event => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault()
+              event.stopPropagation()
+              onRemove()
+            }
+          }}
         >
           <CrossIcon />
-        </button>
+        </span>
       )}
     </button>
   )
