@@ -217,10 +217,15 @@
     }
   }
 
-  /* On touch devices, all icons are always visible */
+  /* On touch devices, all icons (including pin) are always visible */
   @media (hover: none) {
     .task .remove-icon {
       visibility: visible;
+      color: #777;
+    }
+
+    html.dark .task .remove-icon {
+      color: #b1b6c5;
     }
   }
 
