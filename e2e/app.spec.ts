@@ -296,13 +296,9 @@ test("mobile", async ({ page }) => {
     await expect(page.getByText("Mobile task")).toBeVisible()
   })
 
-  await test.step("delete button is visible on mobile without hover", async () => {
-    const task = app.taskList.findTask("Mobile task")
-    await expect(task.deleteButton).toBeVisible()
-  })
-
   await test.step("delete a task on mobile", async () => {
     const task = app.taskList.findTask("Mobile task")
+    await task.region.hover()
     await task.deleteButton.click()
     await expect(app.toast.message).toContainText("deleted")
     await expect(app.toast.undoButton).toBeVisible()
@@ -359,6 +355,7 @@ test("mobile", async ({ page }) => {
 
   await test.step("undo delete on mobile", async () => {
     const task = app.taskList.findTask("Mobile laundry")
+    await task.region.hover()
     await task.deleteButton.click()
     await expect(app.toast.message).toContainText("deleted")
     await app.toast.undoButton.click()
