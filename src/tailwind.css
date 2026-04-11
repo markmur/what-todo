@@ -219,11 +219,13 @@
 
   /* On touch devices, all icons (including pin) are always visible */
   @media (hover: none) {
+    .label-input .remove-icon,
     .task .remove-icon {
       visibility: visible;
       color: #777;
     }
 
+    html.dark .label-input .remove-icon,
     html.dark .task .remove-icon {
       color: #b1b6c5;
     }
