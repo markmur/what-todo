@@ -34,7 +34,7 @@ function CodeBlock({ code }: { code: string }) {
       <pre className="bg-slate-900 dark:bg-navy-950 text-slate-100 text-[12px] rounded-lg p-4 overflow-x-auto leading-relaxed">
         {code}
       </pre>
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         <CopyButton value={code} />
       </div>
     </div>

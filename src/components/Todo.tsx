@@ -549,7 +549,7 @@ const Todo: React.FC = ({}) => {
               ) : (
                 <>
                   {data.filters.length > 0 && (
-                    <div className="mt-2 mb-4">
+                    <div className="mt-2 mb-2">
                       <small>Showing: </small>
                       {data.filters.map(id => (
                         <div className="inline mb-1 mr-1" key={id}>
