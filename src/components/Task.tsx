@@ -289,7 +289,7 @@ const Task: React.FC<Props> = ({
                   value={state?.title}
                   spellCheck={active}
                   className={cx(
-                    "unstyled task-title-input font-semibold text-slate-700 dark:text-navy-100 leading-normal bg-transparent pt-0",
+                    "unstyled task-title-input text-sm font-semibold text-slate-700 dark:text-navy-100 leading-normal bg-transparent pt-0",
                     {
                       ["text-slate-400 dark:text-navy-400"]: state?.completed
                     }
@@ -302,7 +302,7 @@ const Task: React.FC<Props> = ({
               ) : (
                 <div
                   className={cx(
-                    "inline font-semibold text-slate-700 dark:text-navy-100",
+                    "inline text-sm font-semibold text-slate-700 dark:text-navy-100",
                     {
                       ["text-slate-400 dark:text-navy-400"]: state?.completed
                     }
