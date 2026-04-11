@@ -587,7 +587,9 @@ const Todo: React.FC = ({}) => {
                         {isMobile && visibleTasks.length > 1 && (
                           <button
                             type="button"
-                            aria-label={editMode ? "Done editing" : "Edit task order"}
+                            aria-label={
+                              editMode ? "Done editing" : "Edit task order"
+                            }
                             className="no-style shrink-0 p-2 rounded-lg touch-target transition-colors"
                             style={editMode ? { color: "#3b82f6" } : undefined}
                             onClick={() => setEditMode(prev => !prev)}

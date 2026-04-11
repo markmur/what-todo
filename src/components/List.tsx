@@ -38,22 +38,18 @@ function ReorderableItem({
       dragListener={false}
       dragControls={controls}
     >
-      <div
-        className={cx(
-          "touch-target shrink-0 touch-none py-4 pr-1 text-slate-300 dark:text-navy-600 transition-opacity duration-200",
-          canReorder
-            ? "cursor-grab active:cursor-grabbing opacity-100"
-            : "opacity-0 pointer-events-none"
-        )}
-        aria-hidden="true"
-        onPointerDown={e => {
-          if (!canReorder) return
-          e.preventDefault()
-          controls.start(e)
-        }}
-      >
-        <GripIcon fontSize={14} />
-      </div>
+      {canReorder && (
+        <div
+          className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
+          aria-hidden="true"
+          onPointerDown={e => {
+            e.preventDefault()
+            controls.start(e)
+          }}
+        >
+          <GripIcon fontSize={14} />
+        </div>
+      )}
       <div className="flex-1 min-w-0">{children}</div>
     </Reorder.Item>
   )
@@ -267,11 +263,7 @@ const List: React.FC<Props> = ({
           as="ul"
         >
           {localOrder.map(task => (
-            <ReorderableItem
-              key={task.id}
-              task={task}
-              canReorder={canReorder}
-            >
+            <ReorderableItem key={task.id} task={task} canReorder={canReorder}>
               <Task
                 {...callbackHandlers}
                 active={task.id === selected}
@@ -282,7 +274,7 @@ const List: React.FC<Props> = ({
                 compact={forceCompact || settings.compactMode}
               />
             </ReorderableItem>
-            ))}
+          ))}
         </Reorder.Group>
       ) : (
         <ul
