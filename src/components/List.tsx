@@ -324,10 +324,26 @@ const List: React.FC<Props> = ({
             setCollapsed(!collapsed)
             if (expanding) {
               setTimeout(() => {
-                completedRef.current?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start"
-                })
+                const el = completedRef.current
+                if (!el) return
+                // Use manual scrollTo on the scroll container instead of
+                // scrollIntoView, which on iOS Safari can scroll ancestor
+                // containers (body/html) even with overflow:hidden, causing
+                // the bottom bar (TaskInput/filter) to slide up.
+                let scrollParent: HTMLElement | null = el.parentElement
+                while (scrollParent) {
+                  const { overflowY } = getComputedStyle(scrollParent)
+                  if (overflowY === "auto" || overflowY === "scroll") break
+                  scrollParent = scrollParent.parentElement
+                }
+                if (scrollParent) {
+                  const elRect = el.getBoundingClientRect()
+                  const parentRect = scrollParent.getBoundingClientRect()
+                  scrollParent.scrollTo({
+                    top: scrollParent.scrollTop + elRect.top - parentRect.top,
+                    behavior: "smooth"
+                  })
+                }
               }, 250)
             }
           }}
