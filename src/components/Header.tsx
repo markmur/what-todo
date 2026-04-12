@@ -56,6 +56,7 @@ function UserMenu({
   onOpenStorage: () => void
 }) {
   const [open, setOpen] = useState(false)
+  const [avatarError, setAvatarError] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(ref, () => setOpen(false))
@@ -71,17 +72,17 @@ function UserMenu({
         onClick={() => setOpen(prev => !prev)}
         aria-label="Account menu"
       >
-        {avatar ? (
+        {avatar && !avatarError ? (
           <img
             src={avatar}
             alt={email ?? "User"}
-            width={28}
-            height={28}
-            loading="lazy"
-            className="w-7 h-7 rounded-full"
+            width={34}
+            height={34}
+            className="w-[34px] h-[34px] rounded-full"
+            onError={() => setAvatarError(true)}
           />
         ) : (
-          <span className="w-7 h-7 rounded-full bg-slate-200 dark:bg-navy-600 flex items-center justify-center text-xs font-semibold text-slate-600 dark:text-navy-300">
+          <span className="w-[34px] h-[34px] rounded-full bg-slate-200 dark:bg-navy-600 flex items-center justify-center text-sm font-semibold text-slate-600 dark:text-navy-300">
             {(email ?? "?")[0].toUpperCase()}
           </span>
         )}
@@ -278,7 +279,7 @@ function Header({
             onClick={onMenuClick}
             aria-label="Open menu"
           >
-            <MenuIcon fontSize={22} />
+            <MenuIcon fontSize={28} />
           </button>
         )}
       </div>
