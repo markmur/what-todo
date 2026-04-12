@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, fireEvent } from "@testing-library/react"
+import { render, fireEvent, screen } from "@testing-library/react"
 import Toast from "./Toast"
 
 beforeEach(() => {
@@ -13,13 +13,12 @@ beforeEach(() => {
 describe("Toast", () => {
   it("renders the message", () => {
     render(<Toast message="Task deleted" onDismiss={vi.fn()} />)
-    expect(document.body.textContent).toContain("Task deleted")
+    expect(screen.getByText("Task deleted")).toBeTruthy()
   })
 
   it("has role='alert' for screen readers", () => {
     render(<Toast message="Deleted" onDismiss={vi.fn()} />)
-    const alert = document.querySelector("[role='alert']")
-    expect(alert).toBeTruthy()
+    expect(screen.getByRole("alert")).toBeTruthy()
   })
 
   it("renders an action button when provided", () => {
@@ -31,9 +30,8 @@ describe("Toast", () => {
         onDismiss={vi.fn()}
       />
     )
-    const button = document.querySelector("button")
-    expect(button?.textContent).toBe("Undo")
-    fireEvent.click(button!)
+    const button = screen.getByRole("button", { name: "Undo" })
+    fireEvent.click(button)
     expect(onClick).toHaveBeenCalled()
   })
 
@@ -49,7 +47,6 @@ describe("Toast", () => {
 
   it("does not render action button when not provided", () => {
     render(<Toast message="Deleted" onDismiss={vi.fn()} />)
-    const buttons = document.querySelectorAll("button")
-    expect(buttons.length).toBe(0)
+    expect(screen.queryByRole("button")).toBeNull()
   })
 })

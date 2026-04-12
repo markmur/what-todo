@@ -7,11 +7,11 @@ export class HeaderRegion extends Region {
   }
 
   get title() {
-    return this.region.locator("h1")
+    return this.region.getByRole("heading", { level: 1 })
   }
 
   get progressBadge() {
-    return this.region.locator("h1 + span")
+    return this.region.getByRole("status")
   }
 
   get menuButton() {
@@ -19,6 +19,6 @@ export class HeaderRegion extends Region {
   }
 
   get date() {
-    return this.region.locator("h1 ~ span").last()
+    return this.region.getByTestId("header-date")
   }
 }

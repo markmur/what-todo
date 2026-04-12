@@ -270,6 +270,7 @@ const Todo: React.FC = ({}) => {
           {/* Completed section — fixed at left edge */}
           {isDesktop && (
             <div
+              data-testid="completed-panel"
               className="flex-col bg-slate-100 dark:bg-navy-950 flex"
               style={{
                 position: "absolute",
@@ -359,6 +360,7 @@ const Todo: React.FC = ({}) => {
           {/* Sidebar — fixed at right edge */}
           {isDesktop && (
             <div
+              data-testid="settings-panel"
               className="bg-slate-50/60 dark:bg-navy-800 flex flex-col"
               style={{
                 position: "absolute",

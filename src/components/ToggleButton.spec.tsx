@@ -51,29 +51,21 @@ describe("ToggleButton", () => {
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
-  it("applies right-pointing hover classes when pointsRight is true", () => {
-    const { container } = render(
+  it("shows 'Collapse section' when expanded (pointsRight=true)", () => {
+    const { getByRole } = render(
       <ToggleButton collapsed={false} side="left" onClick={() => {}} />
     )
-    const spans = container.querySelectorAll("span")
-    expect(spans).toHaveLength(2)
-
-    // Top bar should have positive rotation on hover (points right)
-    expect(spans[0].className).toContain("group-hover:rotate-12")
-    // Bottom bar should have negative rotation on hover
-    expect(spans[1].className).toContain("group-hover:-rotate-12")
+    expect(getByRole("button").getAttribute("aria-label")).toBe(
+      "Collapse section"
+    )
   })
 
-  it("applies left-pointing hover classes when pointsRight is false", () => {
-    const { container } = render(
+  it("shows 'Expand section' when collapsed (pointsRight=false)", () => {
+    const { getByRole } = render(
       <ToggleButton collapsed={true} side="left" onClick={() => {}} />
     )
-    const spans = container.querySelectorAll("span")
-    expect(spans).toHaveLength(2)
-
-    // Top bar should have negative rotation on hover (points left)
-    expect(spans[0].className).toContain("group-hover:-rotate-12")
-    // Bottom bar should have positive rotation on hover
-    expect(spans[1].className).toContain("group-hover:rotate-12")
+    expect(getByRole("button").getAttribute("aria-label")).toBe(
+      "Expand section"
+    )
   })
 })

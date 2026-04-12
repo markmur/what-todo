@@ -90,9 +90,7 @@ test("full app workflow", async ({ page }) => {
   await test.step("complete a task", async () => {
     const task = app.taskList.findTask("Buy organic groceries")
     await task.complete()
-    await expect(page.locator(".strike-animated").first()).toBeVisible({
-      timeout: 3000
-    })
+    await expect(task.titleText).toHaveAttribute("data-completed", "true")
   })
 
   await test.step("completed task is persisted in storage", async () => {
@@ -156,7 +154,7 @@ test("full app workflow", async ({ page }) => {
   })
 
   await test.step("keyboard shortcut X deletes task", async () => {
-    await app.toast.waitForDismiss(6000).catch(() => {})
+    await expect(app.toast.region).toBeHidden({ timeout: 6000 })
     const task = app.taskList.findTask("Clean kitchen")
     await task.select()
     await task.region.press("x")
@@ -176,28 +174,22 @@ test("full app workflow", async ({ page }) => {
     await expect(
       page.getByRole("heading", { name: "Completed" }).first()
     ).toBeVisible()
-    const settingsPanel = page
-      .locator("[style*='position: absolute'][style*='right: 0']")
-      .first()
+    const settingsPanel = page.getByTestId("settings-panel")
     await expect(settingsPanel).toHaveCSS("pointer-events", "none")
   })
 
   await test.step("opening settings panel closes completed panel", async () => {
     await page.getByLabel("Expand section").last().click()
     await expect(page.getByRole("heading", { name: "Labels" })).toBeVisible()
-    const completedPanel = page
-      .locator("[style*='position: absolute'][style*='left: 0']")
-      .first()
+    const completedPanel = page.getByTestId("completed-panel")
     await expect(completedPanel).toHaveCSS("pointer-events", "none")
   })
 
   await test.step("both panels can be individually closed", async () => {
     await page.getByLabel("Collapse section").last().click()
-    await expect(page.locator("[style*='z-index: 1']")).toHaveCSS(
-      "right",
-      "0px"
-    )
-    await expect(page.locator("[style*='z-index: 1']")).toHaveCSS("left", "0px")
+    const focusPanel = page.locator("[style*='z-index: 1']")
+    await expect(focusPanel).toHaveCSS("right", "0px")
+    await expect(focusPanel).toHaveCSS("left", "0px")
   })
 
   await test.step("state updates are independent (no stale data)", async () => {
@@ -310,7 +302,7 @@ test("mobile", async ({ page }) => {
     await app.taskInput.addTask("Second task")
     await expect(page.getByText("Second task")).toBeVisible()
 
-    const handles = page.locator(".cursor-grab")
+    const handles = page.getByTestId("drag-handle")
     await expect(handles.nth(1)).toBeVisible()
   })
 
@@ -340,9 +332,7 @@ test("mobile", async ({ page }) => {
   await test.step("complete a task on mobile", async () => {
     const task = app.taskList.findTask("Buy milk")
     await task.complete()
-    await expect(page.locator(".strike-animated").first()).toBeVisible({
-      timeout: 3000
-    })
+    await expect(task.titleText).toHaveAttribute("data-completed", "true")
   })
 
   await test.step("search on mobile", async () => {

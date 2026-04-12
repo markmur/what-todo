@@ -236,7 +236,10 @@ function Header({
           </span>
         )}
         {date && (
-          <time className="hidden md:inline text-xs text-slate-500 dark:text-navy-300 leading-none">
+          <time
+            data-testid="header-date"
+            className="hidden md:inline text-xs text-slate-500 dark:text-navy-300 leading-none"
+          >
             {date}
           </time>
         )}
