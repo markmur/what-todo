@@ -1,5 +1,49 @@
 # What Todo
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 22
+- pnpm (v10+)
+
+### Install dependencies
+
+```sh
+pnpm install --frozen-lockfile
+```
+
+### Install Playwright browsers (required for E2E tests)
+
+```sh
+pnpm exec playwright install
+```
+
+### Verify checks pass
+
+Run all checks before starting work:
+
+```sh
+pnpm lint          # ESLint
+pnpm typecheck     # TypeScript type checking (tsc --noEmit)
+pnpm test          # Vitest unit tests (29 test files, ~230 tests)
+pnpm test:e2e      # Playwright E2E tests (requires browsers installed)
+```
+
+Or run lint + unit tests + E2E together:
+
+```sh
+pnpm ci
+```
+
+### Dev server
+
+```sh
+pnpm dev           # starts Vite dev server
+```
+
+E2E tests automatically start a dev server on port 5199, so you don't need to run one manually for `pnpm test:e2e`.
+
 ## Working with Git
 
 - Always use a **worktree** for any task that involves code changes — create one with the `EnterWorktree` tool before starting
