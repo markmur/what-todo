@@ -40,6 +40,7 @@ function ReorderableItem({
     >
       {canReorder && (
         <div
+          data-testid="drag-handle"
           className="touch-target shrink-0 cursor-grab active:cursor-grabbing touch-none py-4 pr-1 text-slate-300 dark:text-navy-600"
           aria-hidden="true"
           onPointerDown={e => {

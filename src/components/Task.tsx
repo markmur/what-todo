@@ -291,6 +291,8 @@ const Task: React.FC<Props> = ({
               {active ? (
                 <Textarea
                   maxRows={3}
+                  name="title"
+                  aria-label="Task title"
                   value={state?.title}
                   spellCheck={active}
                   className={cx(
@@ -306,6 +308,8 @@ const Task: React.FC<Props> = ({
                 />
               ) : (
                 <div
+                  data-testid="task-title"
+                  data-completed={state?.completed || undefined}
                   className={cx(
                     "inline text-sm font-semibold text-slate-700 dark:text-navy-100",
                     {

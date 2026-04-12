@@ -7,11 +7,11 @@ export class TaskRegion extends Region {
   }
 
   get titleInput() {
-    return this.region.locator("textarea.task-title-input")
+    return this.region.getByLabel("Task title")
   }
 
   get titleText() {
-    return this.region.locator(".inline.font-semibold").first()
+    return this.region.getByTestId("task-title")
   }
 
   get description() {

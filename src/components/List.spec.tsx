@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
-import { render } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import List from "./List"
 import { SettingsProvider } from "../context/SettingsContext"
 
@@ -89,21 +89,19 @@ describe("List", () => {
   describe("empty state", () => {
     it("shows enjoy message when no tasks and onReorder is provided", () => {
       renderList([])
-      expect(document.body.textContent).toContain(
-        "Nothing to do — enjoy your day!"
-      )
+      expect(screen.getByText("Nothing to do — enjoy your day!")).toBeTruthy()
     })
 
     it("shows filter message when filtering with no results", () => {
       renderList([], { isFiltering: true })
-      expect(document.body.textContent).toContain("No tasks found.")
+      expect(screen.getByText("No tasks found.")).toBeTruthy()
     })
   })
 
   describe("drag handle", () => {
     it("renders drag handles for reorderable tasks", () => {
       const { container } = renderList()
-      const handles = container.querySelectorAll(".cursor-grab")
+      const handles = container.querySelectorAll("[data-testid='drag-handle']")
       expect(handles.length).toBe(3)
     })
   })

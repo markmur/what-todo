@@ -78,7 +78,7 @@ describe("Task", () => {
       const { onRemoveTask } = renderTask()
 
       const removeButton = document.querySelector(
-        "[data-tooltip-content='Delete (X)']"
+        "[aria-label='Delete task']"
       ) as HTMLElement
       fireEvent.pointerUp(removeButton)
 
@@ -172,7 +172,7 @@ describe("Task", () => {
       )
 
       const titleInput = document.querySelector(
-        "textarea.task-title-input"
+        "textarea[aria-label='Task title']"
       ) as HTMLTextAreaElement
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
@@ -202,12 +202,12 @@ describe("Task", () => {
       )
 
       const titleInput = document.querySelector(
-        "textarea.task-title-input"
+        "textarea[aria-label='Task title']"
       ) as HTMLTextAreaElement
       fireEvent.change(titleInput, { target: { value: "Edited title" } })
 
       const pinButton = document.querySelector(
-        "[data-tooltip-content='Pin task (P)']"
+        "[aria-label='Pin task']"
       ) as HTMLElement
       fireEvent.click(pinButton)
 
@@ -227,7 +227,7 @@ describe("Task", () => {
       )
 
       const unpinButton = document.querySelector(
-        "[data-tooltip-content='Unpin task (P)']"
+        "[aria-label='Unpin task']"
       ) as HTMLElement
       fireEvent.click(unpinButton)
 
@@ -248,7 +248,7 @@ describe("Task", () => {
       })
 
       const moveButton = document.querySelector(
-        "[data-tooltip-content='Move to today (M)']"
+        "[aria-label='Move to today']"
       ) as HTMLElement
       fireEvent.click(moveButton)
 
@@ -266,7 +266,7 @@ describe("Task", () => {
       const { onUpdate } = renderTask({ pinned: false }, { active: true })
 
       const pinButton = document.querySelector(
-        "[data-tooltip-content='Pin task (P)']"
+        "[aria-label='Pin task']"
       ) as HTMLElement
       fireEvent.click(pinButton)
 
@@ -287,7 +287,7 @@ describe("Task", () => {
     it("Cmd+Enter calls onDeselect", () => {
       const { onDeselect } = renderTask({}, { active: true })
       const textarea = document.querySelector(
-        "textarea.task-title-input"
+        "textarea[aria-label='Task title']"
       ) as HTMLElement
       fireEvent.keyDown(textarea, { key: "Enter", metaKey: true })
       expect(onDeselect).toHaveBeenCalled()
@@ -322,7 +322,7 @@ describe("Task", () => {
         { active: true }
       )
       const textarea = document.querySelector(
-        "textarea.task-title-input"
+        "textarea[aria-label='Task title']"
       ) as HTMLElement
       fireEvent.keyDown(textarea, { key: "p" })
       fireEvent.keyDown(textarea, { key: "x" })
@@ -355,19 +355,12 @@ describe("Task", () => {
   })
 
   describe("Mobile delete button visibility", () => {
-    it("delete button has mobile-visible classes", () => {
+    it("delete button is always rendered in the DOM", () => {
       renderTask()
       const deleteBtn = document.querySelector(
         "[aria-label='Delete task']"
       ) as HTMLElement
       expect(deleteBtn).toBeTruthy()
-      // Should have mobile-visible classes (no md: prefix hiding)
-      expect(deleteBtn.className).toContain("touch-target")
-      expect(deleteBtn.className).toContain("max-w-[44px]")
-      expect(deleteBtn.className).toContain("opacity-100")
-      // Should have desktop-hidden classes
-      expect(deleteBtn.className).toContain("md:max-w-0")
-      expect(deleteBtn.className).toContain("md:opacity-0")
     })
   })
 })
