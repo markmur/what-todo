@@ -34,20 +34,43 @@ const MobileLabelFilter: React.FC<Props> = ({ labels, filters, onFilter }) => {
     setOpen(false)
   }
 
+  const activeLabels = labels.filter(l => filters.includes(l.id))
+
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(prev => !prev)}
-        className="no-style flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200/60 dark:border-navy-700/60 text-xs text-slate-500 dark:text-navy-400 transition-colors hover:border-slate-300 dark:hover:border-navy-600"
-      >
-        <FilterIcon fontSize={12} />
-        <span>{activeCount > 0 ? `Filtering (${activeCount})` : "Filter"}</span>
-        <ChevronDown
-          fontSize={12}
-          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          type="button"
+          onClick={() => setOpen(prev => !prev)}
+          className="no-style flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200/60 dark:border-navy-700/60 text-xs text-slate-500 dark:text-navy-400 transition-colors hover:border-slate-300 dark:hover:border-navy-600"
+        >
+          <FilterIcon fontSize={12} />
+          <span>Filter</span>
+          <ChevronDown
+            fontSize={12}
+            className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+        {!open && activeLabels.length > 0 && (
+          <>
+            <span className="text-[10px] text-slate-400 dark:text-navy-500">
+              Filtering by:
+            </span>
+            {activeLabels.map(label => (
+              <span
+                key={label.id}
+                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium"
+                style={{
+                  backgroundColor: label.color + "22",
+                  color: label.color
+                }}
+              >
+                {label.title}
+              </span>
+            ))}
+          </>
+        )}
+      </div>
 
       {open && (
         <div className="absolute bottom-full left-0 mb-2 w-56 bg-white dark:bg-navy-800 rounded-xl border border-slate-200/80 dark:border-navy-700/80 shadow-lg dark:shadow-navy-950/40 overflow-hidden z-50">
