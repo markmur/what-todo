@@ -26,6 +26,8 @@ interface Props {
   active: boolean
   labels: Record<string, LabelType>
   filters: string[]
+  /** When undefined (desktop), delete button uses hover behavior. When boolean (mobile), controls visibility. */
+  editMode?: boolean
   onFilter: (filters: string[]) => void
   onSelect: (taskId: TaskType["id"], event: FormEvent) => void
   onDeselect: () => void
@@ -90,6 +92,7 @@ const Task: React.FC<Props> = ({
   active,
   labels,
   filters,
+  editMode,
   onFilter,
   onSelect,
   onDeselect,
@@ -452,7 +455,12 @@ const Task: React.FC<Props> = ({
 
               <button
                 type="button"
-                className="no-style remove-icon touch-target overflow-hidden transition-all duration-200 max-w-[44px] opacity-100 md:max-w-0 md:opacity-0 group-hover:max-w-[44px] group-hover:opacity-100"
+                className={cx(
+                  "no-style remove-icon touch-target overflow-hidden transition-all duration-200",
+                  editMode === false
+                    ? "max-w-0 opacity-0 pointer-events-none"
+                    : "max-w-[44px] opacity-100 md:max-w-0 md:opacity-0 group-hover:max-w-[44px] group-hover:opacity-100"
+                )}
                 data-tooltip-id="tooltip"
                 data-tooltip-content="Delete (X)"
                 aria-label="Delete task"

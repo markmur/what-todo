@@ -607,7 +607,9 @@ const Todo: React.FC = ({}) => {
                     labels={labelsById}
                     filters={data.filters}
                     isFiltering={isFiltering}
-                    editMode={isMobile ? editMode : undefined}
+                    editMode={
+                      isMobile && visibleTasks.length > 1 ? editMode : undefined
+                    }
                     onFilter={updateFilters}
                     onUpdateTask={handleUpdateTask}
                     onRemoveTask={handleRemoveTask}
