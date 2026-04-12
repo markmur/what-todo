@@ -21,13 +21,15 @@ function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
+      className={`relative inline-flex h-8 w-14 md:h-5 md:w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
         checked ? "bg-blue-500" : "bg-slate-300 dark:bg-navy-600"
       }`}
     >
       <span
-        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 mt-0.5 ${
-          checked ? "translate-x-[18px]" : "translate-x-0.5"
+        className={`pointer-events-none inline-block h-[26px] w-[26px] md:h-4 md:w-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 mt-[3px] md:mt-0.5 ${
+          checked
+            ? "translate-x-[26px] md:translate-x-[18px]"
+            : "translate-x-0.5"
         }`}
       />
     </button>
