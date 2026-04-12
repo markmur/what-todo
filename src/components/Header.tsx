@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type SyntheticEvent } from "react"
+import { useCallback, useRef, useState } from "react"
 import cx from "classnames"
 import MenuIcon from "@meronex/icons/fi/FiMenu"
 import SupabaseConnector from "./SupabaseConnector"
@@ -79,10 +79,7 @@ function UserMenu({
             width={34}
             height={34}
             className="w-[34px] h-[34px] rounded-full"
-            onError={(e: SyntheticEvent<HTMLImageElement>) => {
-              e.currentTarget.style.display = "none"
-              setAvatarError(true)
-            }}
+            onError={() => setAvatarError(true)}
           />
         ) : (
           <span className="w-[34px] h-[34px] rounded-full bg-slate-200 dark:bg-navy-600 flex items-center justify-center text-sm font-semibold text-slate-600 dark:text-navy-300">
