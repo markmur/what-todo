@@ -272,6 +272,7 @@ const List: React.FC<Props> = ({
                 filters={filters}
                 canPin={canPinTasks}
                 compact={forceCompact || settings.compactMode}
+                editMode={editMode}
               />
             </ReorderableItem>
           ))}
