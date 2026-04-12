@@ -31,6 +31,7 @@ import ChevronDown from "@meronex/icons/fi/FiChevronDown"
 import ChevronUp from "@meronex/icons/fi/FiChevronUp"
 import SearchIcon from "@meronex/icons/fi/FiSearch"
 import EditIcon from "@meronex/icons/fi/FiEdit2"
+import MobileLabelFilter from "./MobileLabelFilter"
 import CheckIcon from "@meronex/icons/fi/FiCheckCircle"
 import Toast from "./Toast"
 import LoadingSkeleton from "./LoadingSkeleton"
@@ -548,7 +549,7 @@ const Todo: React.FC = ({}) => {
                 <LoadingSkeleton />
               ) : (
                 <>
-                  {data.filters.length > 0 && (
+                  {data.filters.length > 0 && isDesktop && (
                     <div className="mt-2 mb-2">
                       <small>Showing: </small>
                       {data.filters.map(id => (
@@ -620,6 +621,15 @@ const Todo: React.FC = ({}) => {
             </section>
 
             <div className="pt-3 pb-4 px-3 bg-white dark:bg-navy-900">
+              {!isDesktop && data.labels.length > 0 && (
+                <div className="mb-2">
+                  <MobileLabelFilter
+                    labels={data.labels}
+                    filters={data.filters}
+                    onFilter={updateFilters}
+                  />
+                </div>
+              )}
               <TaskInput
                 placeholder="What needs to be done?"
                 labels={data.labels}
