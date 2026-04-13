@@ -72,7 +72,7 @@ const MobileLabelFilter: React.FC<Props> = ({ labels, filters, onFilter }) => {
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 mb-2 w-56 bg-white dark:bg-navy-800 rounded-xl border border-slate-200/80 dark:border-navy-700/80 shadow-lg dark:shadow-navy-950/40 overflow-hidden z-50">
+        <div className="absolute bottom-full right-0 mb-2 w-56 bg-white dark:bg-navy-800 rounded-xl border border-slate-200/80 dark:border-navy-700/80 shadow-lg dark:shadow-navy-950/40 overflow-hidden z-50">
           <div className="px-3 pt-3 pb-2 flex items-center justify-between">
             <span className="text-sm font-medium text-slate-400 dark:text-navy-400 uppercase tracking-wide">
               Filter by label

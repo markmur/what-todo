@@ -626,7 +626,7 @@ const Todo: React.FC = ({}) => {
 
             <div className="pt-3 pb-4 px-3 bg-white dark:bg-navy-900">
               {!isDesktop && data.labels.length > 0 && (
-                <div className="mb-2">
+                <div className="mb-2 flex justify-end">
                   <MobileLabelFilter
                     labels={data.labels}
                     filters={data.filters}
